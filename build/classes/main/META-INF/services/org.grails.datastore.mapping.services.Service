@@ -1,0 +1,6 @@
+harvard.$DiningHallServiceImplementation
+harvard.$MealServiceImplementation
+harvard.$MenuItemOptionServiceImplementation
+harvard.$MenuItemServiceImplementation
+harvard.$MenuServiceImplementation
+harvard.$UserServiceImplementation
