@@ -2,13 +2,11 @@ package harvard
 
 class MenuItem {
     String name
-    
+    String localId
+
+    static transients = [localId]
     static belongsTo = [Menu]
-    static hasMany = [menus: Menu, menuItemOptions: MenuItemOption]
-    
-    static mapping = {
-      menu joinTable: [name: "mm_menu_menu_items", key: "mm_menu_item_id"]
-    }
+    static hasMany = [menus: Menu, menuItemOptionGroups: MenuItemOptionGroup]
 
     static constraints = {
     

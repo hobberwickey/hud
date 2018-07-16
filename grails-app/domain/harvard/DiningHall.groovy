@@ -9,6 +9,6 @@ class DiningHall {
     static hasMany = [menus: Menu]
 
     static constraints = {
-      active(defaultValue: true)
+      status(defaultValue: true)
     }
 }

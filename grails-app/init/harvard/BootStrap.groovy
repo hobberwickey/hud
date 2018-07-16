@@ -1,9 +1,37 @@
 package harvard
 
-class BootStrap {
+import grails.converters.JSON
 
-    def init = { servletContext ->
+class BootStrap {
+  def init = { servletContext ->
+    JSON.registerObjectMarshaller(Meal) {
+      def returnArray = [:]
+          returnArray['id'] = it.id
+          returnArray['name'] = it.name
+          
+      return returnArray
     }
-    def destroy = {
+
+    JSON.registerObjectMarshaller(MenuItemOptionGroup) {
+      def returnArray = [:]
+          returnArray['id'] = it.id
+          returnArray['name'] = it.name
+          returnArray['ordering'] = it.ordering
+          returnArray['menuItemOptions'] = it.menuItemOptions
+
+      return returnArray
     }
+
+    JSON.registerObjectMarshaller(MenuItemOption) {
+      def returnArray = [:]
+          returnArray['id'] = it.id
+          returnArray['name'] = it.name
+
+      return returnArray
+    }
+  }
+  
+  def destroy = {
+  
+  }
 }

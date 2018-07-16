@@ -46,8 +46,6 @@ class MenuItemController {
                 if (key == "id") {
                     continue
                 } else if (key == "menus") {
-                    println json[key]
-                    
                     def menus = json[key]
                     menus.each { m ->
                         def menu = menuService.get(m["id"])

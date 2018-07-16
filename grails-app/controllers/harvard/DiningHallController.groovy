@@ -8,14 +8,14 @@ class DiningHallController {
 
     DiningHallService diningHallService
 
-    static allowedMethods = [save: "POST", list: "POST", update: "PUT", delete: "DELETE"]
+    static allowedMethods = [save: "POST", update: "PUT", delete: "DELETE"]
 
     def index(Integer max) {
       respond diningHallService.list(params), model:[diningHallCount: diningHallService.count()]
     }
 
     def list(Integer max, Integer page) {
-      render userService.list(params) as JSON
+      render diningHallService.list(params) as JSON
     }
 
 
@@ -41,11 +41,12 @@ class DiningHallController {
 
           if (key == "id") {
             continue
-          }  else {
+          } else {
             diningHall[key] = json.get(key)
           }
         }
       }
+
 
       try {
         diningHallService.save(diningHall)

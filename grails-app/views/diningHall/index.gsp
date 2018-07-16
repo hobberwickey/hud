@@ -6,15 +6,18 @@
 </head>
 <body>
   <div class='admin'>
-    <h2>Users <i className='fa fa-plus' alt='Add User'></i></h2>
+    <h1><span>Locations</span> <a href="/admin/locations/new"><i class='fa fa-plus' alt='Add User'></i></a></h2>
     <div class='content'>
-      <ul class='user-header'>
-        <li><label>HUID</label></li>
-        <li><label>Name</label></li>
-        <li><label>Type</label></li>
-        <li><label>Status</label></li>
+      <ul class='content-header location-header'>
+        <li><label>Name</label></li
+        ><li><label>Semester Start</label></li
+        ><li><label>Semester End</label></li
+        ><li><label>Menus</label></li
+        ><li><label>Status</label></li
+        ><li></li>
       </ul>
-      <ul class='users'>
+
+      <ul class='locations'>
         
       </ul> 
     </div>
@@ -24,6 +27,10 @@
   <script>
     $(function(){
       var locationEditor = new LocationEditor();
+      
+      locationEditor.refreshLocations().then(function(){
+        locationEditor.buildLocations();
+      }.bind(this));
     })
   </script>
 </body>

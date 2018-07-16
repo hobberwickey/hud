@@ -9,12 +9,21 @@ class UrlMappings {
             }
         }
 
+        "/admin/api/meals"(controller: "meal", action: "list")
+        "/admin/api/menus"(controller: "menu", action: "list")
+        "/admin/api/menus/save"(controller: "menu", action: "save")
+        "/admin/api/menu-sections"(controller: "menuSection", action: "list")
+        "/admin/api/menu-sections/save"(controller: "menuSection", action: "save")
+
         "/admin"(controller: "menuItem", action: "index")
         "/admin/api/menu-items"(controller: "menuItem", action: "list")
         "/admin/api/menu-items/save"(controller: "menuItem", action: "save")
         
-        "/admin/api/menus"(controller: "menu", action: "list")
-        "/admin/api/menus/save"(controller: "menu", action: "save")
+        "/admin/menu-item-options"(controller: "menuItemOption", action: "index")
+        "/admin/api/menu-item-options"(controller: "menuItemOptionGroup", action: "list")
+        "/admin/api/menu-item-options/save"(controller: "menuItemOption", action: "save")
+        "/admin/api/menu-item-options/delete"(controller: "menuItemOption", action: "delete")
+        "/admin/api/menu-item-options/ordering"(controller: "menuItemOptionGroup", action: "save")
 
         "/admin/users"(controller: "user", action: "index")
         "/admin/users/${id}"(controller: "user", action: "edit")
@@ -26,7 +35,7 @@ class UrlMappings {
         "/admin/locations/${id}"(controller: "diningHall", action: "edit")
         "/admin/locations/new"(controller: "diningHall", action: "create")
         "/admin/api/locations"(controller: "diningHall", action: "list")
-        "/admin/api/locations"(controller: "diningHall", action: "save")
+        "/admin/api/locations/save"(controller: "diningHall", action: "save")
 
         "500"(view:'/error')
         "404"(view:'/notFound')

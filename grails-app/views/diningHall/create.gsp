@@ -6,7 +6,7 @@
 </head>
 <body>
   <div class='admin'>
-    <h2>Add a Location</h2>
+    <h1>Add a Location</h1>
     <div class='content'>
       <div class='location-form-wrapper'>
         
