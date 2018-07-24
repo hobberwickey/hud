@@ -17,12 +17,14 @@
   <asset:javascript src='user-editor.js' />
   <script>
     $(function(){
-      var userEditor = new UserEditor(),
-          form = userEditor.buildUserForm(null);
-
-      console.log(form)
-      document.querySelector(".user-form-wrapper").appendChild(form);
-    })
+      var userEditor = new UserEditor();
+      
+      Promise.all([
+        userEditor.getLocations()
+      ]).then(function(){
+        userEditor.buildUserForm(null);
+      });
+    });
   </script>
 </body>
 </html>

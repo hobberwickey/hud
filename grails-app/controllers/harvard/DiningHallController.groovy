@@ -20,33 +20,18 @@ class DiningHallController {
 
 
     def show(Long id) {
-      respond diningHallService.get(id)
+      render diningHallService.get(id) as JSON
     }
 
     def create() {
       respond new DiningHall(params)
     }
 
-    def save() {
-      def json = request.JSON
-      def diningHall = diningHallService.get(json.get("id"))
-
+    def save(DiningHall diningHall) {
       if (diningHall == null) {
-        diningHall = new DiningHall(json)
-      } else {
-        def keys = json.keys()
-
-        while (keys.hasNext()) {
-          def key = keys.next()
-
-          if (key == "id") {
-            continue
-          } else {
-            diningHall[key] = json.get(key)
-          }
-        }
+          notFound()
+          return
       }
-
 
       try {
         diningHallService.save(diningHall)

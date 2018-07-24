@@ -1,5 +1,8 @@
 var ItemOptionEditor = function(){
   this.groups = [];
+  this.names = {"dressings": "Salad Dressings", "breads": "Sandwich Breads", "cheeses": "Sandwich Cheese"};
+  this.edits = [];
+
   // this.refreshLocations();
 }
 
@@ -96,8 +99,27 @@ ItemOptionEditor.prototype.saveOrdering = function(group_id) {
   }
 }
 
-ItemOptionEditor.prototype.openEditOption = function(group_id, option_id) {
-  console.log(group_id, option_id)
+ItemOptionEditor.prototype.openEditOption = function(group, option) {
+  this.edits.push(option.id);
+  this.buildOptionGroup(group);
+
+  document.querySelector(".group-item-" + (option.id || option.localId) + " input").select();
+}
+
+ItemOptionEditor.prototype.editOption = function(group, option) {
+  var input = document.querySelector(".group-item-" + option.id + " input");
+
+  if (!!input) {
+    option.name = input.value;
+    this.edits.splice(this.edits.indexOf(option.id || option.localId), 1)
+    this.buildOptionGroup(group, true)    
+    this.saveGroup(group)
+  }
+}
+
+ItemOptionEditor.prototype.cancelEditOption = function(group, option) {
+  this.edits.splice(this.edits.indexOf(option.id || option.localId), 1);
+  this.buildOptionGroup(group, true)
 }
 
 ItemOptionEditor.prototype.removeOption = function(group_id, option_id) {
@@ -122,19 +144,27 @@ ItemOptionEditor.prototype.buildOptionGroup = function(group) {
       wrapper = parent.querySelector(".group-" + group.id);
 
   var struct = {tag: "li", attributes: {className: "sortable-list group group-" + group.id }, children: [
-    {tag: "h2", attributes: {text: group.name}, children: []},
-    {tag: "ul", attributes: {className: "sortable-list-items group-items"}, children: (group.ordering.split(",") || []).map(function(id, j){
+    {tag: "h2", attributes: {text: this.names[group.name]}, children: []},
+    {tag: "ul", attributes: {className: "sortable-list-items group-items"}, children: (group.ordering || "").split(",").map(function(id, j){
       var option = group.menuItemOptions.filter(function(option){ return parseInt(id, 10) === option.id })[0];
       if (!option) {
         return {tag: "li", attributes: {className: "empty"}}
       } else {
-        var move = Utils.initMove.bind(null, "group", "group-item", group.id, option.id, this.saveOrdering.bind(this, group.id))
+        var move = Utils.initMove.bind(null, "group", "group-item", group.id, option.id, this.saveOrdering.bind(this, group.id)),
+            editClass = this.edits.indexOf(option.id || option.localId) === -1 ? "" : "editing" 
 
-        return {tag: "li", attributes: {className: "sortable-list-item group-item group-item-" + option.id, dataId: option.id}, children: [
-          {tag: "i", attributes: {className: "fa fa-arrows group-item-move", onMouseDown: move}, children: []},
+        return {tag: "li", attributes: {className: editClass + " sortable-list-item group-item group-item-" + option.id, dataId: option.id}, children: [
+          {tag: "i", attributes: {className: "fa fa-arrows move", onMouseDown: move}, children: []},
           {tag: "div", attributes: {className: "group-item-name", text: option.name}, children: []},
-          {tag: "i", attributes: {className: "fa fa-edit group-item-edit", onClick: this.openEditOption.bind(this, group.id, option.id)}, children: []},
-          {tag: "i", attributes: {className: "fa fa-trash-o group-item-remove", onClick: this.removeOption.bind(this, group.id, option.id), children: []}}
+          {tag: "div", attributes: {className: "item-editor"}, children: [
+            {tag: "input", attributes: {className: "item-edit", type: "text", value: option.name}},
+            {tag: "div", attributes: {className: "item-edit-controls"}, children: [
+              {tag: "i", attributes: {className: "fa fa-check confirm", onClick: this.editOption.bind(this, group, option)}},
+              {tag: "i", attributes: {className: "fa fa-times cancel", onClick: this.cancelEditOption.bind(this, group, option)}}
+            ]}
+          ]},
+          {tag: "i", attributes: {className: "fa fa-edit edit", onClick: this.openEditOption.bind(this, group, option)}, children: []},
+          {tag: "i", attributes: {className: "fa fa-trash-o remove", onClick: this.removeOption.bind(this, group.id, option.id), children: []}}
         ]}
       }
     }.bind(this))},
@@ -150,8 +180,6 @@ ItemOptionEditor.prototype.buildOptionGroup = function(group) {
 
   var html = Utils.buildHTML(struct);
   
-  console.log(html)
-
   if (wrapper !== null){
     wrapper.parentNode.insertBefore(html, wrapper);
     wrapper.parentNode.removeChild(wrapper);

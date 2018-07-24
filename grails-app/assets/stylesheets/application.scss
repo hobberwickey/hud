@@ -36,6 +36,7 @@ $light-grey: #9B9B9B;
 $theme-red: #a51c30;
 $theme-blue: #4E84C4;
 $theme-orange: #f15b29;
+$theme-green: #519F4F;
 
 body {
   background-color: $bg-color;
@@ -89,12 +90,11 @@ body {
     display: block;
     width: 1020px;
     max-width: 100%;
-    margin: 0px auto;
-    background-color: white;
-    border: 1px solid #ccc;
+    margin: 0px auto 0px auto;
+    padding-bottom: 60px;
     border-radius: 3px;
     display: block;
-    overflow: auto;
+    overflow: visible;
 
     .content-header {
       background-color: $theme-orange;
@@ -136,6 +136,38 @@ body {
           }
         }
       }
+
+      &.menu-header {
+        li {
+          &:first-child {
+            width: 80%;
+          }
+
+          &:last-child {
+            width: 20%;
+          }
+        }
+      }
+
+      &.user-header {
+        li {
+          &:first-child {
+            width: 20%;
+          }
+
+          &:nth-child(2){
+            width: 30%;
+          }
+
+          &:nth-child(3) {
+            width: 30%;
+          }
+
+          &:nth-child(n+4){
+            width: 10%;
+          }
+        }
+      }
     }
 
     .sortable-lists {
@@ -168,13 +200,47 @@ body {
           .sortable-list-item {
             opacity: 0.6;
             border-top: solid 1px #ccc;
-            padding: 5px 0px;
+            padding: 5px 80px 5px 40px;
+            width: 80%;
 
-            .menu-item-name, .group-item-name {
+            &:first-child {
+              border-top: none;
+            }
+
+            .menu-item-name, .group-item-name, .item-editor {
               display: inline-block;
               width: 100%;
               vertical-align: middle;
-              width: 300px;
+            }
+
+
+
+            .item-editor {
+              display: none;
+              padding-right: 40px;
+
+              input {
+                width: 100%;
+                font-size: 14px;
+                border: none;
+                padding: 6px 4px;
+                margin-left: -4px;
+                margin-right: 4px;
+              }
+
+              .item-edit-controls {
+                display: inline-block;
+                vertical-align: middle;
+                margin-right: -80px;
+
+                .confirm {
+                  color: $theme-green;
+                }
+
+                .cancel {
+                  color: $theme-red;
+                }
+              }
             }
 
             i {
@@ -184,6 +250,59 @@ body {
               font-size: 24px;
               line-height: 40px;
               vertical-align: middle;
+              position: relative;
+
+              &.move {
+                margin-left: -40px;
+              }
+
+              &.edit {
+                margin-right: -40px;
+                margin-bottom: -5px;
+              }
+
+              &.remove {
+                left: 80px;
+                margin-left: -40px;
+              }
+            }
+
+            &.editing {
+              .menu-item-name, .group-item-name {
+                display: none;
+              }
+
+              .item-editor {
+                display: inline-block;
+              }
+
+              i.edit {
+                display: none;
+              }
+            }
+          }
+        
+          &.menu-list {
+            .sortable-list-item {
+              padding-right: 200px;
+
+              .menu-item-options {
+                display: inline-block;
+                vertical-align: middle;
+                width: 120px;
+                margin-right: -200px;
+
+                i.active {
+                  color: $theme-orange;
+                }
+              }
+
+              .actions {
+                display: inline-block;
+                vertical-align: middle;
+                width: 80px;
+                margin-right: -200px;
+              }
             }
           }
         }
@@ -203,6 +322,16 @@ body {
 
 form {
   padding: 30px 20px 10px 20px;
+  position: relative;
+  background-color: white;
+  border: 1px solid #ccc;
+    
+
+  &.location-form {
+    .status {
+      margin-bottom: 0px;
+    }
+  }
 
   .input-wrapper {
     margin-bottom: 5px;
@@ -237,7 +366,7 @@ form {
         color: white;
       }
 
-      &[type="radio"] {
+      &[type="radio"], &[type="checkbox"] {
         width: 100%;
         height: 100%;
         opacity: 0;
@@ -316,7 +445,7 @@ form {
       }
     }
 
-    &.radio {
+    &.radio, &.checkbox {
       display: inline-block;
       vertical-align: middle;
       margin-right: 10px; 
@@ -344,13 +473,14 @@ form {
 
   .btns {
     position: absolute;
-    bottom: -70px;
+    bottom: -53px;
     margin-left: -20px;
-
     
     .btn {
       border-radius: 20px;
       min-width: 100px;
+      margin-bottom: 0px;
+      margin-top: 0px;
     }
 
     .confirm {
@@ -385,7 +515,7 @@ form {
 
 .admin {
   .content {
-    ul.locations {
+    ul.admin-list {
       li.info-list {
         &:nth-child(even){
           background-color: $bg-color;
@@ -406,22 +536,6 @@ form {
           &:last-child {
             border-right: none;
           }
-
-          &:first-child {
-            width: 10%;
-          }
-
-          &:nth-child(n+2):nth-child(-n+3) {
-            width: 15%;
-          }
-
-          &:nth-child(4) {
-            width: 30%;
-          }
-
-          &:nth-child(5) {
-            width: 10%;
-          }
         }
 
         .action {
@@ -431,6 +545,64 @@ form {
           i {
             color: $theme-orange;
             font-size: 20px;
+          }
+        }
+      }
+
+      &.locations {
+        li.info-list {
+          & > div {
+            &:first-child {
+              width: 10%;
+            }
+
+            &:nth-child(n+2):nth-child(-n+3) {
+              width: 15%;
+            }
+
+            &:nth-child(4) {
+              width: 30%;
+            }
+
+            &:nth-child(5) {
+              width: 10%;
+            }
+          }
+        }
+      }
+
+      &.menus {
+        li.info-list {
+          & > div {
+            &:first-child {
+              width: 80%;
+            }
+
+            &:nth-child(n+2) {
+              width: 10%;
+            }
+          }
+        }
+      }
+
+      &.users {
+        li.info-list {
+          & > div {
+            &:first-child {
+              width: 20%;
+            }
+
+            &:nth-child(2){
+              width: 30%;
+            }
+
+            &:nth-child(3) {
+              width: 30%;
+            }
+
+            &:nth-child(n+4){
+              width: 10%;
+            }
           }
         }
       }

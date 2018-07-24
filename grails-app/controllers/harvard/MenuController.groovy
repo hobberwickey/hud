@@ -8,6 +8,9 @@ import static org.springframework.http.HttpStatus.*
 class MenuController {
 
     MenuService menuService
+    MealService mealService
+    MenuItemService menuItemService 
+    MenuSectionService menuSectionService 
 
     static allowedMethods = [save: "POST", update: "PUT", delete: "DELETE"]
 
@@ -21,41 +24,51 @@ class MenuController {
     }
 
     def show(Long id) {
-      respond menuService.get(id)
+      def menu = menuService.get(id)
+          menu.meal =mealService.get(menu.mealId)
+      
+      render menu as JSON
     }
 
     def create() {
       respond new Menu(params)
     }
 
-    def save() {
-      def json = request.JSON
-      def menu = menuService.get(json.get("id"))
+    def save(Menu menu) {
+      try {
+        def savedMenu = menuService.save(menu) //.save(flush: true, failOnError: true)
 
-      if (menu == null) {
-        menu = new Menu(json)
-      } else {
-        def keys = json.keys()
+        savedMenu.menuSections.each { s -> 
+          def newOrder = []
+          (s.ordering ?: "").tokenize( ',' ).each { id -> 
+            s.menuItems.each { mi -> 
+              println s.name + " - " + id + ", " + mi["id"] + ", " + mi["localId"]
 
-        while (keys.hasNext()) {
-          def key = keys.next()
+              if (mi["id"].toString() == id || mi["localId"] == id) {
+                newOrder.push(mi["id"])
+              }
+            }
+          }
 
-          if (key == "id") {
-            continue
-          }  else {
-            menu[key] = json.get(key)
+          println s.name + " " + s.ordering
+          s.ordering = newOrder.join(",")
+          println s.name + " " + s.ordering
+
+          try {
+            menuSectionService.save(s)
+          } catch (ValidationException e) {
+            render s.errors as JSON
+            return
           }
         }
-      }
 
-      try {
-        menuService.save(menu)
+        render menuService.get(savedMenu.id) as JSON
       } catch (ValidationException e) {
         render menu.errors as JSON
         return
       }
 
-      render menu as JSON
+      // return menu as JSON
     }
 
     def edit(Long id) {

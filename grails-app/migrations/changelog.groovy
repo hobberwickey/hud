@@ -7,4 +7,11 @@ databaseChangeLog = {
     include file: 'remove_type_from_group_options.groovy'
     include file: 'fix_menu_items_options.groovy'
     include file: 'create_menu_sections.groovy'
+    include file: 'remove_menu_items_from_menus.groovy'
+    include file: 'fix_menu_meals.groovy'
+    include file: 'add_menu_items_to_menu_sections.groovy'
+    include file: 'persisting_local_id.groovy'
+    include file: 'persisting_local_id.groovy'
+    include file: 'all_null_local_id.groovy'
+    include file: 'change_ordering_to_text.groovy'
 }

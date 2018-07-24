@@ -28,35 +28,14 @@ class MenuItemOptionController {
       respond new MenuItemOption(params)
     }
 
-    def save() {
-      def json = request.JSON
-      println request.JSON
-      def mio = menuItemOptionService.get(json.get("id"))
-
-      if (mio == null) {
-        mio = new MenuItemOption(json)
-      } else {
-        def keys = json.keys()
-
-        while (keys.hasNext()) {
-          def key = keys.next()
-
-          if (key == "id" || key == "menuItemOptionGroups") {
-              continue
-          } else {
-              mio[key] = json.get(key)
-          }
-        }
-      }
-
+    def save(MenuItemOption mio) {
       try {
-        menuItemOptionService.save(mio)
+        def savedMenuItem = menuItemOptionService.save(mio)
+        render savedMenuItem as JSON
       } catch (ValidationException e) {
         render mio.errors as JSON
         return
       }
-
-      render mio as JSON
     }
 
     def edit(Long id) {

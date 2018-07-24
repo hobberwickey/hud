@@ -6,7 +6,7 @@
 </head>
 <body>
   <div class='admin'>
-    <h1><span>Locations</span> <a href="/admin/locations/new"><i class='fa fa-plus' alt='Add User'></i></a></h2>
+    <h1><span>Locations</span> <a href="/admin/locations/new"><i class='fa fa-plus' alt='Add Location'></i></a></h2>
     <div class='content'>
       <ul class='content-header location-header'>
         <li><label>Name</label></li
@@ -17,7 +17,7 @@
         ><li></li>
       </ul>
 
-      <ul class='locations'>
+      <ul class='locations admin-list'>
         
       </ul> 
     </div>

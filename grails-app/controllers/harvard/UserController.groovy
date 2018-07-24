@@ -22,33 +22,14 @@ class UserController {
     }
 
     def show(Long id) {
-        respond userService.get(id)
+        render userService.get(id) as JSON
     }
 
     def create() {
         respond new User(params)
     }
 
-    def save() {
-      def json = request.JSON
-      def user = userService.get(json.get("id"))
-
-      if (user == null) {
-        user = new User(json)
-      } else {
-        def keys = json.keys()
-
-        while (keys.hasNext()) {
-          def key = keys.next()
-
-          if (key == "id") {
-            continue
-          }  else {
-            user[key] = json.get(key)
-          }
-        }
-      }
-
+    def save(User user) {
       try {
         userService.save(user)
       } catch (ValidationException e) {

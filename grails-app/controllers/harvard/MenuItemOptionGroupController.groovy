@@ -9,6 +9,7 @@ class MenuItemOptionGroupController {
 
     MenuItemOptionGroupService menuItemOptionGroupService
     MenuItemOptionService menuItemOptionService
+    // ObjectMergerService objMerger = new ObjectMergerService()
 
     static allowedMethods = [save: "POST"]
     
@@ -16,46 +17,16 @@ class MenuItemOptionGroupController {
       render menuItemOptionGroupService.list(params) as JSON
     }
 
-    def save() {
-      def json = request.JSON
-      def group = menuItemOptionGroupService.get(json.get("id"))
-
-      if (group == null) {
-        group = new MenuItemOptionGroup(json)
-      } else {
-        def keys = json.keys()
-
-        while (keys.hasNext()) {
-          def key = keys.next()
-
-          if (key == "id" || key == "menuItemOptions") {
-            continue
-          } else {
-            group[key] = json.get(key)
-          }
-        }
-      }
-
-      json.get("menuItemOptions").each { o ->
-        def item = menuItemOptionService.get(o["id"])
-        
-        if (group != null) {
-          if (o["deleted"] != true) {
-            group.addToMenuItemOptions(item)
-          } else {
-            group.removeFromMenuItemOptions(item)
-          }
-        }
-      }
-
+    def save(MenuItemOptionGroup group) {
       try {
-        menuItemOptionGroupService.save(group)
+        def savedOptions = menuItemOptionGroupService.save(group)
+        render savedOptions as JSON
       } catch (ValidationException e) {
         render group.errors as JSON
         return
-      }
+      } 
 
-      render json as JSON
+      render group as JSON     
     }
 
     protected void notFound() {

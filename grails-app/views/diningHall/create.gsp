@@ -17,10 +17,13 @@
   <asset:javascript src='location-editor.js' />
   <script>
     $(function(){
-      var locationEditor = new LocationEditor(),
-          form = locationEditor.buildLocationForm(null);
-
-      document.querySelector(".location-form-wrapper").appendChild(form);
+      var locationEditor = new LocationEditor();
+          
+      Promise.all([
+        locationEditor.refreshMenus()
+      ]).then(function(){
+        locationEditor.buildLocationForm(null)  
+      });
     })
   </script>
 </body>

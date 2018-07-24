@@ -3,13 +3,16 @@ package harvard
 class Menu {
     String name
     String localId
+    Meal meal
 
-    static transients = [localId]
-
-    static belongsTo = [Meal, MenuItem]
-    static hasMany = [menuItems: MenuItem, menuSections: MenuSection]
+    static belongsTo = [meal:Meal]
+    static hasMany = [menuSections: MenuSection]
     
     static constraints = {
-      
+      localId(blank: true, nullable: true)
+    }
+
+    def afterSave() {
+      println this
     }
 }
