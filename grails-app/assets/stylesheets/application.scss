@@ -38,6 +38,8 @@ $theme-blue: #4E84C4;
 $theme-orange: #f15b29;
 $theme-green: #519F4F;
 
+$light-blue: #EDF3F9;
+
 body {
   background-color: $bg-color;
   color: $text-color;
@@ -368,9 +370,10 @@ form {
 
       &[type="radio"], &[type="checkbox"] {
         width: 100%;
-        height: 100%;
+        height: 2.4em;
         opacity: 0;
         position: absolute;
+        margin: 0px;
 
         &:focus {
           & + label {
@@ -395,6 +398,7 @@ form {
           text-align: center;
           cursor: pointer;
           font-size: 14px;
+          height: 2.4em;
 
           line-height: initial;
           font-weight: initial;
@@ -402,10 +406,43 @@ form {
           font-family: 'Open Sans', sans-serif;
         }
 
+        & + a {
+          position: relative;
+          display: inline-block;
+          vertical-align: middle;
+
+
+          label {
+            padding: 6px 12px;
+            border: 1px solid #ccc;
+            background-color: #fff;
+            color: #000;
+            list-style: none;
+            border-radius: 5px;
+            float: left;
+            text-align: center;
+            cursor: pointer;
+            font-size: 14px;
+            height: 2.4em;
+
+            line-height: initial;
+            font-weight: initial;
+            margin: 0;
+            font-family: 'Open Sans', sans-serif;
+          }
+        }
+
         &:checked {
           & + label {
             background-color: $theme-orange;
             color: white;
+          }
+
+          & + a {
+            label {
+              background-color: $theme-orange;
+              color: white;
+            }
           }
         }
       }
@@ -602,6 +639,91 @@ form {
 
             &:nth-child(n+4){
               width: 10%;
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+.public {
+  display: block;
+  width: 1020px;
+  max-width: 100%;
+  margin: 0px auto 0px auto;
+  padding-bottom: 60px;
+  border-radius: 3px;
+  display: block;
+  overflow: visible;
+
+  form.order-form {
+    padding: 0px;
+
+    .section {
+      padding: 20px;
+
+      &:nth-child(odd){
+        background-color: white;
+      }
+
+      &:nth-child(even){
+        background-color: #f2f2f2;
+      }
+
+      .repeat-date {
+        display: inline-block;
+        vertical-align: middle;
+
+        input {
+          height: 2.4em;
+          margin-bottom: 0px;
+        }
+      }
+
+      .menu-list {
+        li {
+          .menu-item {
+            width: 100%;
+
+            label {
+              width: 100%;
+              float: none;
+              text-align: left;
+            }
+
+            input {
+              & ~ div {
+                display: none;
+                border: solid 1px #ccc;
+                background-color: #EDF3F9;
+                padding: 6px 12px;
+                border-radius: 5px;
+                margin-top: 5px;
+
+                h3 {
+                  margin: 0;
+                }
+
+                .options-group {
+                  padding: 0px 0px;
+
+                  .option {
+                    display: inline-block; 
+                    vertical-align: middle;
+
+                    .input-wrapper {
+                      margin: 5px 5px 5px 0px;
+                    }
+                  }
+                }
+              }
+          
+              &:checked {
+                & ~ div {
+                  display: block;
+                }
+              }
             }
           }
         }

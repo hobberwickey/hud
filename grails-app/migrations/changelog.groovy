@@ -11,7 +11,12 @@ databaseChangeLog = {
     include file: 'fix_menu_meals.groovy'
     include file: 'add_menu_items_to_menu_sections.groovy'
     include file: 'persisting_local_id.groovy'
-    include file: 'persisting_local_id.groovy'
     include file: 'all_null_local_id.groovy'
     include file: 'change_ordering_to_text.groovy'
+    include file: 'create_orders_and_menu_selections.groovy'
+    include file: 'fix_orders.groovy'
+    include file: 'add_dining_halls_to_menus.groovy'
+    include file: 'fix_menu_dining_halls.groovy'
+    include file: 'abstract_pickup_times.groovy'
+    include file: 'rename_order_to_orders.groovy'
 }

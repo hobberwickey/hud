@@ -160,7 +160,7 @@ ItemEditor.prototype.toggleGroup = function(section, item, group, e) {
 }
 
 ItemEditor.prototype.hasGroup = function(item, group) {
-  return !!item.menuItemOptionGroups.filter(function(g){ return g.id === group.id })[0];
+  return !!item.menuItemOptionGroups && !!item.menuItemOptionGroups.filter(function(g){ return g.id === group.id })[0];
 }
 
 ItemEditor.prototype.reorder = function(section){

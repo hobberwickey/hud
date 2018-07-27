@@ -7,7 +7,10 @@ class UrlMappings {
             constraints {
                 // apply constraints here
             }
-        }
+        }   
+
+        "/myhuds/orders/${mealType}"(controller: "orders", action: "create")
+        "/myhuds/orders/${mealType}/save"(controller: "orders", action: "saveLunch")
 
         "/admin"(controller: "menuItem", action: "index")
 

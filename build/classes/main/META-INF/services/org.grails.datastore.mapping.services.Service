@@ -5,4 +5,5 @@ harvard.$MenuItemOptionServiceImplementation
 harvard.$MenuItemServiceImplementation
 harvard.$MenuSectionServiceImplementation
 harvard.$MenuServiceImplementation
+harvard.$OrdersServiceImplementation
 harvard.$UserServiceImplementation

@@ -5,8 +5,8 @@ class Menu {
     String localId
     Meal meal
 
-    static belongsTo = [meal:Meal]
-    static hasMany = [menuSections: MenuSection]
+    static belongsTo = [Meal,DiningHall]
+    static hasMany = [menuSections: MenuSection, orders: Orders, diningHalls : DiningHall]
     
     static constraints = {
       localId(blank: true, nullable: true)

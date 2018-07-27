@@ -1,6 +1,6 @@
 var ItemOptionEditor = function(){
   this.groups = [];
-  this.names = {"dressings": "Salad Dressings", "breads": "Sandwich Breads", "cheeses": "Sandwich Cheese"};
+  this.names = {"Dressing": "Salad Dressings", "Bread": "Sandwich Breads", "Cheese": "Sandwich Cheese"};
   this.edits = [];
 
   // this.refreshLocations();

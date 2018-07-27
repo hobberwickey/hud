@@ -9,7 +9,7 @@ class User {
   boolean active
   boolean blocked
 
-  static hasMany = [diningHalls: DiningHall]
+  static hasMany = [DiningHall, Orders]
     
 
   static constraints = {

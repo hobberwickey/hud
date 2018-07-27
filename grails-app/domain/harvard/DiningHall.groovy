@@ -6,7 +6,7 @@ class DiningHall {
     Date    closingDate
     boolean status
 
-    static hasMany = [menus: Menu]
+    static hasMany = [menus: Menu, orders: Orders]
 
     static constraints = {
       status(defaultValue: true)

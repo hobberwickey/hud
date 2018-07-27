@@ -5,7 +5,7 @@ class MenuItem {
     String localId
 
     static belongsTo = [Menu]
-    static hasMany = [menus: Menu, menuItemOptionGroups: MenuItemOptionGroup]
+    static hasMany = [menus: Menu, menuItemOptionGroups: MenuItemOptionGroup, menuSelections: MenuSelection]
 
     static constraints = {
       localId(blank: true, nullable: true)
