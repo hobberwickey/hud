@@ -12,43 +12,80 @@ class Helpers {
         this.params = params
     }
 
+    def availableDates() {
+      def dates = [] 
+      def now = new Date()
+          now.set(hourOfDay: 7, minute: 0, second: 0)
+      
+      for (def i=0; i<7; i++){            
+        def date
+        use(TimeCategory) { date = now + (1 + i).days }
+
+        dates.push(date)
+      }
+
+      return dates
+    }
+
+    def availableTimes() {
+      def times = []
+
+      def now = new Date()
+          now.set(hourOfDay: 7, minute: 0, second: 0)
+
+      for (def i=0; i<21; i++){
+        def time
+        def hour = (int)(i / 2)
+
+        if (i % 2 == 0) {
+          use(TimeCategory) { time = now + hour.hour }
+        } else {
+          use(TimeCategory) { time = now + hour.hour + 30.minutes }
+        }
+
+        times.push(time)
+      }
+
+      return times
+    }
+
     def replaceParam(key, value) {
-        def newParams = [:]
-        def ignoredKeys = ["controller", "action"]
+      def newParams = [:]
+      def ignoredKeys = ["controller", "action"]
 
-        this.params.each{ k, v ->
-           if (ignoredKeys.contains(k)){
-                return
-            }
-
-            if (k == key) {
-                newParams[k] = value
-            } else {
-                newParams[k] = v
-            }
+      this.params.each{ k, v ->
+        if (ignoredKeys.contains(k)){
+          return
         }
 
-        if (!newParams.containsKey(key)){
-            newParams[key] = value
+        if (k == key) {
+          newParams[k] = value
+        } else {
+          newParams[k] = v
         }
+      }
 
-        return this.toQueryString(newParams)
+      if (!newParams.containsKey(key)){
+        newParams[key] = value
+      }
+
+      return this.toQueryString(newParams)
     }
 
     def toQueryString(params) {
-        def parts = []
+      def parts = []
 
-        params.each{ k, v -> 
-            parts.push(k + "=" + v)
-        }
+      params.each{ k, v -> 
+        parts.push(k + "=" + v)
+      }
 
-        return "?" + parts.join("&")
+      return "?" + parts.join("&")
     }
 
     def isSameDate(date1, date2) {
-        if (date1 == null || date2 == null) return false
+      if (date1 == null || date2 == null) return false
 
-        return date1.format("yyyy-MM-dd HH:mm:ss") == date2.format("yyyy-MM-dd HH:mm:ss")
+      return date1.format("yyyy-MM-dd HH:mm:ss") == date2.format("yyyy-MM-dd HH:mm:ss")
     }
 }
 
@@ -82,7 +119,7 @@ class OrderHelper {
     def getOptions(key) {
       return this.params.list(key).collect{ id -> 
         return MenuItemOption.get(id.toInteger())
-      }.removeAll { !it }
+      }
     }
 
     def createMenuSelection(item, options) {
@@ -97,25 +134,41 @@ class OrderHelper {
 
     }
 
-    def getMain(group) {
+    def getMain(section) {
       def main
-      def options
-      def selection
-      def mains = this.getMenuItem("section." + group.id + ".menuItems")
-      println mains
-      println "MAINS"
-      if (mains.size() >  1){
-        throw new RuntimeException("Only one sandwich or salad can be selected")
-      } else if (mains.size() == 0) {
-        throw new RuntimeException("One sandwich or salad must be selected")
+      def options = []
+      def mains = this.getMenuItem("section." + section.id + ".menuItems")
+      
+      if (mains[0] == null) {
+        return null
       } else {
-        if (mains[0] == null) {
-          throw new RuntimeException("Please select one sandwich or salad")
-        } else {
-          main = mains[0]
+        main = mains[0]
+      }
+    
+      if (main != null && main.menuItemOptionGroups.size() > 0){
+        main.menuItemOptionGroups.each{ group -> 
+          def option = this.getOptions("group." + group.id + ".menuItem." + main.id)
+
+          if (option.size() > 0) {
+            options.push(option[0])
+          }
         }
       }
 
+      return this.createMenuSelection(main, options)
+    }
+
+    def getBeverage(section) {
+      def main
+      def options
+      def mains = this.getMenuItem("section." + section.id + ".menuItems")
+      
+      if (mains[0] == null) {
+        return null
+      } else {
+        main = mains[0]
+      }
+    
       if (main != null && main.menuItemOptionGroups.size() > 0){
         options = this.getOptions("group." + group.id + ".menuItem." + main.id)
       }
@@ -123,12 +176,22 @@ class OrderHelper {
       return this.createMenuSelection(main, options)
     }
 
-    def getBeverage(group) {
+    def getSnack(section, snackIndex) {
+      def main
+      def options
+      def mains = this.getMenuItem("snack." + snackIndex + ".section." + section.id + ".menuItems")
+      
+      if (mains[0] == null) {
+        return null
+      } else {
+        main = mains[0]
+      }
+    
+      if (main != null && main.menuItemOptionGroups.size() > 0){
+        options = this.getOptions("group." + group.id + ".menuItem." + main.id)
+      }
 
-    }
-
-    def getSnacks(group) {
-
+      return this.createMenuSelection(main, options)
     }
 }
 
@@ -147,144 +210,110 @@ class OrdersController {
     }
 
     def show(Long id) {
-        respond ordersService.get(id)
+        render ordersService.get(id) as JSON
     }
 
     def create(String mealType) {
-        def dates = [] 
-        def times = []
-
-        def now = new Date()
-            now.set(hourOfDay: 7, minute: 0, second: 0)
         
-        for (def i=0; i<7; i++){            
-            def date
-            use(TimeCategory) { date = now + (1 + i).days }
-
-            dates.push(date)
-        }
-
-        for (def i=0; i<21; i++){
-            def time
-            def hour = (int)(i / 2)
-
-            if (i % 2 == 0) {
-                use(TimeCategory) { time = now + hour.hour }
-            } else {
-                use(TimeCategory) { time = now + hour.hour + 30.minutes }
-            }
-
-            times.push(time)
-        }
-
-        def selectedDate
-        def selectedTime
-        def selectedDiningHall
-        def selectedMenu
-        def selectedMeal = Meal.findByName("Lunch")
-        
-        //// Meal ////
-        
-        //// Pickup date / time ////
-        if (params.containsKey("pickupDate")) {
-            selectedDate = new Date(params.pickupDate)
-        }
-
-        if (params.containsKey("pickupTime")) {
-            selectedTime = new Date(params.pickupTime)
-        }
-
-        //// Dining Halls ////
-        def openDiningHalls
-        def allDiningHalls = diningHallService.list()
-        if (params.pickupDate) {
-            openDiningHalls = DiningHall.findAll{ openingDate <= selectedDate && closingDate >= selectedDate }
-        }
-
-        if (params.containsKey("diningHallId")) {
-            selectedDiningHall = diningHallService.get(params.diningHallId)
-        }
-
-        if (selectedDiningHall != null) {
-            selectedMenu = Menu.withCriteria() {
-                diningHalls {
-                    idEq(selectedDiningHall.id)
-                }
-
-                meal {
-                    idEq(selectedMeal.id)
-                }
-            }[0]
-
-            selectedMenu.menuSections.each{ section -> 
-                if (section.ordering != "" && section.ordering != null) {
-                    def ordering = section.ordering.split(",").collect{ it.toInteger() }
-                    section.menuItems.sort{ a, b -> ordering.indexOf(a.id) <=> ordering.indexOf(b.id) }
-                }
-            }
-        }
-
-        respond new Orders(params), model:[
-            dates: dates, 
-            times: times, 
-            locations: allDiningHalls, 
-            availableLocations: openDiningHalls,
-
-            selectedMeal: selectedMeal,
-            selectedDate: selectedDate,
-            selectedTime: selectedTime,
-            selectedLocation: selectedDiningHall,
-            selectedMenu: selectedMenu, 
-
-            helpers: new Helpers(params)
-        ]
-    }
-
-    def save(String mealType) {
       def order = new Orders([:])
-      def errors = [:]
-      def helper = new OrderHelper(params)
-
       def selectedMeal = Meal.findByName(mealType.capitalize())
-
-      //TEMP
-      def user = User.list().first()
-      order.user = user
-
-      println params
-      println "Params"
+      
       //// Pickup date / time ////
       def orderPickup = new OrderPickup()
       if (params.containsKey("pickupDate")) {
           orderPickup.pickupDate = new Date(params.pickupDate)
-      } else {
-          errors["pickup_date"] = "You must selected a pick up date"
       }
 
       if (params.containsKey("pickupTime")) {
           orderPickup.pickupTime = new Date(params.pickupTime)
-      } else {
-          errors["pickup_time"] = "You must select a pick up time"
-      }
+      } 
 
-      println orderPickup
-      println "Order Pickup"
+
+      //// Dining Halls ////
       if (orderPickup.pickupDate != null && orderPickup.pickupTime != null) {
         order.addToOrderPickups(orderPickup)
 
         if (params.containsKey("diningHallId")) {
           order.diningHall = DiningHall.withCriteria() {
-            // and {
-              eq("id", params.diningHallId.toLong())
-              lt("openingDate", orderPickup.pickupDate)
-              gt("closingDate", orderPickup.pickupDate)
-            // }
+            eq("id", params.diningHallId.toLong())
+            lt("openingDate", orderPickup.pickupDate)
+            gt("closingDate", orderPickup.pickupDate)
+          }[0]
+        }
+      } 
+
+      def openDiningHalls
+      def allDiningHalls = diningHallService.list()
+      if (params.pickupDate) {
+          openDiningHalls = DiningHall.findAll{ openingDate <= orderPickup.pickupDate && closingDate >= orderPickup.pickupDate }
+      }
+
+      if (order.diningHall != null) {
+        order.menu = Menu.withCriteria() {
+          diningHalls {
+            idEq(order.diningHall.id)
+          }
+
+          meal {
+            idEq(selectedMeal.id)
+          }
+        }[0]
+
+        if (order.menu != null) {
+          ["breakfast", "sandwiches-salads", "beverages", "snacks"].each{ name -> 
+            
+          }
+
+          order.menu.menuSections.each{ section -> 
+            if (section.ordering != "" && section.ordering != null) {
+              //TODO: not working
+              def ordering = section.ordering.split(",").collect{ it.toInteger() }
+              section.menuItems.sort{ a, b -> ordering.indexOf(a.id) <=> ordering.indexOf(b.id) }
+            }
+          }
+        }
+      }
+
+      respond order, model:[
+        order: order,
+        allLocations: allDiningHalls, 
+        availableLocations: openDiningHalls,
+        orderPickup: orderPickup,
+
+        helpers: new Helpers(params)
+      ]
+    }
+
+    def save(String id) {
+      def order = new Orders([:])
+      def errors = [:]
+      def helper = new OrderHelper(params)
+
+      def selectedMeal = Meal.findByName(id.capitalize())
+
+      //TEMP
+      def user = User.list().first()
+      order.user = user
+
+      def orderPickup = new OrderPickup()
+      if (params.containsKey("pickupDate")) {
+        orderPickup.pickupDate = new Date(params.pickupDate)
+      }
+
+      if (params.containsKey("pickupTime")) {
+        orderPickup.pickupTime = new Date(params.pickupTime)
+      } 
+
+      if (orderPickup.pickupDate != null && orderPickup.pickupTime != null) {
+        order.addToOrderPickups(orderPickup)
+
+        if (params.containsKey("diningHallId")) {
+          order.diningHall = DiningHall.withCriteria() {
+            eq("id", params.diningHallId.toLong())
+            lt("openingDate", orderPickup.pickupDate)
+            gt("closingDate", orderPickup.pickupDate)
           }[0]
 
-          println params.diningHallId.toLong()
-          println orderPickup.pickupDate
-          println order.diningHall
-          println "Dining Hall"
         } else {
           errors["dining_hall"] = "You must select a pick up location"
         }
@@ -301,22 +330,38 @@ class OrdersController {
           }
         }[0]
 
-        println order.menu
-        println "Menu"
         order.menu.menuSections.each{ section -> 
           switch (section.name) {
+            case "breakfast":
+              def items = helper.getMain(section)
+              if (items != null) {
+                for (def i=0; i<items.size(); i++){
+                  order.addToMenuSelections(items[i])
+                }
+              }
+
+              break
             case "sandwiches-salads":
               def main = helper.getMain(section)
-              println main
-              order.addToMenuSelections(main)
+              if (main != null) {
+                order.addToMenuSelections(main)
+              }
 
               break
             case "beverages":
-      
+              def bev = helper.getBeverage(section)
+              if (bev != null) {
+                order.addToMenuSelections(bev)
+              }
 
               break
             case "snacks":
-              
+              for (def i=1; i<4; i++){
+                def snack = helper.getSnack(section, i)
+                if (snack != null) {
+                  order.addToMenuSelections(snack)
+                }
+              }
 
               break
             default: 

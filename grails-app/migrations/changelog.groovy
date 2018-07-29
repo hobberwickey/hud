@@ -19,4 +19,5 @@ databaseChangeLog = {
     include file: 'fix_menu_dining_halls.groovy'
     include file: 'abstract_pickup_times.groovy'
     include file: 'rename_order_to_orders.groovy'
+    include file: 'fix_orders_sql.groovy'
 }

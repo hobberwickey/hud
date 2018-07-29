@@ -9,8 +9,9 @@ class UrlMappings {
             }
         }   
 
-        "/myhuds/orders/${mealType}"(controller: "orders", action: "create")
-        "/myhuds/orders/${mealType}/save"(controller: "orders", action: "saveLunch")
+        "/myhuds/orders/${mealType}/create"(controller: "orders", action: "create")
+        "/myhuds/orders/${mealType}/save"(controller: "orders", action: "save")
+        "/myhuds/orders/${id}"(controller: "orders", action: "show")
 
         "/admin"(controller: "menuItem", action: "index")
 

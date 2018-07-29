@@ -76,6 +76,26 @@ class BootStrap {
 
       return returnArray
     }
+
+    JSON.registerObjectMarshaller(Orders) {
+      def returnArray = [:]
+          returnArray['id'] = it.id
+          returnArray['createdOn'] = it.createdOn
+          returnArray['updatedAt'] = it.updatedAt
+          returnArray['menuSelections'] = it.menuSelections
+
+      return returnArray
+    }
+
+    JSON.registerObjectMarshaller(MenuSelection) {
+      def returnArray = [:]
+          returnArray['id'] = it.id
+          returnArray['orders'] = it.orders
+          returnArray['menuItem'] = it.menuItem
+          returnArray['menuItemOptions'] = it.menuItemOptions
+
+      return returnArray
+    }
   }
   
   def destroy = {
