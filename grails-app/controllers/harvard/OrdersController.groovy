@@ -209,6 +209,20 @@ class OrdersController {
         respond ordersService.list(params), model:[orderCount: ordersService.count()]
     }
 
+    def list(Integer max, Integer page) {
+        params.max = max ?: 10
+        params.offset = (page ?: 0) * params.max
+
+        render ordersService.list(params) as JSON
+    }
+
+    def search(Integer max, Integer page) {
+        params.max = max ?: 10
+        params.offset = (page ?: 0) * params.max
+
+        render ordersService.list(params) as JSON
+    }
+
     def show(Long id) {
         render ordersService.get(id) as JSON
     }
@@ -239,6 +253,9 @@ class OrdersController {
             lt("openingDate", orderPickup.pickupDate)
             gt("closingDate", orderPickup.pickupDate)
           }[0]
+
+          println order.diningHall.id
+          println "Dining Hall"
         }
       } 
 
@@ -381,7 +398,8 @@ class OrdersController {
         }
       }
 
-      render order as JSON
+      // render order as JSON
+      redirect(controller: "orders", action: "index")
     }
 
     def edit(Long id) {

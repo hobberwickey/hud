@@ -82,7 +82,11 @@ class BootStrap {
           returnArray['id'] = it.id
           returnArray['createdOn'] = it.createdOn
           returnArray['updatedAt'] = it.updatedAt
+          returnArray['diningHall'] = it.diningHall
+          returnArray['menu'] = it.menu
+          returnArray['user'] = it.user
           returnArray['menuSelections'] = it.menuSelections
+          returnArray['orderPickups'] = it.orderPickups
 
       return returnArray
     }

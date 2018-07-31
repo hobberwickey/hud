@@ -69,14 +69,15 @@ LocationEditor.prototype.saveLocation = function(e){
       contentType: "application/json",
       data: JSON.stringify(this.location),
       success: function(resp) {
-        if (window.location.pathname.split("/")[3] === "new" && !!resp.id){
-          window.location.assign("/admin/locations/" + resp.id);
-        } else {
-          this.location = resp;
-          this.buildLocationForm(this.location);
-        }
+        window.location = "/admin/locations"
+        // if (window.location.pathname.split("/")[3] === "new" && !!resp.id){
+        //   window.location.assign("/admin/locations/" + resp.id);
+        // } else {
+        //   this.location = resp;
+        //   this.buildLocationForm(this.location);
+        // }
 
-        res();
+        // res();
       }.bind(this),
       error: function(err) {
         console.warn(err)

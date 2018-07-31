@@ -20,4 +20,6 @@ databaseChangeLog = {
     include file: 'abstract_pickup_times.groovy'
     include file: 'rename_order_to_orders.groovy'
     include file: 'fix_orders_sql.groovy'
+    include file: 'update_positioning.groovy'
+    include file: 'fix_user_relations.groovy'
 }

@@ -76,7 +76,8 @@ ItemOptionEditor.prototype.addItem = function(group_id) {
   var option = {
     id: null,
     name: value,
-    menuItemOptionGroups: [{id: group_id}]
+    menuItemOptionGroups: [{id: group_id}],
+    position: group.menuItemOptions.length
   }
 
   this.saveOption(option).then(function(saved) {

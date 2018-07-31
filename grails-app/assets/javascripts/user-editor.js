@@ -74,8 +74,9 @@ UserEditor.prototype.saveUser = function(e){
       contentType: "application/json",
       data: JSON.stringify(this.user),
       success: function(resp) {
-        this.user = resp;
-        res();
+        // this.user = resp;
+        // res();
+        window.location = "/admin/users"
       }.bind(this),
       error: function(err) {
         console.warn(err)
@@ -191,7 +192,7 @@ UserEditor.prototype.buildUserForm = function(user) {
 
     {tag: "div", attributes: {className: "btns"}, children: [
       {tag: "input", attributes: {className: "btn submit confirm", type: "submit"}, children: []},
-      {tag: "a", attributes: {className: "btn cancel", href: "/admin/diningHalls", text: "Cancel"}, children: []}
+      {tag: "a", attributes: {className: "btn cancel", href: "/admin/users", text: "Cancel"}, children: []}
     ]}
   ]}
 

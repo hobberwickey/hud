@@ -88,15 +88,17 @@ ItemEditor.prototype.saveMenu = function(menu) {
       data: JSON.stringify(menu),
       
       success: function(resp){
-        if (window.location.pathname.split("/")[3] === "new" && !!resp.id){
-          window.location.assign("/admin/menus/" + resp.id);
-        } else {
-          this.menu = resp;
-          this.buildMenuForm(this.menu);
-        }
+        window.location = "/admin/menus"
+        // if (window.location.pathname.split("/")[3] === "new" && !!resp.id){
+        //   window.location.assign("/admin/menus/" + resp.id);
+        // } else {
+        //   this.menu = resp;
+        //   this.buildMenuForm(this.menu);
+        // }
+        // res()
       }.bind(this),
       error: function(resp){
-
+        rej()
       }.bind(this)
     })
   }.bind(this))
@@ -163,12 +165,29 @@ ItemEditor.prototype.hasGroup = function(item, group) {
   return !!item.menuItemOptionGroups && !!item.menuItemOptionGroups.filter(function(g){ return g.id === group.id })[0];
 }
 
-ItemEditor.prototype.reorder = function(section){
-  var list = document.querySelectorAll(".section-" + section.id + " .menu-item");
+ItemEditor.prototype.rebuildOrdering = function(section){
+  var list = document.querySelectorAll(".section-" + (section.id || section.localId) + " .menu-item");
 
   if (!!section){
-    section.ordering = Array.prototype.map.call(list, function(el){ return el.dataset.id }).join(",");
-    this.buildMenuSection(section.name, true)
+    var ordering = Array.prototype.map.call(list, function(el){ return isNaN(el.dataset.id, 10) ? el.dataset.id : parseInt(el.dataset.id, 10) });
+
+    console.log(ordering)
+
+    for (var i=0; i<(section.menuItems || []).length; i++){ 
+      var item = section.menuItems[i];
+          item.position = ordering.indexOf(item.id || item.localId);
+
+      console.log(item.id || item.localId, item.position)
+    }
+
+    section.ordering = ordering.join(",");
+  }
+}
+
+ItemEditor.prototype.reorder = function(section){
+  if (!!section){
+    this.rebuildOrdering(section);
+    // this.buildMenuSection(section.name, true);
   }
 }
 
@@ -184,12 +203,13 @@ ItemEditor.prototype.removeMenuItem = function(section, item) {
 
 ItemEditor.prototype.addItem = function(section) {
   var name = document.querySelector(".section-" + (section.id || section.localId) + " .add-item-input").value,
-      item = {id: null, localId: Utils.genUUID(), name: name};
+      item = {id: null, localId: Utils.genUUID(), name: name, position: section.menuItems.length};
 
   section.menuItems.push(item)
-  section.ordering = (section.ordering || "").split(",").concat([item.localId]).filter(function(id){ return !!id}).join(",");
   
-  this.buildMenuSection(section.name, true)
+  // section.ordering = (section.ordering || "").split(",").concat([item.localId]).filter(function(id){ return !!id}).join(",");
+  // this.rebuildOrdering(section);
+  this.buildMenuSection(section.name, true);
 }
 
 ItemEditor.prototype.buildMenuSection = function(key, replace) {
@@ -197,14 +217,15 @@ ItemEditor.prototype.buildMenuSection = function(key, replace) {
       label = this.sectionTypes[key];
 
   if (!section){
-    section = {id: null, localId: Utils.genUUID(), name: key, ordering: "", menuItems: []}
+    var sectionOrdering = ["breakfast", "sandwiches-salads", "beverages", "snacks"]
+        section = {id: null, localId: Utils.genUUID(), name: key, position: sectionOrdering.indexOf(key), ordering: "", menuItems: []}
     this.menu.menuSections.push(section);
   }
 
   var struct = {tag: "li", attributes: {className: "sortable-list section section-" + (section.id || section.localId), dataId: (section.id || section.localId)}, children: [
     {tag: "h2", attributes: {text: label}},
-    {tag: "ul", attributes: {className: "sortable-list-items menu-items menu-list"}, children: ((section.ordering || "").split(",")).map(function(id){
-      var menuItem = section.menuItems.filter(function(item){ return (parseInt(item.id, 10) === parseInt(id, 10) || item.localId === id) })[0];
+    {tag: "ul", attributes: {className: "sortable-list-items menu-items menu-list"}, children: section.menuItems.sort(function(a, b){ return a.position > b.position }).map(function(menuItem){
+      // var menuItem = section.menuItems.filter(function(item){ return (parseInt(item.id, 10) === parseInt(id, 10) || item.localId === id) })[0];
 
       if (!!menuItem){
         var editClass = this.edits.indexOf(menuItem.id || menuItem.localId) === -1 ? "" : "editing";
@@ -287,7 +308,7 @@ ItemEditor.prototype.buildMenuForm = function(menu) {
     }.bind(this))},
     {tag: "div", attributes: {className: "btns"}, children: [
       {tag: "input", attributes: {className: "btn submit confirm", type: "submit"}, children: []},
-      {tag: "a", attributes: {className: "btn cancel", href: "/admin/", text: "Cancel"}, children: []}
+      {tag: "a", attributes: {className: "btn cancel", href: "/admin/menus", text: "Cancel"}, children: []}
     ]}
   ]}
 

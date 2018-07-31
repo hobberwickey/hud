@@ -17,8 +17,10 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.22.2/moment.min.js"></script>
 </head>
 <body>
+    <g:render template="/shared/header" />
+  
     <g:layoutBody/>
-    <asset:javascript src="application.js"/>
+    <asset:javascript src="application.js" />
     <asset:javascript src="utils.js"/>
 </body>
 </html>

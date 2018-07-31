@@ -6,7 +6,6 @@
 </head>
 <body>
   <div class='public'>
-    <h1><span>Menus</span> <a href="/admin/menus/new"><i class='fa fa-plus' alt='Add Menu'></i></a></h2>
     <div class='content order'>
       <g:form  class='order-form' controller="orders" action="save" id="lunch" method="post">
         <div class='section'>

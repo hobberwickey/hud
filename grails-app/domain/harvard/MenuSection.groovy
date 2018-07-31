@@ -4,13 +4,14 @@ class MenuSection {
     String name
     String ordering
     String localId
-
+    Integer position
+    
     static belongsTo = [Menu]
 
     static hasMany = [menuItems: MenuItem]
 
     static mapping = {
-      ordering sqlType: 'text' 
+      sort 'position' 
     }
 
     static constraints = {
