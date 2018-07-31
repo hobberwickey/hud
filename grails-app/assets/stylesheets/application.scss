@@ -588,8 +588,14 @@ form {
 .admin {
   .content {
     ul.admin-list {
+      border: solid 1px #ccc;
+      
       li.info-list {
         &:nth-child(even){
+          background-color: white;
+        }
+
+        &:nth-child(odd){
           background-color: $bg-color;
         }
 
@@ -794,4 +800,15 @@ form {
       }
     }
   }
+}
+
+select {
+  background: white;
+  padding: 10px 6px;
+  width: 200px;
+  border: solid 1px #ccc;
+  border-radius: 3px;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  font-size: 14px;
 }

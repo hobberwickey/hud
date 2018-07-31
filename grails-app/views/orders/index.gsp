@@ -6,7 +6,7 @@
 </head>
 <body>
   <div class='admin'>
-    <div class='filters'>
+    <div class='filters' style='margin-bottom: 5px;'>
       <div class='input-wrapper'>
         <input type='text' name='search' placeholder="HUID or Name" />
         <input type='date' name='start-date' placeholder="Start Date" />
@@ -17,6 +17,8 @@
         <select name="locations">
           <option value=''>All Meals</option>
         </select>
+      </div>
+    </div>
     </div>
     <div class='content'>
       <ul class='content-header order-header'>
