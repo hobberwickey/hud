@@ -6,6 +6,8 @@
 </head>
 <body>
   <div class='admin'>
+    <h1><span>Orders</span></h2>
+    
     <div class='filters' style='margin-bottom: 5px;'>
       <div class='input-wrapper'>
         <input type='text' name='search' placeholder="HUID or Name" />

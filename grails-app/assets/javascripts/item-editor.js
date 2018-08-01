@@ -171,14 +171,10 @@ ItemEditor.prototype.rebuildOrdering = function(section){
   if (!!section){
     var ordering = Array.prototype.map.call(list, function(el){ return isNaN(el.dataset.id, 10) ? el.dataset.id : parseInt(el.dataset.id, 10) });
 
-    console.log(ordering)
-
     for (var i=0; i<(section.menuItems || []).length; i++){ 
       var item = section.menuItems[i];
           item.position = ordering.indexOf(item.id || item.localId);
-
-      console.log(item.id || item.localId, item.position)
-    }
+      }
 
     section.ordering = ordering.join(",");
   }

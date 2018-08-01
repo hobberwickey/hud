@@ -8,9 +8,9 @@ class MenuItem {
     static belongsTo = [Menu]
     static hasMany = [menus: Menu, menuItemOptionGroups: MenuItemOptionGroup, menuSelections: MenuSelection]
 
-    // static mapping = {
-    //   sort 'position' 
-    // }
+    static mapping = {
+      sort 'position' 
+    }
     
     static constraints = {
       localId(blank: true, nullable: true)
