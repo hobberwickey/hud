@@ -81,18 +81,22 @@
                       
                         <g:if test="${ item.menuItemOptionGroups.size() > 0 }">
                           <div class='menu-item-options'>
-                            <g:each in="${ item.menuItemOptionGroups }" var="group">
-                              <ul class='options-group'>
-                                <h3>Select a ${ group.name }</h3>
-                                <g:each in="${ group.menuItemOptions.sort{a,b -> a.position.compareTo(b.position)} }" var="opt">
-                                  <li class='option'>
-                                    <div class='input-wrapper'>
-                                      <g:radio name="${ 'group.' + group.id + '.menuItem.' + item.id }"  value="${ opt.id }"></g:radio>
-                                      <label class='btn'>${ group.id } ${ opt.name }</label>
-                                    </div>
-                                  </li>
-                                </g:each>
-                              </ul>
+                            <g:each in="${ ['Dressing', 'Bread', 'Cheese'] }" var="groupType">
+                              <g:each in="${ item.menuItemOptionGroups }" var="group">
+                                <g:if test="${ group.name == groupType }">
+                                  <ul class='options-group'>
+                                    <h3>Select a ${ group.name }</h3>
+                                    <g:each in="${ group.menuItemOptions.sort{a,b -> a.position.compareTo(b.position)} }" var="opt">
+                                      <li class='option'>
+                                        <div class='input-wrapper'>
+                                          <g:radio name="${ 'group.' + group.id + '.menuItem.' + item.id }"  value="${ opt.id }"></g:radio>
+                                          <label class='btn'>${ group.id } ${ opt.name }</label>
+                                        </div>
+                                      </li>
+                                    </g:each>
+                                  </ul>
+                                </g:if>
+                              </g:each>
                             </g:each>
                           </div>
                         </g:if>
@@ -115,18 +119,22 @@
                       
                         <g:if test="${ item.menuItemOptionGroups.size() > 0 }">
                           <div class='menu-item-options'>
-                            <g:each in="${ item.menuItemOptionGroups }" var="group">
-                              <ul class='options-group'>
-                                <h3>Select a ${ group.name }</h3>
-                                <g:each in="${ group.menuItemOptions.sort{a,b -> a.position.compareTo(b.position)} }" var="opt">
-                                  <li class='option'>
-                                    <div class='input-wrapper'>
-                                      <g:radio name="${ 'group.' + group.id + '.menuItem.' + item.id }"  value="${ opt.id }"></g:radio>
-                                      <label class='btn'>${ opt.name }</label>
-                                    </div>
-                                  </li>
-                                </g:each>
-                              </ul>
+                            <g:each in="${ ['Dressing', 'Bread', 'Cheese'] }" var="groupType">
+                              <g:each in="${ item.menuItemOptionGroups }" var="group">
+                                <g:if test="${ group.name == groupType }">
+                                  <ul class='options-group'>
+                                    <h3>Select a ${ group.name }</h3>
+                                    <g:each in="${ group.menuItemOptions.sort{a,b -> a.position.compareTo(b.position)} }" var="opt">
+                                      <li class='option'>
+                                        <div class='input-wrapper'>
+                                          <g:radio name="${ 'group.' + group.id + '.menuItem.' + item.id }"  value="${ opt.id }"></g:radio>
+                                          <label class='btn'>${ opt.name }</label>
+                                        </div>
+                                      </li>
+                                    </g:each>
+                                  </ul>
+                                </g:if>
+                              </g:each>
                             </g:each>
                           </div>
                         </g:if>
@@ -149,18 +157,22 @@
                       
                         <g:if test="${ item.menuItemOptionGroups.size() > 0 }">
                           <div class='menu-item-options'>
-                            <g:each in="${ item.menuItemOptionGroups }" var="group">
-                              <ul class='options-group'>
-                                <h3>Select a ${ group.name }</h3>
-                                <g:each in="${ group.menuItemOptions.sort{a,b -> a.position.compareTo(b.position)} }" var="opt">
-                                  <li class='option'>
-                                    <div class='input-wrapper'>
-                                      <g:radio name="${ 'group.' + group.id + '.menuItem.' + item.id }"  value="${ opt.id }"></g:radio>
-                                      <label class='btn'>${ opt.name }</label>
-                                    </div>
-                                  </li>
-                                </g:each>
-                              </ul>
+                            <g:each in="${ ['Dressing', 'Bread', 'Cheese'] }" var="groupType">
+                              <g:each in="${ item.menuItemOptionGroups }" var="group">
+                                <g:if test="${ group.name == groupType }">
+                                  <ul class='options-group'>
+                                    <h3>Select a ${ group.name }</h3>
+                                    <g:each in="${ group.menuItemOptions.sort{a,b -> a.position.compareTo(b.position)} }" var="opt">
+                                      <li class='option'>
+                                        <div class='input-wrapper'>
+                                          <g:radio name="${ 'group.' + group.id + '.menuItem.' + item.id }"  value="${ opt.id }"></g:radio>
+                                          <label class='btn'>${ opt.name }</label>
+                                        </div>
+                                      </li>
+                                    </g:each>
+                                  </ul>
+                                </g:if>
+                              </g:each>
                             </g:each>
                           </div>
                         </g:if>
@@ -183,18 +195,22 @@
                       
                         <g:if test="${ item.menuItemOptionGroups.size() > 0 }">
                           <div class='menu-item-options'>
-                            <g:each in="${ item.menuItemOptionGroups }" var="group">
-                              <ul class='options-group'>
-                                <h3>Select a ${ group.name }</h3>
-                                <g:each in="${ group.menuItemOptions.sort{a,b -> a.position.compareTo(b.position)} }" var="opt">
-                                  <li class='option'>
-                                    <div class='input-wrapper'>
-                                      <g:radio name="${ 'snack.1.group.' + group.id + '.menuItem.' + item.id }"  value="${ opt.id }"></g:radio>
-                                      <label class='btn'>${ opt.name }</label>
-                                    </div>
-                                  </li>
-                                </g:each>
-                              </ul>
+                            <g:each in="${ ['Dressing', 'Bread', 'Cheese'] }" var="groupType">
+                              <g:each in="${ item.menuItemOptionGroups }" var="group">
+                                <g:if test="${ group.name == groupType }">
+                                  <ul class='options-group'>
+                                    <h3>Select a ${ group.name }</h3>
+                                    <g:each in="${ group.menuItemOptions.sort{a,b -> a.position.compareTo(b.position)} }" var="opt">
+                                      <li class='option'>
+                                        <div class='input-wrapper'>
+                                          <g:radio name="${ 'snack.1.group.' + group.id + '.menuItem.' + item.id }"  value="${ opt.id }"></g:radio>
+                                          <label class='btn'>${ opt.name }</label>
+                                        </div>
+                                      </li>
+                                    </g:each>
+                                  </ul>
+                                </g:if>
+                              </g:each>
                             </g:each>
                           </div>
                         </g:if>
@@ -215,18 +231,22 @@
                       
                         <g:if test="${ item.menuItemOptionGroups.size() > 0 }">
                           <div class='menu-item-options'>
-                            <g:each in="${ item.menuItemOptionGroups }" var="group">
-                              <ul class='options-group'>
-                                <h3>Select a ${ group.name }</h3>
-                                <g:each in="${ group.menuItemOptions.sort{a,b -> a.position.compareTo(b.position)} }" var="opt">
-                                  <li class='option'>
-                                    <div class='input-wrapper'>
-                                      <g:radio name="${ 'snack.2.group.' + group.id + '.menuItem.' + item.id }"  value="${ opt.id }"></g:radio>
-                                      <label class='btn'>${ opt.name }</label>
-                                    </div>
-                                  </li>
-                                </g:each>
-                              </ul>
+                            <g:each in="${ ['Dressing', 'Bread', 'Cheese'] }" var="groupType">
+                              <g:each in="${ item.menuItemOptionGroups }" var="group">
+                                <g:if test="${ group.name == groupType }">
+                                  <ul class='options-group'>
+                                    <h3>Select a ${ group.name }</h3>
+                                    <g:each in="${ group.menuItemOptions.sort{a,b -> a.position.compareTo(b.position)} }" var="opt">
+                                      <li class='option'>
+                                        <div class='input-wrapper'>
+                                          <g:radio name="${ 'snack.2.group.' + group.id + '.menuItem.' + item.id }"  value="${ opt.id }"></g:radio>
+                                          <label class='btn'>${ opt.name }</label>
+                                        </div>
+                                      </li>
+                                    </g:each>
+                                  </ul>
+                                </g:if>
+                              </g:each>
                             </g:each>
                           </div>
                         </g:if>
@@ -247,18 +267,22 @@
                       
                         <g:if test="${ item.menuItemOptionGroups.size() > 0 }">
                           <div class='menu-item-options'>
-                            <g:each in="${ item.menuItemOptionGroups }" var="group">
-                              <ul class='options-group'>
-                                <h3>Select a ${ group.name }</h3>
-                                <g:each in="${ group.menuItemOptions.sort{a,b -> a.position.compareTo(b.position)} }" var="opt">
-                                  <li class='option'>
-                                    <div class='input-wrapper'>
-                                      <g:radio name="${ 'snack.3.group.' + group.id + '.menuItem.' + item.id }"  value="${ opt.id }"></g:radio>
-                                      <label class='btn'>${ opt.name }</label>
-                                    </div>
-                                  </li>
-                                </g:each>
-                              </ul>
+                            <g:each in="${ ['Dressing', 'Bread', 'Cheese'] }" var="groupType">
+                              <g:each in="${ item.menuItemOptionGroups }" var="group">
+                                <g:if test="${ group.name == groupType }">
+                                  <ul class='options-group'>
+                                    <h3>Select a ${ group.name }</h3>
+                                    <g:each in="${ group.menuItemOptions.sort{a,b -> a.position.compareTo(b.position)} }" var="opt">
+                                      <li class='option'>
+                                        <div class='input-wrapper'>
+                                          <g:radio name="${ 'snack.3.group.' + group.id + '.menuItem.' + item.id }"  value="${ opt.id }"></g:radio>
+                                          <label class='btn'>${ opt.name }</label>
+                                        </div>
+                                      </li>
+                                    </g:each>
+                                  </ul>
+                                </g:if>
+                              </g:each>
                             </g:each>
                           </div>
                         </g:if>
