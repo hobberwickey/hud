@@ -7,6 +7,10 @@ class OrderPickup {
 
     static belongsTo = [Orders]
 
+    static mapping = {
+      sort 'pickupDate' 
+    }
+
     static constraints = {
     
     }

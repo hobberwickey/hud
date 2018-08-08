@@ -31,6 +31,11 @@ var Utils = {
 
   buildHTML: function(elements) {
     var fn = function(element){
+      if (!element) {
+        console.log(elements)
+        return Utils.createElement("div", {className: "error", text: "Could not create element"})
+      }
+
       var parent = Utils.createElement(element.tag, element.attributes);
 
       if (!!element.children && element.children.length){

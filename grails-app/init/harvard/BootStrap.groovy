@@ -1,9 +1,14 @@
 package harvard
 
 import grails.converters.JSON
+import javax.servlet.http.HttpServletRequest
 
 class BootStrap {
   def init = { servletContext ->
+    HttpServletRequest.metaClass.isXhr = {->
+      'XMLHttpRequest' == delegate.getHeader('X-Requested-With')
+    }
+
     JSON.registerObjectMarshaller(Meal) {
       def returnArray = [:]
           returnArray['id'] = it.id
@@ -27,8 +32,20 @@ class BootStrap {
           returnArray['id'] = it.id
           returnArray['name'] = it.name
           returnArray['ordering'] = it.ordering
+          returnArray['position'] = it.position
           returnArray['menuItems'] = it.menuItems
           
+      return returnArray
+    }
+
+    JSON.registerObjectMarshaller(MenuItem) {
+      def returnArray = [:]
+          returnArray['id'] = it.id
+          returnArray['name'] = it.name
+          returnArray['localId'] = it.localId
+          returnArray['position'] = it.position
+          returnArray['menuItemOptionGroups'] = it.menuItemOptionGroups
+
       return returnArray
     }
 
@@ -46,6 +63,7 @@ class BootStrap {
       def returnArray = [:]
           returnArray['id'] = it.id
           returnArray['name'] = it.name
+          returnArray['position'] = it.position
 
       return returnArray
     }

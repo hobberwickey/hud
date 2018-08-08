@@ -105,14 +105,6 @@ ItemOptionEditor.prototype.saveOrdering = function(group_id) {
     group.ordering = ordering.join(",");
     this.saveGroup(group);
   }
-
-  // var group = this.groups.filter(function(g){ return parseInt(g.id, 10) === parseInt(group_id, 10)})[0],
-  //     list = document.querySelectorAll(".group-" + group_id + " .group-item");
-
-  // if (!!group){
-  //   group.ordering = Array.prototype.map.call(list, function(el){ return el.dataset.id }).join(",");
-  //   this.saveGroup(group);
-  // }
 }
 
 ItemOptionEditor.prototype.openEditOption = function(group, option) {

@@ -20,7 +20,9 @@ class MenuController {
     }
 
     def list() {
-      render menuService.list(params) as JSON
+      render Menu.withCriteria() {
+        ne("deleted", true)
+      } as JSON
     }
 
     def show(Long id) {

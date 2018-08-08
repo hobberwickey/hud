@@ -34,6 +34,7 @@ ul {
 $bg-color: #f2f2f2;
 $text-color: #484848;
 $light-grey: #9B9B9B;
+$lighter-grey: #CCC;
 
 $theme-red: #a51c30;
 $theme-blue: #4E84C4;
@@ -356,10 +357,50 @@ form {
     }
   }
 
+  .pickup-times {
+    .show-more, .show-less {
+      display: none;
+      // display: inline-block;
+      vertical-align: middle;
+      margin-top: 0px;
+      margin-bottom: 10px;
+      margin-right: 10px;
+      float: none;
+    }
+
+    &.enabled {
+      &.expanded {
+        .show-more {
+          display: none;
+        }
+
+        .show-less {
+          display: none;
+        }
+      }
+
+      .btn {
+        display: inline-block;
+      }
+
+      .show-less {
+        display: none;
+      }
+
+      .show-more {
+        display: none;
+      }
+    }
+  }
+
   .input-wrapper {
     margin-bottom: 5px;
     position: relative;
     margin-bottom: 30px;
+
+    &.pickupTime {
+      margin-bottom: 10px;
+    }
 
     label, h2 {
       // display: block;
@@ -415,6 +456,20 @@ form {
             @media (-webkit-min-device-pixel-ratio:0) {
               outline: auto 5px -webkit-focus-ring-color;
             }
+          }
+        }
+
+        &:disabled {
+          & + a {
+            label {
+              background-color: $lighter-grey;
+              color: $light-grey;
+            }
+          }
+          
+          & + label {
+            background-color: $lighter-grey;
+            color: $light-grey;
           }
         }
 
@@ -731,6 +786,15 @@ form {
     .section {
       padding: 20px;
 
+      .errors {
+        color: $theme-red;
+        border: solid 1px $theme-red;
+        padding: 4px 12px;
+        margin-top: 10px;
+        border-radius: 5px;
+        background-color: #ffc6c6;
+      }
+
       &:nth-child(odd){
         background-color: white;
       }
@@ -768,26 +832,28 @@ form {
 
             input {
               & ~ div {
-                display: none;
-                border: solid 1px #ccc;
-                background-color: #EDF3F9;
-                padding: 6px 12px;
-                border-radius: 5px;
-                margin-top: 5px;
+                .menu-item-options {
+                  display: none;
+                  border: solid 1px #ccc;
+                  background-color: #EDF3F9;
+                  padding: 6px 12px;
+                  border-radius: 5px;
+                  margin-top: 5px;
 
-                h3 {
-                  margin: 0;
-                }
+                  h3 {
+                    margin: 0;
+                  }
 
-                .options-group {
-                  padding: 0px 0px;
+                  .options-group {
+                    padding: 0px 0px;
 
-                  .option {
-                    display: inline-block; 
-                    vertical-align: middle;
+                    .option {
+                      display: inline-block; 
+                      vertical-align: middle;
 
-                    .input-wrapper {
-                      margin: 5px 5px 5px 0px;
+                      .input-wrapper {
+                        margin: 5px 5px 5px 0px;
+                      }
                     }
                   }
                 }
@@ -795,7 +861,9 @@ form {
           
               &:checked {
                 & ~ div {
-                  display: block;
+                  .menu-item-options {
+                    display: block;
+                  }
                 }
               }
             }

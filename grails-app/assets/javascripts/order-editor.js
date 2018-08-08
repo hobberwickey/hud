@@ -9,7 +9,7 @@ var OrderEditor = function(){
 OrderEditor.prototype.search = function(){
   return new Promise(function(res, rej){
     $.ajax({
-      url: "/admin/api/orders?" + $.param(this.filters),
+      url: "/admin/api/orders/search?" + $.param(this.filters),
       type: "GET",
       contentType: "application/json",
       success: function(resp) {
@@ -22,6 +22,47 @@ OrderEditor.prototype.search = function(){
       }.bind(this)
     })
   }.bind(this))  
+}
+
+OrderEditor.prototype.filterUser = function(value) {
+  if (value == ""){
+    delete this.filters.user
+  } else {
+    this.filters.user = value
+  }
+
+  this.updateOrders();
+}
+
+OrderEditor.prototype.filterLocation = function(value) {
+  if (value == ""){
+    delete this.filters.location
+  } else {
+    this.filters.location = value
+  }
+
+  this.updateOrders();
+}
+
+OrderEditor.prototype.filterMeal = function(value) {
+  if (value == ""){
+    delete this.filters.meal
+  } else {
+    this.filters.meal = value
+  }
+
+  this.updateOrders();
+}
+
+OrderEditor.prototype.updateOrders = function(){
+  this.search().then(function(){
+    if (this.orders.length > 0){
+      document.querySelector(".orders").innerHTML = "";
+      this.buildOrders()
+    } else {
+      this.buildEmptyResults()
+    }
+  }.bind(this))
 }
 
 // OrderEditor.prototype.saveOrder = function(e){
@@ -148,6 +189,10 @@ OrderEditor.prototype.search = function(){
 //     parent.appendChild(html)
 //   }
 // }
+
+OrderEditor.prototype.buildEmptyResults = function(){
+  document.querySelector(".orders").innerHTML = ""
+}
 
 OrderEditor.prototype.buildOrders = function() {
   for (var i=0; i<this.orders.length; i++) {

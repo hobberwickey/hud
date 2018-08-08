@@ -10,14 +10,20 @@
     
     <div class='filters' style='margin-bottom: 5px;'>
       <div class='input-wrapper'>
-        <input type='text' name='search' placeholder="HUID or Name" />
-        <input type='date' name='start-date' placeholder="Start Date" />
-        <input type="date" name="end-date" placeholder="End Date" />
-        <select name="locations">
+        <input id='huid_search' type='text' name='search' placeholder="HUID or Name" />
+        <input id='start_date_search' type='date' name='start-date' placeholder="Start Date" />
+        <input id='end_date_search' type="date" name="end-date" placeholder="End Date" />
+        <select id='location_search' name="locations">
           <option value=''>All Locations</option>
+          <g:each in="${ diningHalls }" var="${ diningHall }">
+            <option>${ diningHall.name }</option>
+          </g:each>
         </select>
-        <select name="locations">
+        <select id='meal_search' name="meals">
           <option value=''>All Meals</option>
+          <g:each in="${ meals }" var="${ meal }">
+            <option>${ meal.name }</option>
+          </g:each>
         </select>
       </div>
     </div>
@@ -46,6 +52,18 @@
       orderEditor.search({}).then(function(){
         orderEditor.buildOrders();
       }.bind(this));
+
+      document.getElementById("huid_search").addEventListener('change', function(e){
+        orderEditor.filterUser(e.target.value)
+      })
+
+      document.getElementById("location_search").addEventListener('change', function(e){
+        orderEditor.filterLocation(e.target.value)
+      })
+
+      document.getElementById("meal_search").addEventListener('change', function(e){
+        orderEditor.filterMeal(e.target.value)
+      })
     })
   </script>
 </body>

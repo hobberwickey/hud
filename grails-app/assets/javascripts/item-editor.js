@@ -77,9 +77,12 @@ ItemEditor.prototype.refreshMenu = function(menu_id){
   ])
 }
 
+ItemEditor.prototype.deleteMenu = function(menu) {
+  menu.deleted = true
+  this.saveMenu(menu)
+}
+
 ItemEditor.prototype.saveMenu = function(menu) {
-  console.log(menu)
-  
   return new Promise(function(res, rej){
     $.ajax({
       url: "/admin/api/menus/save",
@@ -332,9 +335,9 @@ ItemEditor.prototype.buildMenus = function() {
         ]}
       ]},
       {tag: "div", attributes: {className: "action"}, children: [
-        {tag: "a", attributes: {href: "/admin/users/" + menu.id + "/delete"}, children: [
-          {tag: "i", attributes: {className: "fa fa-trash-o"}, children: []}
-        ]}
+        // {tag: "a", attributes: {href: "/admin/users/" + menu.id + "/delete"}, children: [
+          {tag: "i", attributes: {className: "fa fa-trash-o", onClick: this.deleteMenu.bind(this, menu)}, children: []}
+        // ]}
       ]}
     ]}
     
