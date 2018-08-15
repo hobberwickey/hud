@@ -9,6 +9,7 @@
 <body>
   <div class='admin'>
     <div class='content'>
+      <h1>Add a Menu</h1>
       <ul class='menus'>
 
       </ul> 

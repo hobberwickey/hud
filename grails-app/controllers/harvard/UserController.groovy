@@ -10,15 +10,36 @@ class UserController {
 
     static allowedMethods = [save: "POST", update: "PUT", delete: "DELETE"]
 
-    def index(Integer max) {
-        respond userService.list(params), model:[userCount: userService.count()]
+    def index(Integer max, Integer page) {
+      respond userService.list(params), model:[userCount: userService.count()]
     }
 
     def list(Integer max, Integer page) {
         params.max = max ?: 10
         params.offset = (page ?: 0) * params.max
 
-        render userService.list(params) as JSON
+        render User.withCriteria() {
+          params.each{ key, value -> 
+            if (key == "user_name") {
+              if (value.isNumber()) {
+                eq("huid", value.toInteger())
+              } else {
+                or {
+                  like("firstName", value + "%")
+                  like("lastName", value + "%")
+                }
+              }
+            }
+
+            if (key == "user_type") {
+              eq("userType", value)
+            }
+          }
+
+          // maxResults params.max
+          // firstResult params.offset       
+        } as JSON
+        // render userService.list(params) as JSON
     }
 
     def show(Long id) {

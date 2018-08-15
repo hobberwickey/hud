@@ -9,6 +9,7 @@
 <body>
   <div class='admin'>
     <div class='content'>
+      <h1>Edit ${ menu.name }</h1>
       <ul class='menus'>
 
       </ul> 

@@ -6,7 +6,7 @@
 </head>
 <body>
   <div class='admin'>
-    <h2>Add a User</h2>
+    <h1>Add a User</h1>
     <div class='content'>
       <div class='user-form-wrapper'>
         

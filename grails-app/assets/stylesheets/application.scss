@@ -193,6 +193,26 @@ body {
           }
         }
       }
+
+      &.report-header {
+        li {
+          &:nth-child(1) {
+            width: 40%;
+          }
+
+          &:nth-child(2) {
+            width: 30%;
+          }
+
+          &:nth-child(3) {
+            width: 15%;
+          }
+
+          &:nth-child(4) {
+            width: 15%;
+          }
+        }
+      }
     }
 
     .sortable-lists {
@@ -208,8 +228,8 @@ body {
         }
 
         h2 {
-          font-size: 24px;
-          line-height: 26px;
+          font-size: 20px;
+          line-height: 20px;
           font-weight: 600;
           margin: 0;
           font-family: 'Open Sans Condensed', sans-serif;
@@ -221,20 +241,24 @@ body {
         }
 
         .sortable-list-items {
+          padding-top: 20px;
+
           .sortable-list-item {
             opacity: 0.6;
             border-top: solid 1px #ccc;
             padding: 5px 80px 5px 40px;
-            width: 80%;
+            width: 82%;
 
             &:first-child {
-              border-top: none;
+              // border-top: none;
             }
 
             .menu-item-name, .group-item-name, .item-editor {
               display: inline-block;
               width: 100%;
               vertical-align: middle;
+              color: black;
+              font-weight: 700;
             }
 
 
@@ -275,6 +299,7 @@ body {
               line-height: 40px;
               vertical-align: middle;
               position: relative;
+              color: $theme-orange;
 
               &.move {
                 margin-left: -40px;
@@ -345,7 +370,7 @@ body {
 }
 
 form {
-  padding: 30px 20px 10px 20px;
+  padding: 25px 20px 10px 20px;
   position: relative;
   background-color: white;
   border: 1px solid #ccc;
@@ -411,13 +436,13 @@ form {
       // font-family: 'Open Sans Condensed', sans-serif;
       // margin-top: 3px;
       // margin-bottom: 15px;
-
-      display: block;
-      padding-bottom: 15px;
-      font-size: 24px;
-      line-height: 26px;
+      font-size: 20px;
+      line-height: 20px;
       font-weight: 600;
       margin: 0;
+
+      display: block;
+      padding-bottom: 3px;
       font-family: 'Open Sans Condensed', sans-serif;
       text-transform: capitalize;
     }
@@ -435,9 +460,17 @@ form {
       vertical-align: middle;
 
       &[type="button"] {
-        width: auto;
-        background-color: $theme-blue;
-        color: white;
+        margin-top: 5px;
+        padding: 6px 12px;
+        background-color: #f15b29;
+        color: #fff;
+        border-radius: 20px;
+        width: 60px;
+        text-align: center;
+        float: left;
+        font-size: 14px;
+        border: none;
+        margin-left: 20px;
       }
 
       &[type="radio"], &[type="checkbox"] {
@@ -585,16 +618,37 @@ form {
       margin-bottom: 0px;
     }
 
+    p {
+      margin: 5px 0px;
+    }
+
     legend {
       display: block;
-      padding-bottom: 15px;
-
-      font-size: 24px;
-      line-height: 26px;
+      
+      font-size: 20px;
+      line-height: 20px;
       font-weight: 600;
       margin: 0;
+      // font-size: 24px;
+      // line-height: 26px;
+      // font-weight: 600;
+      // margin: 0;
       font-family: 'Open Sans Condensed', sans-serif;
       text-transform: capitalize;
+    }
+
+    &.status {
+      padding-bottom: 30px;
+
+      legend {
+        margin: 5px 0px;
+      }
+    }
+
+    &.breakfast {
+      legend {
+        margin: 5px 0px;
+      }
     }
   }
 
@@ -620,6 +674,69 @@ form {
       border: 1px solid #ccc;
       background-color: #fff;
       color: $light-grey;
+    }
+  }
+
+  &.user-form {
+    .options {
+      margin-top: 5px;
+    }
+  }
+
+  &.user-filters {
+    padding: 0px;
+    background-color: transparent;
+    border: none;
+    overflow: auto;
+    margin-top: 10px;
+
+    .filter.user-type {
+      font-size: 0px;
+      display: inline-block;
+      vertical-align: middle;
+
+      .input-wrapper {
+        margin: 0px;
+        
+        label {
+          border-left: none;
+          border-radius: 0px;
+          min-height: 37px;
+          line-height: 23px;
+          width: 127px;
+          // font-size: 14px;
+        }
+
+
+        &:first-child {
+          label {
+            border-left: solid 1px #ccc;
+            border-top-left-radius: 5px;
+            border-bottom-left-radius: 5px; 
+          }
+        }
+
+        &:last-child {
+          label {
+            border-top-right-radius: 5px;
+            border-bottom-right-radius: 5px; 
+          }
+        }
+
+        input {
+          min-height: 37px;
+
+          &:checked + label {
+            background-color: #4A4A4A;
+            z-index: 1;
+          }
+        }
+      }
+    }
+
+    .input-wrapper.user-name {
+      float: right;
+      margin-bottom: 10px;
     }
   }
 }
@@ -650,11 +767,11 @@ form {
         width: 100%;
 
         &:nth-child(even){
-          background-color: white;
+          background-color: $bg-color;
         }
 
         &:nth-child(odd){
-          background-color: $bg-color;
+          background-color: white;
         }
 
         & > div {
@@ -668,7 +785,8 @@ form {
           text-align: left;
           margin: 0;
           vertical-align: top;
-          text-transform: uppercase;
+          text-transform: capitalize;
+          font-weight: 700;
 
           &:last-child {
             border-right: none;
@@ -761,6 +879,28 @@ form {
 
             &:nth-child(6) {
               text-align: left;
+              width: 15%;
+            }
+          }
+        }
+      }
+
+      &.reports {
+        li.info-list {
+          & > div {
+            &:nth-child(1) {
+              width: 40%;
+            }
+
+            &:nth-child(2) {
+              width: 30%;
+            }
+
+            &:nth-child(3) {
+              width: 15%;
+            }
+
+            &:nth-child(4) {
               width: 15%;
             }
           }

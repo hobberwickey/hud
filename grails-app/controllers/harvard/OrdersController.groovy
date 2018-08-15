@@ -5,6 +5,427 @@ import static org.springframework.http.HttpStatus.*
 import grails.converters.JSON
 import groovy.time.*
 
+class OrdersController {
+
+    OrdersService ordersService
+    DiningHallService diningHallService
+    MenuService menuService
+    MealService mealService
+    
+    def sessionFactory
+
+    static allowedMethods = [save: "POST", update: "PUT", delete: "DELETE"]
+
+    def index(Integer max) {
+        params.max = Math.min(max ?: 10, 100)
+        respond ordersService.list(params), model:[diningHalls: diningHallService.list(), meals: mealService.list()]
+    }
+
+    def reports(Integer max) {
+      params.max = Math.min(max ?: 10, 100)
+      respond ordersService.list(params), model:[diningHalls: diningHallService.list(), meals: mealService.list()]
+    } 
+
+    def list(Integer max, Integer page) {
+        params.max = max ?: 10
+        params.offset = (page ?: 0) * params.max
+
+        render ordersService.list(params) as JSON
+    }
+
+    def search(Integer max, Integer page) {
+      params.max = max ?: 10
+      params.offset = (page ?: 0) * params.max
+
+      render Orders.withCriteria() {
+        params.each{ key, value -> 
+          if (key == "user") {
+            if (value.isNumber()) {
+              user {
+                eq("huid", value.toInteger())
+              }
+            } else {
+              user {
+                or {
+                  like("firstName", value + "%")
+                  like("lastName", value + "%")
+                }
+              }
+            }
+          }
+
+          if (key == "location") {
+            diningHall {
+              eq("name", value)
+            }
+          }
+
+          if (key == "meal") {
+            menu {
+              meal {
+                eq("name", value)
+              }
+            }
+          }
+
+          if (key == "start_date") {
+            orderPickups {
+              gt("pickupDate", new Date().parse("yyyy-MM-dd", value))
+            }
+          }
+
+          if (key == "end_date"){
+            orderPickups {
+              lt("pickupDate", new Date().parse("yyyy-MM-dd", value))
+            }
+          }
+        }       
+      } as JSON
+    }
+
+    def show(Long id) {
+        render ordersService.get(id) as JSON
+    }
+
+    def create(String mealType) {
+        
+      def order = new Orders([:])
+      def selectedMeal = Meal.findByName(mealType.capitalize())
+      
+      //// Pickup date / time ////
+      def orderPickup = new OrderPickup()
+      if (params.containsKey("pickupDate") && params["pickupTime"] != "") {
+          orderPickup.pickupDate = new Date(params.pickupDate)
+      }
+
+      if (params.containsKey("pickupTime") && params["pickupTime"] != "") {
+          orderPickup.pickupTime = new Date(params.pickupTime)
+      } 
+
+
+      //// Dining Halls ////
+      if (orderPickup.pickupDate != null && orderPickup.pickupTime != null) {
+        order.addToOrderPickups(orderPickup)
+
+        if (params.containsKey("diningHallId") && params["diningHallId"] != "") {
+          order.diningHall = DiningHall.withCriteria() {
+            eq("id", params.diningHallId.toLong())
+            lt("openingDate", orderPickup.pickupDate)
+            gt("closingDate", orderPickup.pickupDate)
+          }[0]
+        }
+      } 
+
+      def openDiningHalls
+      def allDiningHalls = diningHallService.list()
+
+      if (orderPickup.pickupDate != null && orderPickup.pickupTime != null) {
+          openDiningHalls = DiningHall.findAll{ openingDate <= orderPickup.pickupDate && closingDate >= orderPickup.pickupDate }
+      }
+
+      if (order.diningHall != null) {
+        order.menu = Menu.withCriteria() {
+          diningHalls {
+            idEq(order.diningHall.id)
+          }
+
+          meal {
+            idEq(selectedMeal.id)
+          }
+        }[0]
+
+        if (order.menu != null) {
+          order.menu.menuSections.each{ section -> 
+            if (section.ordering != "" && section.ordering != null) {
+              //TODO: not working
+              def ordering = section.ordering.split(",").collect{ it.toInteger() }
+              section.menuItems.sort{ a, b -> ordering.indexOf(a.id) <=> ordering.indexOf(b.id) }
+            }
+          }
+        }
+      }
+
+      def model = [
+        order: order,
+        allLocations: allDiningHalls, 
+        availableLocations: openDiningHalls,
+        orderPickup: orderPickup,
+        meal: selectedMeal,
+        errors: [
+          "pickupDate": [],
+          "pickupTime": [],
+          "diningHall": [],
+          "breakfast": [],
+          "sandwiches-salads": [],
+          "beverages": [],
+          "snacks": []
+        ]
+      ]
+
+      if (request.xhr) {
+        render model as JSON
+      } else {
+        model["helpers"] = new Helpers(params)
+        respond order, model: model
+      }
+
+    }
+
+    def save(String id) {
+      def order = new Orders([:])
+      def errors = [:]
+      def helper = new OrderHelper(params)
+
+      def selectedMeal = Meal.findByName(id.capitalize())
+
+      //TEMP
+      def user = User.list().first()
+      order.user = user
+
+      def orderPickup = new OrderPickup()
+      if (params.containsKey("pickupDate")) {
+        orderPickup.pickupDate = new Date(params.pickupDate)
+      }
+
+      if (params.containsKey("pickupTime")) {
+        orderPickup.pickupTime = new Date(params.pickupTime)
+      } 
+
+      if (orderPickup.pickupDate != null && orderPickup.pickupTime != null) {
+        order.addToOrderPickups(orderPickup)
+
+        if (params.containsKey("diningHallId")) {
+          order.diningHall = DiningHall.withCriteria() {
+            eq("id", params.diningHallId.toLong())
+            lt("openingDate", orderPickup.pickupDate)
+            gt("closingDate", orderPickup.pickupDate)
+          }[0]
+
+          if (order.diningHall != null && params.repeated == "true" && params.repeatEndDate) {
+            def endDate = new Date().parse("yyyy-MM-dd", params.repeatEndDate)
+            def nextPickup = new Date(params.pickupDate).plus(7)
+
+            while (nextPickup < endDate && nextPickup < order.diningHall.closingDate){
+              def repeatPickup = new OrderPickup(pickupDate: nextPickup, pickupTime: orderPickup.pickupTime)
+              order.addToOrderPickups(repeatPickup)
+
+              nextPickup = nextPickup.plus(7)
+            }
+          }
+
+        } else {
+          errors["dining_hall"] = "You must select a pick up location"
+        }
+      } 
+
+      if (order.diningHall != null) { 
+        order.menu = Menu.withCriteria() {
+          diningHalls {
+            idEq(order.diningHall.id)
+          }
+
+          meal {
+            idEq(selectedMeal.id)
+          }
+        }[0]
+
+        order.menu.menuSections.each{ section -> 
+          switch (section.name) {
+            case "breakfast":
+              def items = helper.getBreakfast(section)
+              
+              if (items != null) {
+                for (def i=0; i<items.size(); i++){
+                  order.addToMenuSelections(items[i])
+                }
+              }
+
+              break
+            case "sandwiches-salads":
+              def main = helper.getMain(section)
+              if (main != null) {
+                order.addToMenuSelections(main)
+              }
+
+              break
+            case "beverages":
+              def bev = helper.getBeverage(section)
+              if (bev != null) {
+                order.addToMenuSelections(bev)
+              }
+
+              break
+            case "snacks":
+              for (def i=1; i<4; i++){
+                def snack = helper.getSnack(section, i)
+                if (snack != null) {
+                  order.addToMenuSelections(snack)
+                }
+              }
+
+              break
+            default: 
+              break
+          }
+        }
+        
+        order.createdOn = new Date()
+        order.updatedAt = new Date()
+
+        def validator = new OrderValidator()
+            validator.validate(selectedMeal, order)    
+        
+        // println "VALID? " + validator.valid()
+        if (validator.valid()) {
+          try {
+            ordersService.save(order)
+          } catch (ValidationException e) {
+            println e
+            render errors as JSON
+            return
+          }
+
+          redirect(controller: "orders", action: "index")
+        } else {
+          def openDiningHalls
+          def allDiningHalls = diningHallService.list()
+
+          if (order.orderPickups != null && order.orderPickups.size() > 0) {
+              openDiningHalls = DiningHall.findAll{ openingDate <= order.orderPickups[0].pickupDate && closingDate >= order.orderPickups[0].pickupDate }
+          }
+
+          def model = [
+            order: order,
+            allLocations: allDiningHalls, 
+            availableLocations: openDiningHalls,
+            orderPickup: order.orderPickups[0] == null ? new OrderPickup() : order.orderPickups[0],
+            meal: selectedMeal,
+            errors: validator.errors,
+            helpers: new Helpers(params)
+          ]
+
+          render(view: "create", model: model)
+        }
+      }
+
+      def validator = new OrderValidator()
+          validator.validate(selectedMeal, order)
+
+      def openDiningHalls
+      def allDiningHalls = diningHallService.list()
+
+      if (order.orderPickups != null && order.orderPickups.size() > 0) {
+          openDiningHalls = DiningHall.findAll{ openingDate <= order.orderPickups[0].pickupDate && closingDate >= order.orderPickups[0].pickupDate }
+      }
+
+      def model = [
+        order: order,
+        allLocations: allDiningHalls, 
+        availableLocations: openDiningHalls,
+        orderPickup: order.orderPickups != null && order.orderPickups[0] != null ? order.orderPickups[0] : new OrderPickup(),
+        meal: selectedMeal,
+        errors: validator.errors,
+        helpers: new Helpers(params)
+      ]
+
+      render(view: "create", model: model)
+      // redirect(controller: "orders", action: "index")
+    }
+
+    def report() {
+      def part1 = """
+        SELECT 
+          popularity.menu_item_id as menu_item_id, 
+          popularity.menu_item_name as menu_item_name, 
+          popularity.menu_item_popularity as menu_item_popularity,
+          dining_hall.id as dining_hall_id,
+          dining_hall.name as dining_hall_name,
+          meal.name as meal
+        FROM menu_selection 
+        LEFT JOIN (
+          SELECT 
+            menu_item.id as menu_item_id, 
+            menu_item.name as menu_item_name, 
+            count(menu_item.id) as menu_item_popularity 
+          FROM menu_selection 
+            LEFT JOIN menu_item ON menu_selection.menu_item_id = menu_item.id
+            LEFT JOIN orders ON menu_selection.orders_id = orders.id
+            LEFT JOIN orders_order_pickup ON orders.id = orders_order_pickup.orders_order_pickups_id
+            LEFT JOIN order_pickup ON order_pickup.id = orders_order_pickup.order_pickup_id
+            LEFT JOIN dining_hall ON orders.dining_hall_id = dining_hall.id
+            LEFT JOIN menu ON orders.menu_id = menu.id
+            LEFT JOIN meal ON menu.meal_id = meal.id
+      """
+
+      def part2 = """
+          GROUP BY 
+            menu_item.id,
+            dining_hall.id, 
+            dining_hall.name, 
+            meal.id
+        ) AS popularity ON popularity.menu_item_id = menu_selection.menu_item_id
+        LEFT JOIN orders ON menu_selection.orders_id = orders.id
+        LEFT JOIN orders_order_pickup ON orders.id = orders_order_pickup.orders_order_pickups_id
+        LEFT JOIN order_pickup ON order_pickup.id = orders_order_pickup.order_pickup_id
+        LEFT JOIN dining_hall ON orders.dining_hall_id = dining_hall.id
+        LEFT JOIN menu ON orders.menu_id = menu.id
+        LEFT JOIN meal ON menu.meal_id = meal.id
+      """
+
+      def part3 = """
+        GROUP BY 
+          popularity.menu_item_id, 
+          popularity.menu_item_name, 
+          popularity.menu_item_popularity, 
+          dining_hall.id, 
+          dining_hall.name, 
+          meal
+        ORDER BY popularity.menu_item_popularity DESC
+      """
+
+      def whereClaus = ""
+      def filterClauses = []
+      def filterValues = [:]
+
+      ["start_date", "end_date", "location", "meal"].each{ key -> 
+        if (params.containsKey(key)) {
+          if (key == "start_date"){ filterClauses.push('order_pickup.pickup_date > :start_date') }
+          if (key == "end_date") { filterClauses.push('order_pickup.pickup_date < :end_date') }
+          if (key == "location") { filterClauses.push('dining_hall.name = :location') }
+          if (key == "meal") { filterClauses.push('meal.name = :meal') }
+
+          filterValues[key] = params[key]
+        }
+      }
+      
+      if (filterClauses.size() > 0){
+        whereClaus = "  WHERE " + filterClauses.join(" AND \n") + " \n"
+      }
+
+      println part1 + whereClaus + part2 + whereClaus + part3
+
+      def session = sessionFactory.getCurrentSession()
+      def query   = session.createSQLQuery(part1 + whereClaus + part2 + whereClaus + part3)
+
+      filterValues.each{ key, value -> 
+        query.setParameterList(key, value)
+      }
+
+      def results = query.list()
+      render results as JSON
+    }
+
+    protected void notFound() {
+        request.withFormat {
+            form multipartForm {
+                flash.message = message(code: 'default.not.found.message', args: [message(code: 'order.label', default: 'Order'), params.id])
+                redirect action: "index", method: "GET"
+            }
+            '*'{ render status: NOT_FOUND }
+        }
+    }
+}
+
 class Helpers {
     Map params
 
@@ -349,369 +770,3 @@ class OrderHelper {
     }
 }
 
-class OrdersController {
-
-    OrdersService ordersService
-    DiningHallService diningHallService
-    MenuService menuService
-    MealService mealService
-
-    static allowedMethods = [save: "POST", update: "PUT", delete: "DELETE"]
-
-    def index(Integer max) {
-        params.max = Math.min(max ?: 10, 100)
-        respond ordersService.list(params), model:[diningHalls: diningHallService.list(), meals: mealService.list()]
-    }
-
-    def list(Integer max, Integer page) {
-        params.max = max ?: 10
-        params.offset = (page ?: 0) * params.max
-
-        render ordersService.list(params) as JSON
-    }
-
-    def search(Integer max, Integer page) {
-        params.max = max ?: 10
-        params.offset = (page ?: 0) * params.max
-
-        render Orders.withCriteria() {
-          params.each{ key, value -> 
-            if (key == "user") {
-              if (value.isNumber()) {
-                user {
-                  eq("huid", value.toInteger())
-                }
-              } else {
-                user {
-                  or {
-                    like("firstName", value + "%")
-                    like("lastName", value + "%")
-                  }
-                }
-              }
-            }
-
-            if (key == "location") {
-              diningHall {
-                eq("name", value)
-              }
-            }
-
-            if (key == "meal") {
-              menu {
-                meal {
-                  eq("name", value)
-                }
-              }
-            }
-          }       
-        } as JSON
-
-        // render ordersService.list(params) as JSON
-    }
-
-    def show(Long id) {
-        render ordersService.get(id) as JSON
-    }
-
-    def create(String mealType) {
-        
-      def order = new Orders([:])
-      def selectedMeal = Meal.findByName(mealType.capitalize())
-      
-      //// Pickup date / time ////
-      def orderPickup = new OrderPickup()
-      if (params.containsKey("pickupDate") && params["pickupTime"] != "") {
-          orderPickup.pickupDate = new Date(params.pickupDate)
-      }
-
-      if (params.containsKey("pickupTime") && params["pickupTime"] != "") {
-          orderPickup.pickupTime = new Date(params.pickupTime)
-      } 
-
-
-      //// Dining Halls ////
-      if (orderPickup.pickupDate != null && orderPickup.pickupTime != null) {
-        order.addToOrderPickups(orderPickup)
-
-        if (params.containsKey("diningHallId") && params["diningHallId"] != "") {
-          order.diningHall = DiningHall.withCriteria() {
-            eq("id", params.diningHallId.toLong())
-            lt("openingDate", orderPickup.pickupDate)
-            gt("closingDate", orderPickup.pickupDate)
-          }[0]
-        }
-      } 
-
-      def openDiningHalls
-      def allDiningHalls = diningHallService.list()
-
-      if (orderPickup.pickupDate != null && orderPickup.pickupTime != null) {
-          openDiningHalls = DiningHall.findAll{ openingDate <= orderPickup.pickupDate && closingDate >= orderPickup.pickupDate }
-      }
-
-      if (order.diningHall != null) {
-        order.menu = Menu.withCriteria() {
-          diningHalls {
-            idEq(order.diningHall.id)
-          }
-
-          meal {
-            idEq(selectedMeal.id)
-          }
-        }[0]
-
-        if (order.menu != null) {
-          order.menu.menuSections.each{ section -> 
-            if (section.ordering != "" && section.ordering != null) {
-              //TODO: not working
-              def ordering = section.ordering.split(",").collect{ it.toInteger() }
-              section.menuItems.sort{ a, b -> ordering.indexOf(a.id) <=> ordering.indexOf(b.id) }
-            }
-          }
-        }
-      }
-
-      def model = [
-        order: order,
-        allLocations: allDiningHalls, 
-        availableLocations: openDiningHalls,
-        orderPickup: orderPickup,
-        meal: selectedMeal,
-        errors: [
-          "pickupDate": [],
-          "pickupTime": [],
-          "diningHall": [],
-          "breakfast": [],
-          "sandwiches-salads": [],
-          "beverages": [],
-          "snacks": []
-        ]
-      ]
-
-      if (request.xhr) {
-        render model as JSON
-      } else {
-        model["helpers"] = new Helpers(params)
-        respond order, model: model
-      }
-
-    }
-
-    def save(String id) {
-      def order = new Orders([:])
-      def errors = [:]
-      def helper = new OrderHelper(params)
-
-      def selectedMeal = Meal.findByName(id.capitalize())
-
-      //TEMP
-      def user = User.list().first()
-      order.user = user
-
-      def orderPickup = new OrderPickup()
-      if (params.containsKey("pickupDate")) {
-        orderPickup.pickupDate = new Date(params.pickupDate)
-      }
-
-      if (params.containsKey("pickupTime")) {
-        orderPickup.pickupTime = new Date(params.pickupTime)
-      } 
-
-      if (orderPickup.pickupDate != null && orderPickup.pickupTime != null) {
-        order.addToOrderPickups(orderPickup)
-
-        if (params.containsKey("diningHallId")) {
-          order.diningHall = DiningHall.withCriteria() {
-            eq("id", params.diningHallId.toLong())
-            lt("openingDate", orderPickup.pickupDate)
-            gt("closingDate", orderPickup.pickupDate)
-          }[0]
-
-          if (order.diningHall != null && params.repeated == "true" && params.repeatEndDate) {
-            def endDate = new Date().parse("yyyy-MM-dd", params.repeatEndDate)
-            def nextPickup = new Date(params.pickupDate).plus(7)
-
-            while (nextPickup < endDate && nextPickup < order.diningHall.closingDate){
-              def repeatPickup = new OrderPickup(pickupDate: nextPickup, pickupTime: orderPickup.pickupTime)
-              order.addToOrderPickups(repeatPickup)
-
-              nextPickup = nextPickup.plus(7)
-            }
-          }
-
-        } else {
-          errors["dining_hall"] = "You must select a pick up location"
-        }
-      } 
-
-      if (order.diningHall != null) { 
-        order.menu = Menu.withCriteria() {
-          diningHalls {
-            idEq(order.diningHall.id)
-          }
-
-          meal {
-            idEq(selectedMeal.id)
-          }
-        }[0]
-
-        order.menu.menuSections.each{ section -> 
-          switch (section.name) {
-            case "breakfast":
-              def items = helper.getBreakfast(section)
-              
-              println items
-              if (items != null) {
-                for (def i=0; i<items.size(); i++){
-                  order.addToMenuSelections(items[i])
-                }
-              }
-
-              break
-            case "sandwiches-salads":
-              def main = helper.getMain(section)
-              if (main != null) {
-                order.addToMenuSelections(main)
-              }
-
-              break
-            case "beverages":
-              def bev = helper.getBeverage(section)
-              if (bev != null) {
-                order.addToMenuSelections(bev)
-              }
-
-              break
-            case "snacks":
-              for (def i=1; i<4; i++){
-                def snack = helper.getSnack(section, i)
-                if (snack != null) {
-                  order.addToMenuSelections(snack)
-                }
-              }
-
-              break
-            default: 
-              break
-          }
-        }
-        
-        order.createdOn = new Date()
-        order.updatedAt = new Date()
-
-        def validator = new OrderValidator()
-            validator.validate(selectedMeal, order)    
-        
-        // println "VALID? " + validator.valid()
-        if (validator.valid()) {
-          try {
-            ordersService.save(order)
-          } catch (ValidationException e) {
-            println e
-            render errors as JSON
-            return
-          }
-
-          redirect(controller: "orders", action: "index")
-        } else {
-          def openDiningHalls
-          def allDiningHalls = diningHallService.list()
-
-          if (order.orderPickups != null && order.orderPickups.size() > 0) {
-              openDiningHalls = DiningHall.findAll{ openingDate <= order.orderPickups[0].pickupDate && closingDate >= order.orderPickups[0].pickupDate }
-          }
-
-          def model = [
-            order: order,
-            allLocations: allDiningHalls, 
-            availableLocations: openDiningHalls,
-            orderPickup: order.orderPickups[0] == null ? new OrderPickup() : order.orderPickups[0],
-            meal: selectedMeal,
-            errors: validator.errors,
-            helpers: new Helpers(params)
-          ]
-
-          render(view: "create", model: model)
-        }
-      }
-
-      def validator = new OrderValidator()
-          validator.validate(selectedMeal, order)
-
-      def openDiningHalls
-      def allDiningHalls = diningHallService.list()
-
-      if (order.orderPickups != null && order.orderPickups.size() > 0) {
-          openDiningHalls = DiningHall.findAll{ openingDate <= order.orderPickups[0].pickupDate && closingDate >= order.orderPickups[0].pickupDate }
-      }
-
-      def model = [
-        order: order,
-        allLocations: allDiningHalls, 
-        availableLocations: openDiningHalls,
-        orderPickup: order.orderPickups != null && order.orderPickups[0] != null ? order.orderPickups[0] : new OrderPickup(),
-        meal: selectedMeal,
-        errors: validator.errors,
-        helpers: new Helpers(params)
-      ]
-
-      println model.errors
-
-      render(view: "create", model: model)
-      // redirect(controller: "orders", action: "index")
-    }
-
-    def edit(Long id) {
-        respond ordersService.get(id)
-    }
-
-    def update(Orders order) {
-        if (order == null) {
-            notFound()
-            return
-        }
-
-        try {
-            ordersService.save(order)
-        } catch (ValidationException e) {
-            respond order.errors, view:'edit'
-            return
-        }
-
-        request.withFormat {
-            form multipartForm {
-                flash.message = message(code: 'default.updated.message', args: [message(code: 'order.label', default: 'Order'), order.id])
-                redirect order
-            }
-            '*'{ respond order, [status: OK] }
-        }
-    }
-
-    def delete(Long id) {
-        if (id == null) {
-            notFound()
-            return
-        }
-
-        ordersService.delete(id)
-
-        request.withFormat {
-            form multipartForm {
-                flash.message = message(code: 'default.deleted.message', args: [message(code: 'order.label', default: 'Order'), id])
-                redirect action:"index", method:"GET"
-            }
-            '*'{ render status: NO_CONTENT }
-        }
-    }
-
-    protected void notFound() {
-        request.withFormat {
-            form multipartForm {
-                flash.message = message(code: 'default.not.found.message', args: [message(code: 'order.label', default: 'Order'), params.id])
-                redirect action: "index", method: "GET"
-            }
-            '*'{ render status: NOT_FOUND }
-        }
-    }
-}

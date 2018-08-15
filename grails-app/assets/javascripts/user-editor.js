@@ -26,15 +26,13 @@ UserEditor.prototype.getLocations = function(){
 }
 
 UserEditor.prototype.getUsers = function(){
-  var params = Object.keys(this.filters).map(function(filter){ return filter + "=" + this.filters[filter] }.bind(this)).join("&")
-
   return new Promise(function(res, rej) {
     $.ajax({
-      url: "/admin/api/users?" + params,
+      url: "/admin/api/users?" + $.param(this.filters),
       type: "GET",
       contentType: "application/json",
       success: function(resp) {
-        this.users = this.users.concat(resp);
+        this.users = resp; //this.users.concat(resp);
         res();
       }.bind(this),
       error: function(err) {
@@ -95,6 +93,23 @@ UserEditor.prototype.updateUser = function(key, e) {
 
   this.buildUserForm(this.user);  
   document.querySelector("#" + e.target.id).focus()
+}
+
+UserEditor.prototype.filter = function(key, value) {
+  if (value == ""){
+    delete this.filters[key]
+  } else {
+    this.filters[key] = value
+  }
+
+  this.getUsers().then(function(){
+    var wrapper = document.querySelector(".users")
+    if (wrapper !== null) {
+      wrapper.innerHTML = "";
+    }
+
+    this.buildUsers()
+  }.bind(this))
 }
 
 UserEditor.prototype.toggleLocation = function(loc, e) {

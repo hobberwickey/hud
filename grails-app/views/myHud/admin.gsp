@@ -19,7 +19,7 @@
     <a href="/admin/users"><h2 style="margin-bottom: 5px;">Users</h2></a>
     <a href="/admin/users/new"><h2 style="padding-left: 20px; margin-bottom: 5px;">Add a User</h2></a>
     <a href="/admin/orders"><h2 style="margin-bottom: 5px;">Orders</h2></a>
-    <a href="/admin/orders/"><h2 style="margin-bottom: 5px;">Order Report</h2></a>
+    <a href="/admin/orders/reports"><h2 style="margin-bottom: 5px;">Order Report</h2></a>
 
     <br>
 

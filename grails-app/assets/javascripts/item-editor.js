@@ -289,10 +289,12 @@ ItemEditor.prototype.buildMenuForm = function(menu) {
   var struct = {tag: "form", attributes: {class: "menu-form", onSubmit: this.submitForm.bind(this)}, children: [
     {tag: "div", attributes: {className: "input-wrapper name"}, children: [
       {tag: "h2", attributes: {text: "Menu Name"}},
-      {tag: "input", attributes: {type: "text", value: menu.name || "", onChange: this.updateMenu.bind(this, "name") }}
+      {tag: "input", attributes: {type: "text", value: menu.name || "", onChange: this.updateMenu.bind(this, "name") }},
+      {tag: "p", attributes: {text: "Leave sections empty to hide it on the menu."}}
     ]},
     {tag: "fieldset", attributes: {}, children: [
       {tag: "legend", attributes: {text: "Meal"}},
+      {tag: "p", attributes: {text: "Select a meal plan for this menu."}},
       {tag: "div", attributes: {className: "options"}, children: this.meals.map(function(meal, index){
         var checked = menu.meal && menu.meal.id === meal.id
 

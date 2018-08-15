@@ -49,8 +49,10 @@ class UrlMappings {
         "/admin/api/locations/save"(controller: "diningHall", action: "save")
 
         "/admin/orders"(controller: "orders", action: "index")
+        "/admin/orders/reports"(controller: "orders", action: "reports")
         "/admin/api/orders"(controller: "orders", action: "list")
         "/admin/api/orders/search"(controller: "orders", action: "search")
+        "/admin/api/orders/report"(controller: "orders", action: "report")
 
         "500"(view:'/error')
         "404"(view:'/notFound')

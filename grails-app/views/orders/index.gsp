@@ -54,15 +54,23 @@
       }.bind(this));
 
       document.getElementById("huid_search").addEventListener('change', function(e){
-        orderEditor.filterUser(e.target.value)
+        orderEditor.filter("user", e.target.value)
       })
 
       document.getElementById("location_search").addEventListener('change', function(e){
-        orderEditor.filterLocation(e.target.value)
+        orderEditor.filter("location", e.target.value)
       })
 
       document.getElementById("meal_search").addEventListener('change', function(e){
-        orderEditor.filterMeal(e.target.value)
+        orderEditor.filter("meal", e.target.value)
+      })
+
+      document.getElementById("start_date_search").addEventListener('change', function(e){
+        orderEditor.filter("start_date", e.target.value)
+      })
+
+      document.getElementById("end_date_search").addEventListener('change', function(e){
+        orderEditor.filter("end_date", e.target.value)
       })
     })
   </script>
