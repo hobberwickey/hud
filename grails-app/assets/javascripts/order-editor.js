@@ -1,6 +1,7 @@
 var OrderEditor = function(){
   this.orders = [];
   this.reports = [];
+  this.history = [];
   this.order = {diningHalls: []};
   this.filters = {
     page: 0
@@ -36,6 +37,24 @@ OrderEditor.prototype.getReport = function(){
       contentType: "application/json",
       success: function(resp) {
         this.reports = resp
+        res();
+      }.bind(this),
+      error: function(err) {
+        console.warn(err)
+        rej();
+      }.bind(this)
+    })
+  }.bind(this))  
+}
+
+OrderEditor.prototype.getHistory = function(){
+  return new Promise(function(res, rej){
+    $.ajax({
+      url: "/myhuds/orders/history",
+      type: "GET",
+      contentType: "application/json",
+      success: function(resp) {
+        this.history = resp
         res();
       }.bind(this),
       error: function(err) {
@@ -148,6 +167,43 @@ OrderEditor.prototype.buildReports = function() {
       {tag: "div", attributes: {className: "order-info popularity ", text: report[2] }},
       {tag: "div", attributes: {className: "order-info location", text: report[4] }},
       {tag: "div", attributes: {className: "order-info meal", text: report[5] }}
+    ]}
+
+    var html = Utils.buildHTML(struct);
+
+    if (wrapper !== null){
+      wrapper.parentNode.insertBefore(html, wrapper);
+      wrapper.parentNode.removeChild(wrapper);
+    } else {
+      parent.appendChild(html)
+    }
+  }
+}
+
+OrderEditor.prototype.buildHistory = function() {
+  for (var i=0; i<this.history.length; i++) {
+    var order = this.history[i],
+        parent = document.querySelector(".history"),
+        wrapper = document.querySelector(".order-" + order.id);
+
+    var pickupDates = order.orderPickups.sort(function(a, b){
+      return moment.utc(a.pickupDate).diff(moment.utc(b.pickupDate))
+    })
+
+    var struct = {tag: "li", attributes: {className: "info-list order order-" + order.id}, children: [
+      {tag: "div", attributes: {className: "order-info date", text: moment(pickupDates[0].pickupDate).format("M/D/YYYY") + " " + moment(pickupDates[0].pickupTime).format("h:mm a") }},
+      {tag: "div", attributes: {className: "order-info location ", text: order.diningHall.name }},
+      {tag: "div", attributes: {className: "order-info meal", text: order.menu.meal.name }},
+      {tag: "div", attributes: {className: "order-info selections"}, children: order.menuSelections.map(function(selection){
+        return {tag: "div", attributes: {className: "selection", text: selection.menuItem.name }}
+      })},
+      {tag: "div", attributes: {className: "order-item repeated", text: pickupDates.length > 1 ? "Repeat Until " + moment(pickupDates[pickupDates.length - 1].pickupDate).format("M/D/YYYY") : "" }},
+      (order.canceled  
+        ? {tag: "div", attributes: {className: "order-info status", text: "Canceled on " + moment(order.canceledOn).format("dddd, MMMM DD")}} 
+        : {tag: "div", attributes: {className: "order-info status"}, children: [
+            {tag: "a", attributes: {className: "btn", href: "/myhuds/orders/" + order.id + "/cancel", text: "Cancel Order"}}
+          ]}
+      )
     ]}
 
     var html = Utils.buildHTML(struct);

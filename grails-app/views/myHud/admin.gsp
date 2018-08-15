@@ -28,7 +28,7 @@
     <a href="/myhuds/orders/breakfast/create"><h2 style="margin-bottom: 5px;">Order Breakfast</h2></a>
     <a href="/myhuds/orders/lunch/create"><h2 style="margin-bottom: 5px;">Order Lunch</h2></a>
     <a href="/myhuds/orders/dinner/create"><h2 style="margin-bottom: 5px;">Order Dinner</h2></a>
-    <a href="/myhuds/order-history"><h2 style="margin-bottom: 5px;">Order History</h2></a>
+    <a href="/myhuds/orders/history"><h2 style="margin-bottom: 5px;">Order History</h2></a>
       
   </div>
   </div>

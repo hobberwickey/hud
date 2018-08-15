@@ -6,7 +6,7 @@
 </head>
 <body>
   <div class='admin'>
-    <h1><span>Orders</span></h2>
+    <h1>Orders</h1>
     
     <div class='filters' style='margin-bottom: 5px;'>
       <div class='input-wrapper'>
@@ -26,7 +26,6 @@
           </g:each>
         </select>
       </div>
-    </div>
     </div>
     <div class='content'>
       <ul class='content-header order-header'>

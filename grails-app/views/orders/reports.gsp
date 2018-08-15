@@ -6,7 +6,7 @@
 </head>
 <body>
   <div class='admin'>
-    <h1><span>Order Reports</span></h2>
+    <h1>Order Reports</h1>
     
     <div class='filters' style='margin-bottom: 5px;'>
       <div class='input-wrapper'>

@@ -13,6 +13,8 @@ class UrlMappings {
         "/myhuds/orders/${mealType}/create"(controller: "orders", action: "create")
         "/myhuds/orders/${mealType}/save"(controller: "orders", action: "save")
         "/myhuds/orders/${id}"(controller: "orders", action: "show")
+        "/myhuds/orders/history"(controller: "orders", action: "history")
+        "/myhuds/orders/${id}/cancel"(controller: "orders", action: "cancel")
 
         "/admin"(controller: "myHud", action: "admin")
         "/admin/api/meals"(controller: "meal", action: "list")

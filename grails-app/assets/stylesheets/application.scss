@@ -213,6 +213,12 @@ body {
           }
         }
       }
+
+      &.history-header {
+        li {
+          width: 16.6%;
+        }
+      }
     }
 
     .sortable-lists {
@@ -903,6 +909,18 @@ form {
             &:nth-child(4) {
               width: 15%;
             }
+          }
+        }
+      }
+
+      &.history {
+        li.info-list {
+          .order-info.date, .order-info.status {
+            text-transform: none;
+          }
+
+          & > div  {
+            width: 16.6%;
           }
         }
       }

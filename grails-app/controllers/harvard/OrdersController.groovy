@@ -11,7 +11,8 @@ class OrdersController {
     DiningHallService diningHallService
     MenuService menuService
     MealService mealService
-    
+    UserService userService 
+
     def sessionFactory
 
     static allowedMethods = [save: "POST", update: "PUT", delete: "DELETE"]
@@ -25,6 +26,20 @@ class OrdersController {
       params.max = Math.min(max ?: 10, 100)
       respond ordersService.list(params), model:[diningHalls: diningHallService.list(), meals: mealService.list()]
     } 
+
+    def history() {
+      //Get User
+      def user = userService.get(1)
+      def orders = Orders.withCriteria{
+        eq("user", user)
+      }
+
+      if (request.xhr) {
+        render orders as JSON
+      } else {
+        respond orders, [:]
+      }
+    }
 
     def list(Integer max, Integer page) {
         params.max = max ?: 10
@@ -413,6 +428,29 @@ class OrdersController {
 
       def results = query.list()
       render results as JSON
+    }
+
+    def cancel(Integer id) {
+      def order = ordersService.get(id)
+
+      // def user = getCurrentUser()
+      // if (order == null || order.user.id != user.id) {
+      //   notFound()
+      //   return
+      // }
+
+      order.canceled = true
+      order.canceledOn = new Date()
+
+      try {
+        ordersService.save(order)
+      } catch (ValidationException e) {
+        println e
+        render errors as JSON
+        return
+      }
+
+      redirect(controller: "orders", action: "history") 
     }
 
     protected void notFound() {

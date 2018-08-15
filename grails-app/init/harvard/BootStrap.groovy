@@ -105,6 +105,8 @@ class BootStrap {
           returnArray['user'] = it.user
           returnArray['menuSelections'] = it.menuSelections
           returnArray['orderPickups'] = it.orderPickups
+          returnArray['canceled'] = it.canceled
+          returnArray['canceledOn'] = it.canceledOn
 
       return returnArray
     }

@@ -23,4 +23,5 @@ databaseChangeLog = {
     include file: 'update_positioning.groovy'
     include file: 'fix_user_relations.groovy'
     include file: 'add_deleted_to_menus.groovy'
+    include file: 'add_canceled_to_orders.groovy'
 }
