@@ -153,7 +153,7 @@ ItemEditor.prototype.cancelEditMenuItem = function(section, item){
 }
 
 ItemEditor.prototype.toggleGroup = function(section, item, group, e) {
-  var existing = item.menuItemOptionGroups.filter(function(g){ return g.id === group.id })[0]
+  var existing = (item.menuItemOptionGroups || []).filter(function(g){ return g.id === group.id })[0]
 
   if (!!existing){
     item.menuItemOptionGroups.splice(item.menuItemOptionGroups.indexOf(existing), 1)
@@ -202,7 +202,7 @@ ItemEditor.prototype.removeMenuItem = function(section, item) {
 
 ItemEditor.prototype.addItem = function(section) {
   var name = document.querySelector(".section-" + (section.id || section.localId) + " .add-item-input").value,
-      item = {id: null, localId: Utils.genUUID(), name: name, position: section.menuItems.length};
+      item = {id: null, localId: Utils.genUUID(), name: name, position: section.menuItems.length, menuItemOptionGroups: []};
 
   section.menuItems.push(item)
   
@@ -245,7 +245,7 @@ ItemEditor.prototype.buildMenuSection = function(key, replace) {
           ]},
           {tag: "div", attributes: {className: "menu-item-options"}, children: this.options.map(function(group) {
             var activeClass = this.hasGroup(menuItem, group) ? "active " : "";
-            return {tag: "i", attributes: {className: activeClass + "fa fa-check", onClick: this.toggleGroup.bind(this, section, menuItem, group)}}
+            return {tag: "div", attributes: {className: activeClass + "icon icon-" + group.name.toLowerCase().replace(" ", "-"), onClick: this.toggleGroup.bind(this, section, menuItem, group)}}
           }.bind(this))}
         ]}
       } else {

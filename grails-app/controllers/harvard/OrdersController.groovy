@@ -10,6 +10,7 @@ class OrdersController {
     OrdersService ordersService
     DiningHallService diningHallService
     MenuService menuService
+    MenuSelectionService menuSelectionService
     MealService mealService
     UserService userService 
 
@@ -32,6 +33,7 @@ class OrdersController {
       def user = userService.get(1)
       def orders = Orders.withCriteria{
         eq("user", user)
+        order("updatedAt", "desc")
       }
 
       if (request.xhr) {
@@ -95,6 +97,8 @@ class OrdersController {
             }
           }
         }       
+      
+        order "updatedAt",  "desc"
       } as JSON
     }
 
@@ -102,8 +106,7 @@ class OrdersController {
         render ordersService.get(id) as JSON
     }
 
-    def create(String mealType) {
-        
+    def create(String mealType, Integer orderId) {
       def order = new Orders([:])
       def selectedMeal = Meal.findByName(mealType.capitalize())
       
@@ -186,12 +189,49 @@ class OrdersController {
 
     }
 
-    def save(String id) {
-      def order = new Orders([:])
-      def errors = [:]
-      def helper = new OrderHelper(params)
+    def edit(String mealType, Integer orderId) {
+      def order = ordersService.get(orderId)
+      def openDiningHalls
+      def allDiningHalls = diningHallService.list()
+      def selectedMeal = Meal.findByName(mealType.capitalize())
+      
+      if (order.orderPickups != null && order.orderPickups.size() > 0) {
+          openDiningHalls = DiningHall.findAll{ openingDate <= order.orderPickups[0].pickupDate && closingDate >= order.orderPickups[0].pickupDate }
+      }
 
-      def selectedMeal = Meal.findByName(id.capitalize())
+      def validator = new OrderValidator()
+          validator.validate(selectedMeal, order)    
+        
+
+      def model = [
+        order: order,
+        allLocations: allDiningHalls, 
+        availableLocations: openDiningHalls,
+        orderPickup: order.orderPickups[0] == null ? new OrderPickup() : order.orderPickups[0],
+        meal: selectedMeal,
+        errors: validator.errors,
+        helpers: new Helpers(params)
+      ]
+
+      render(view: "create", model: model)
+    }
+
+    def save(String mealType, Integer orderId) {
+      println "MEAL TYPE: " + mealType
+      println "ID: " + orderId
+      println "PARAMS: " + params
+
+      def order = new Orders([:])
+      // if (params.containsKey("id") && params["id"].isNumber()){
+      //   order = ordersService.get(params["id"]) 
+
+      //   if (order == null){
+      //     order = new Orders([:])
+      //   }  
+      // }
+
+      def helper = new OrderHelper(params)
+      def selectedMeal = Meal.findByName(mealType.capitalize())
 
       //TEMP
       def user = User.list().first()
@@ -251,7 +291,13 @@ class OrdersController {
               
               if (items != null) {
                 for (def i=0; i<items.size(); i++){
-                  order.addToMenuSelections(items[i])
+                  try {
+                    order.addToMenuSelections(items[i])
+                    // menuSelectionService.save(items[i])
+  
+                  } catch (ValidationException e) {
+                    println e 
+                  }
                 }
               }
 
@@ -293,14 +339,18 @@ class OrdersController {
         // println "VALID? " + validator.valid()
         if (validator.valid()) {
           try {
-            ordersService.save(order)
+            // ordersService.save(order)
+            order.save(flush: true)
+            order.menuSelections.each{ms -> 
+              ms.save(flush: true)
+            }
           } catch (ValidationException e) {
             println e
             render errors as JSON
             return
           }
-
-          redirect(controller: "orders", action: "index")
+          
+          redirect(controller: "orders", action: "history")
         } else {
           def openDiningHalls
           def allDiningHalls = diningHallService.list()
@@ -417,7 +467,7 @@ class OrdersController {
         whereClaus = "  WHERE " + filterClauses.join(" AND \n") + " \n"
       }
 
-      println part1 + whereClaus + part2 + whereClaus + part3
+      // println part1 + whereClaus + part2 + whereClaus + part3
 
       def session = sessionFactory.getCurrentSession()
       def query   = session.createSQLQuery(part1 + whereClaus + part2 + whereClaus + part3)
@@ -709,7 +759,13 @@ class OrderHelper {
 
     def createMenuSelection(item, options) {
       if (item != null) {
-        return new MenuSelection(menuItem: item, menuItemOptions: options)
+        def selection = new MenuSelection(menuItem: item)
+        
+        options.each{ option -> 
+          selection.addToMenuItemOptions(option)
+        }
+        
+        return selection
       } else {
         return null
       }
@@ -719,14 +775,6 @@ class OrderHelper {
       def selections = []
       def mains = this.getMenuItem("section." + section.id + ".menuItems")
       
-      // if (mains[0] == null) {
-      //   return null
-      // } else {
-      //   main = mains[0]
-      // }
-      
-      println mains
-
       mains.each{ main -> 
         def options = []
 

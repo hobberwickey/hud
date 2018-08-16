@@ -347,6 +347,10 @@ body {
                 width: 120px;
                 margin-right: -200px;
 
+                .icon {
+                  background-size: 24px 24px;
+                }
+
                 i.active {
                   color: $theme-orange;
                 }
@@ -357,6 +361,10 @@ body {
                 vertical-align: middle;
                 width: 80px;
                 margin-right: -200px;
+
+                i {
+                  text-align: center;
+                }
               }
             }
           }
@@ -1041,4 +1049,39 @@ select {
   -webkit-appearance: none;
   -moz-appearance: none;
   font-size: 14px;
+}
+
+.icon {
+  position: relative;
+  display: inline-block;
+  vertical-align: middle;
+  background-position: center;
+  background-size: contain;
+  background-repeat: no-repeat; 
+  width: 40px;
+  height: 40px;
+
+  &.icon-dressing {
+    background-image: url("dressing-off.svg");
+    
+    &.active {
+      background-image: url('dressing-on.svg');
+    }
+  }
+
+  &.icon-bread {
+    background-image: url("bread-off.svg");
+    
+    &.active {
+      background-image: url('bread-on.svg');
+    }
+  }
+
+  &.icon-cheese {
+    background-image: url("cheese-off.svg");
+    
+    &.active {
+      background-image: url('cheese-on.svg');
+    }
+  }
 }

@@ -11,7 +11,9 @@ class UrlMappings {
 
         "/myhuds"(controller: "myHud", action: "index")
         "/myhuds/orders/${mealType}/create"(controller: "orders", action: "create")
+        "/myhuds/orders/${mealType}/create/${orderId}"(controller: "orders", action: "edit")
         "/myhuds/orders/${mealType}/save"(controller: "orders", action: "save")
+        "/myhuds/orders/${mealType}/save/${orderId}"(controller: "orders", action: "save")
         "/myhuds/orders/${id}"(controller: "orders", action: "show")
         "/myhuds/orders/history"(controller: "orders", action: "history")
         "/myhuds/orders/${id}/cancel"(controller: "orders", action: "cancel")
@@ -51,11 +53,12 @@ class UrlMappings {
         "/admin/api/locations/save"(controller: "diningHall", action: "save")
 
         "/admin/orders"(controller: "orders", action: "index")
+        "/admin/orders/${id}"(controller: "orders", action: "show")
         "/admin/orders/reports"(controller: "orders", action: "reports")
         "/admin/api/orders"(controller: "orders", action: "list")
         "/admin/api/orders/search"(controller: "orders", action: "search")
         "/admin/api/orders/report"(controller: "orders", action: "report")
-
+        
         "500"(view:'/error')
         "404"(view:'/notFound')
     }

@@ -7,7 +7,7 @@
 <body>
   <div class='public'>
     <div class='content order'>
-      <g:form  class='order-form' controller="orders" action="save" id="${ meal.name.toLowerCase() }" method="post">
+      <form  class='order-form' action="/myhuds/orders/${ meal.name.toLowerCase() }/save/${ order.id == null ? '' : order.id }" mealType="" method="post">
         <div class='section'>
           <fieldset>
             <legend>Pick up Date</legend>
@@ -342,7 +342,7 @@
         </div>
 
         <input type='submit' class="btn" />
-      </g:form>
+      </form>
     </div>
   </div>
 
