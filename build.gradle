@@ -80,6 +80,9 @@ tasks.withType(Test) {
     systemProperty "webdriver.gecko.driver", System.getProperty('webdriver.gecko.driver')
 }
 
+task stage(dependsOn: ['build', 'clean'])
+build.mustRunAfter clean
+
 assets {
     minifyJs = true
     minifyCss = true
