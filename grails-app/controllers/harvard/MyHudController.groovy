@@ -9,10 +9,12 @@ class MyHudController {
 
     static allowedMethods = []
 
-    def index() {
+    def home() {
       //// TEMP ////
       def user = userService.get(1)
       respond [:], model:[user: user]
+
+      render ( view: "home", layout: "student" )
     }
 
     def admin(MenuSection menuSection) {
