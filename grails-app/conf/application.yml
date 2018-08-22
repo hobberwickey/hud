@@ -112,7 +112,9 @@ environments:
     production:
         dataSource:
             dbCreate: none
-            url: jdbc:h2:./prodDb;MVCC=TRUE;LOCK_TIMEOUT=10000;DB_CLOSE_ON_EXIT=FALSE
+            url: jdbc:mysql://aa10l6aocdan9hy.cxgx4ax5hb5b.eu-west-1.rds.amazonaws.com
+            username: hudsDemo
+            password: Sup3rman!
             properties:
                 jmxEnabled: true
                 initialSize: 5

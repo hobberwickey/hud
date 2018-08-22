@@ -4,6 +4,7 @@ class OrderPickup {
     Date pickupDate
     Date pickupTime
     boolean pickedUp
+    Orders orders
 
     static belongsTo = [Orders]
 

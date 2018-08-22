@@ -1,6 +1,6 @@
-#Tue, 21 Aug 2018 16:51:31 -0400
+#Wed, 22 Aug 2018 09:25:31 -0400
 
 info.app.version=0.1
 info.app.name=hud
-grails.env=development
+grails.env=production
 info.app.grailsVersion=3.3.6

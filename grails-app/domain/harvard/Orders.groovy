@@ -11,7 +11,7 @@ class Orders {
     boolean canceled
     Date canceledOn
 
-    static belongsTo = [User, Menu, DiningHall]
+    static belongsTo = [User, Menu, DiningHall, OrderPickup]
     static hasMany = [menuSelections: MenuSelection, orderPickups: OrderPickup]
 
     static mapping = {

@@ -111,6 +111,17 @@ class BootStrap {
       return returnArray
     }
 
+    JSON.registerObjectMarshaller(OrderPickup) {
+      def returnArray = [:]
+          returnArray['id'] = it.id
+          returnArray['pickedUp'] = it.pickedUp
+          returnArray['pickupDate'] = it.pickupDate
+          returnArray['pickupTime'] = it.pickupTime
+          returnArray['orders'] = it.orders
+
+      return returnArray
+    }
+
     JSON.registerObjectMarshaller(MenuSelection) {
       def returnArray = [:]
           returnArray['id'] = it.id

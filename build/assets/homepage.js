@@ -1,0 +1,2 @@
+//# sourceMappingURL=homepage.js.map
+$(document).ready(function(){$(".toggle").on("keypress click",function(){$input=$(this);$state=$input.attr("aria-pressed");"false"==$state?$input.attr("aria-pressed","true"):$input.attr("aria-pressed","false")})});

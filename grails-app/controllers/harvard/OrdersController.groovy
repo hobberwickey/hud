@@ -28,12 +28,17 @@ class OrdersController {
       respond ordersService.list(params), model:[diningHalls: diningHallService.list(), meals: mealService.list()]
     } 
 
-    def history() {
+    def history(Integer max, Integer page) {
       //Get User
+      params.max = max ?: 20
+      params.offset = (page ?: 0) * params.max
+
       def user = userService.get(1)
       def orders = Orders.withCriteria{
         eq("user", user)
         order("updatedAt", "desc")
+        maxResults(params.max)
+        firstResult(params.offset)
       }
 
       if (request.xhr) {
@@ -41,70 +46,77 @@ class OrdersController {
       } else {
         respond orders, [:]
       }
+
+      // render OrderPickup.get(122) as JSON
     }
 
     def list(Integer max, Integer page) {
-        params.max = max ?: 10
+        params.max = max ?: 20
         params.offset = (page ?: 0) * params.max
 
         render ordersService.list(params) as JSON
     }
 
     def search(Integer max, Integer page) {
-      params.max = max ?: 10
-      params.offset = (page ?: 0) * params.max
-
-      render Orders.withCriteria() {
+      max = max ?: 20
+      def offset = (page ?: 0) * max
+      
+      params.end_date = params.end_date ?: new Date().format("yyyy-MM-dd")
+      params.start_date = params.start_date ?: (new Date() - 7).format("yyyy-MM-dd")
+      
+      render OrderPickup.createCriteria().list([max: max, offset: offset]) {
         params.each{ key, value -> 
           if (key == "user") {
             if (value.isNumber()) {
-              user {
-                eq("huid", value.toInteger())
+              orders {
+                user {
+                  eq("huid", value.toInteger())
+                }
               }
             } else {
-              user {
-                or {
-                  like("firstName", value + "%")
-                  like("lastName", value + "%")
+              orders {
+                user {
+                  or {
+                    like("firstName", value + "%")
+                    like("lastName", value + "%")
+                  }
                 }
               }
             }
           }
 
           if (key == "location") {
-            diningHall {
-              eq("name", value)
-            }
-          }
-
-          if (key == "meal") {
-            menu {
-              meal {
+            orders {
+              diningHall {
                 eq("name", value)
               }
             }
           }
 
-          if (key == "start_date") {
-            orderPickups {
-              gt("pickupDate", new Date().parse("yyyy-MM-dd", value))
+          if (key == "meal") {
+            orders {
+              menu {
+                meal {
+                  eq("name", value)
+                }
+              }
             }
+          }
+
+          if (key == "start_date") {
+            gt("pickupDate", new Date().parse("yyyy-MM-dd", value))
           }
 
           if (key == "end_date"){
-            orderPickups {
-              lt("pickupDate", new Date().parse("yyyy-MM-dd", value))
-            }
+            lt("pickupDate", new Date().parse("yyyy-MM-dd", value))
           }
 
           if (key == "status") {
-            orderPickups {
-              eq("pickedUp", value.toBoolean())
-            }
+            eq("pickedUp", value.toBoolean())
           }
         }       
       
-        order "updatedAt",  "desc"
+        order "pickupDate",  "desc"
       } as JSON
     }
 
@@ -232,7 +244,6 @@ class OrdersController {
 
     def save(String mealType, Integer orderId) {
       def order
-      println orderId
       if (orderId != null){
         order = ordersService.get(orderId)
       } else {
@@ -257,7 +268,7 @@ class OrdersController {
       order.orderPickups.collect().each { 
         order.removeFromOrderPickups(it)
       }
-      def orderPickup = new OrderPickup()
+      def orderPickup = new OrderPickup(pickedUp: true)
       if (params.containsKey("pickupDate")) {
         orderPickup.pickupDate = new Date(params.pickupDate)
       }
@@ -281,7 +292,7 @@ class OrdersController {
             def nextPickup = new Date(params.pickupDate).plus(7)
 
             while (nextPickup < endDate && nextPickup < order.diningHall.closingDate){
-              def repeatPickup = new OrderPickup(pickupDate: nextPickup, pickupTime: orderPickup.pickupTime)
+              def repeatPickup = new OrderPickup(pickupDate: nextPickup, pickupTime: orderPickup.pickupTime, pickedUp: true)
               order.addToOrderPickups(repeatPickup)
 
               nextPickup = nextPickup.plus(7)
@@ -355,9 +366,8 @@ class OrdersController {
         def validator = new OrderValidator()
             validator.validate(selectedMeal, order)    
         
-        order.println order.menuSelections
         // println "VALID? " + validator.valid()
-        // if (validator.valid()) {
+        if (validator.valid()) {
           try {
             // ordersService.save(order)
             order.save(flush: true)
@@ -371,28 +381,28 @@ class OrdersController {
           }
           
           redirect(controller: "orders", action: "history")
-        // } else {
-        //   def openDiningHalls
-        //   def allDiningHalls = DiningHall.withCriteria {
-        //     ne("deleted", true)
-        //   }
+        } else {
+          def openDiningHalls
+          def allDiningHalls = DiningHall.withCriteria {
+            ne("deleted", true)
+          }
 
-        //   if (order.orderPickups != null && order.orderPickups.size() > 0) {
-        //       openDiningHalls = DiningHall.findAll{ openingDate <= order.orderPickups[0].pickupDate && closingDate >= order.orderPickups[0].pickupDate }
-        //   }
+          if (order.orderPickups != null && order.orderPickups.size() > 0) {
+              openDiningHalls = DiningHall.findAll{ openingDate <= order.orderPickups[0].pickupDate && closingDate >= order.orderPickups[0].pickupDate }
+          }
 
-        //   def model = [
-        //     order: order,
-        //     allLocations: allDiningHalls, 
-        //     availableLocations: openDiningHalls,
-        //     orderPickup: order.orderPickups[0] == null ? new OrderPickup() : order.orderPickups[0],
-        //     meal: selectedMeal,
-        //     errors: validator.errors,
-        //     helpers: new Helpers(params)
-        //   ]
+          def model = [
+            order: order,
+            allLocations: allDiningHalls, 
+            availableLocations: openDiningHalls,
+            orderPickup: order.orderPickups[0] == null ? new OrderPickup() : order.orderPickups[0],
+            meal: selectedMeal,
+            errors: validator.errors,
+            helpers: new Helpers(params)
+          ]
 
-        //   render(view: "create", model: model)
-        // }
+          render(view: "create", model: model)
+        }
       }
 
       def validator = new OrderValidator()
@@ -422,6 +432,9 @@ class OrdersController {
     }
 
     def report() {
+      def max = params.max ?: 20
+      def offset = (params.page ?: 0) * max
+
       def part1 = """
         SELECT 
           popularity.menu_item_id as menu_item_id, 
@@ -439,8 +452,7 @@ class OrdersController {
           FROM menu_selection 
             LEFT JOIN menu_item ON menu_selection.menu_item_id = menu_item.id
             LEFT JOIN orders ON menu_selection.orders_id = orders.id
-            LEFT JOIN orders_order_pickup ON orders.id = orders_order_pickup.orders_order_pickups_id
-            LEFT JOIN order_pickup ON order_pickup.id = orders_order_pickup.order_pickup_id
+            LEFT JOIN order_pickup ON order_pickup.orders_id = orders.id
             LEFT JOIN dining_hall ON orders.dining_hall_id = dining_hall.id
             LEFT JOIN menu ON orders.menu_id = menu.id
             LEFT JOIN meal ON menu.meal_id = meal.id
@@ -454,8 +466,7 @@ class OrdersController {
             meal.id
         ) AS popularity ON popularity.menu_item_id = menu_selection.menu_item_id
         LEFT JOIN orders ON menu_selection.orders_id = orders.id
-        LEFT JOIN orders_order_pickup ON orders.id = orders_order_pickup.orders_order_pickups_id
-        LEFT JOIN order_pickup ON order_pickup.id = orders_order_pickup.order_pickup_id
+        LEFT JOIN order_pickup ON order_pickup.orders_id = orders.id
         LEFT JOIN dining_hall ON orders.dining_hall_id = dining_hall.id
         LEFT JOIN menu ON orders.menu_id = menu.id
         LEFT JOIN meal ON menu.meal_id = meal.id
@@ -470,6 +481,8 @@ class OrdersController {
           dining_hall.name, 
           meal
         ORDER BY popularity.menu_item_popularity DESC
+        LIMIT :max
+        OFFSET :offset
       """
 
       def whereClaus = ""
@@ -500,6 +513,9 @@ class OrdersController {
         query.setParameterList(key, value)
       }
 
+      query.setInteger("max", max.toInteger())
+      query.setInteger("offset", offset.toInteger())
+
       def results = query.list()
       render results as JSON
     }
@@ -520,11 +536,31 @@ class OrdersController {
         ordersService.save(order)
       } catch (ValidationException e) {
         println e
-        render errors as JSON
+        render e as JSON
         return
       }
 
       redirect(controller: "orders", action: "history") 
+    }
+
+    def mark_not_picked_up(Integer id) {
+      def pickup = OrderPickup.get(id)
+
+      if (pickup == null) {
+        notFound()
+        return
+      } 
+      
+      pickup.pickedUp = false
+
+      try {
+        pickup.save(flush: true, failOnError: true)
+        render pickup as JSON
+      } catch (ValidationException e) {
+        println e
+        render e as JSON
+        return
+      }
     }
 
     protected void notFound() {

@@ -9,6 +9,9 @@ var OrderEditor = function(){
   this.reportFilters = {
     page: 0
   }
+  this.historyFilters = {
+    page: 0
+  }
 }
 
 OrderEditor.prototype.search = function(){
@@ -50,7 +53,7 @@ OrderEditor.prototype.getReport = function(){
 OrderEditor.prototype.getHistory = function(){
   return new Promise(function(res, rej){
     $.ajax({
-      url: "/myhuds/orders/history",
+      url: "/myhuds/orders/history?" + $.param(this.historyFilters),
       type: "GET",
       contentType: "application/json",
       success: function(resp) {
@@ -63,6 +66,31 @@ OrderEditor.prototype.getHistory = function(){
       }.bind(this)
     })
   }.bind(this))  
+}
+
+OrderEditor.prototype.markNotPickedUp = function(id) {
+  return new Promise(function(res, rej){
+    $.ajax({
+      url: "/admin/api/pickup/" + id + "/report",
+      type: "GET",
+      contentType: "application/json",
+      success: function(resp) {
+        var order = this.orders.filter(function(o){
+          return o.id === resp.id
+        })[0];
+
+        if (!!order){
+          order.pickedUp = false;  
+        }
+
+        this.buildOrders();
+      }.bind(this),
+      error: function(err) {
+        console.warn(err)
+        rej();
+      }.bind(this)
+    })
+  }.bind(this))
 }
 
 OrderEditor.prototype.filterReports = function(key, value){
@@ -92,12 +120,95 @@ OrderEditor.prototype.updateReports = function() {
   }.bind(this))
 }
 
-OrderEditor.prototype.filter = function(key, value) {
+OrderEditor.prototype.previousPage = function() {
+  if (this.filters.page > 0){
+    this.filters.page -= 1;
+    this.search().then(function(){
+      document.querySelector(".admin-list.orders").innerHTML = "";
+      this.buildOrders();
+      if (this.filters.page === 0){
+        document.querySelector(".btn.prev").style.display = "none";
+      }
+    }.bind(this))
+  }
+}
+
+OrderEditor.prototype.nextPage = function() {
+  // if (this.filters.page){
+    this.filters.page += 1;
+    this.search().then(function(){
+      document.querySelector(".admin-list.orders").innerHTML = "";
+      this.buildOrders();
+      if (this.filters.page > 0){
+        document.querySelector(".btn.prev").style.display = "inline-block";
+      } 
+    }.bind(this))
+  // }
+}
+
+OrderEditor.prototype.previousReportPage = function() {
+  if (this.reportFilters.page > 0){
+    this.reportFilters.page -= 1;
+    this.getReport().then(function(){
+      document.querySelector(".admin-list.reports").innerHTML = "";
+      this.buildReports();
+      if (this.reportFilters.page === 0){
+        document.querySelector(".btn.prev").style.display = "none";
+      }
+    }.bind(this))
+  }
+}
+
+OrderEditor.prototype.nextReportPage = function() {
+  // if (this.filters.page){
+    this.reportFilters.page += 1;
+    this.getReport().then(function(){
+      document.querySelector(".admin-list.reports").innerHTML = "";
+      this.buildReports();
+      if (this.reportFilters.page > 0){
+        document.querySelector(".btn.prev").style.display = "inline-block";
+      } 
+    }.bind(this))
+  // }
+}
+
+OrderEditor.prototype.previousHistoryPage = function() {
+  if (this.historyFilters.page > 0){
+    this.historyFilters.page -= 1;
+    this.getHistory().then(function(){
+      document.querySelector(".admin-list.history").innerHTML = "";
+      this.buildHistory();
+      if (this.historyFilters.page === 0){
+        document.querySelector(".btn.prev").style.display = "none";
+      }
+    }.bind(this))
+  }
+}
+
+OrderEditor.prototype.nextHistoryPage = function() {
+  // if (this.filters.page){
+    this.historyFilters.page += 1;
+    this.getHistory().then(function(){
+      document.querySelector(".admin-list.history").innerHTML = "";
+      this.buildHistory();
+      if (this.historyFilters.page > 0){
+        document.querySelector(".btn.prev").style.display = "inline-block";
+      } 
+    }.bind(this))
+  // }
+}
+
+OrderEditor.prototype.filter = function(key, value, e) {
   if (value == ""){
     delete this.filters[key]
   } else {
     if (key === "start_date" || key === "end_date") {
       if (!moment(value, 'YYYY-MM-DD', true)) {
+        return
+      }
+
+      if (moment(value, "YYYY-MM-DD").isAfter(moment())){
+        e.target.value = moment().format("YYYY-MM-DD");
         return
       }
     }
@@ -139,12 +250,13 @@ OrderEditor.prototype.isComplete = function(order){
 
 OrderEditor.prototype.buildOrders = function() {
   for (var i=0; i<this.orders.length; i++) {
-    var order = this.orders[i],
+    var pickup = this.orders[i],
+        order = pickup.orders,
         parent = document.querySelector(".orders"),
-        wrapper = document.querySelector(".order-" + order.id);
+        wrapper = document.querySelector(".order-" + pickup.id);
 
-    var struct = {tag: "li", attributes: {className: "info-list order order-" + order.id}, children: [
-      {tag: "div", attributes: {className: "order-info date", text: !!order.orderPickups[0] ? moment(order.orderPickups[0].pickupDate).format("MM/DD/YYYY") + moment(order.orderPickups[0].pickupTime).format(" h:mm a") : "" }},
+    var struct = {tag: "li", attributes: {className: "info-list order order-" + pickup.id}, children: [
+      {tag: "div", attributes: {className: "order-info date", text: moment(pickup.pickupDate).format("MM/DD/YYYY") + moment(pickup.pickupTime).format(" h:mm a") }},
       {tag: "div", attributes: {className: "order-info location ", text: !!order.diningHall ? order.diningHall.name : ""}},
       {tag: "div", attributes: {className: "order-info meal", text: !!order.menu ? order.menu.meal.name : ""}},
       {tag: "div", attributes: {className: "order-info user"}, children: [
@@ -156,8 +268,8 @@ OrderEditor.prototype.buildOrders = function() {
         return {tag: "div", attributes: {text: s.menuItem.name}}
       })},
       {tag: "div", attributes: {className: "action"}, children: [
-        {tag: "div", attributes: {text: !!order.orderPickups[0] && order.orderPickups[0].pickedUp ? "Picked Up" : "Picked Up" }},
-        {tag: "input", attributes: {type: "button", className: "btn", value: "Change" }}
+        {tag: "div", attributes: {text: !!pickup && pickup.pickedUp ? "Picked Up" : "Not Picked Up" }},
+        {tag: "input", attributes: {type: "button", className: "btn", value: "Change", onClick: this.markNotPickedUp.bind(this, pickup.id) }, condition: function(p){ return p.pickedUp }.bind(this, pickup)}
       ]}
     ]}
 

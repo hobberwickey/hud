@@ -60,6 +60,7 @@ class UrlMappings {
         "/admin/api/orders"(controller: "orders", action: "list")
         "/admin/api/orders/search"(controller: "orders", action: "search")
         "/admin/api/orders/report"(controller: "orders", action: "report")
+        "/admin/api/pickup/${id}/report"(controller: "orders", action: "mark_not_picked_up")
         
         "500"(view:'/error')
         "404"(view:'/notFound')
