@@ -116,9 +116,9 @@ environments:
             dbCreate: update
             url: jdbc:h2:mem:testDb;MVCC=TRUE;LOCK_TIMEOUT=10000;DB_CLOSE_ON_EXIT=FALSE
     production:
-        server: 
-            host: '0.0.0.0'
-            port: 8080
+        # server: 
+        #     host: '0.0.0.0'
+        #     port: 8080
         dataSource:
             dbCreate: none
             # url: jdbc:mysql://b8183bba842d62:ed9bc297@us-cdbr-iron-east-01.cleardb.net/heroku_c4f5d70792818c6?reconnect=true
