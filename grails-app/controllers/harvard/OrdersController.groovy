@@ -34,17 +34,25 @@ class OrdersController {
       params.offset = (page ?: 0) * params.max
 
       def user = userService.get(1)
-      def orders = Orders.withCriteria{
-        eq("user", user)
-        order("updatedAt", "desc")
-        maxResults(params.max)
-        firstResult(params.offset)
-      }
+      // def orders = Orders.withCriteria{
+      //   eq("user", user)
+      //   order("updatedAt", "desc")
+      //   maxResults(params.max)
+      //   firstResult(params.offset)
+      // }
 
       if (request.xhr) {
-        render orders as JSON
+        def output = [:]
+        def count = Orders.history(user, params).count()
+        def results = Orders.history(user, params).list([max: params.max, offset: params.offset])
+
+        output.count = count
+        output.results = results
+
+        response.setHeader('Content-Type', 'application/json')
+        render output as JSON
       } else {
-        respond orders, [:]
+        respond ordersService.list(params), [:]
       }
 
       // render OrderPickup.get(122) as JSON
@@ -64,60 +72,69 @@ class OrdersController {
       params.end_date = params.end_date ?: new Date().format("yyyy-MM-dd")
       params.start_date = params.start_date ?: (new Date() - 7).format("yyyy-MM-dd")
       
-      render OrderPickup.createCriteria().list([max: max, offset: offset]) {
-        params.each{ key, value -> 
-          if (key == "user") {
-            if (value.isNumber()) {
-              orders {
-                user {
-                  eq("huid", value.toInteger())
-                }
-              }
-            } else {
-              orders {
-                user {
-                  or {
-                    like("firstName", value + "%")
-                    like("lastName", value + "%")
-                  }
-                }
-              }
-            }
-          }
+      // render OrderPickup.createCriteria().list([max: max, offset: offset]) {
+        // params.each{ key, value -> 
+        //   if (key == "user") {
+        //     if (value.isNumber()) {
+        //       orders {
+        //         user {
+        //           eq("huid", value.toInteger())
+        //         }
+        //       }
+        //     } else {
+        //       orders {
+        //         user {
+        //           or {
+        //             like("firstName", value + "%")
+        //             like("lastName", value + "%")
+        //           }
+        //         }
+        //       }
+        //     }
+        //   }
 
-          if (key == "location") {
-            orders {
-              diningHall {
-                eq("name", value)
-              }
-            }
-          }
+        //   if (key == "location") {
+        //     orders {
+        //       diningHall {
+        //         eq("name", value)
+        //       }
+        //     }
+        //   }
 
-          if (key == "meal") {
-            orders {
-              menu {
-                meal {
-                  eq("name", value)
-                }
-              }
-            }
-          }
+        //   if (key == "meal") {
+        //     orders {
+        //       menu {
+        //         meal {
+        //           eq("name", value)
+        //         }
+        //       }
+        //     }
+        //   }
 
-          if (key == "start_date") {
-            gt("pickupDate", new Date().parse("yyyy-MM-dd", value))
-          }
+        //   if (key == "start_date") {
+        //     gt("pickupDate", new Date().parse("yyyy-MM-dd", value))
+        //   }
 
-          if (key == "end_date"){
-            lt("pickupDate", new Date().parse("yyyy-MM-dd", value))
-          }
+        //   if (key == "end_date"){
+        //     lt("pickupDate", new Date().parse("yyyy-MM-dd", value))
+        //   }
 
-          if (key == "status") {
-            eq("pickedUp", value.toBoolean())
-          }
-        }       
+        //   if (key == "status") {
+        //     eq("pickedUp", value.toBoolean())
+        //   }
+        // }       
       
-        order "pickupDate",  "desc"
-      } as JSON
+        // order "pickupDate",  "desc"
+      // } as JSON
+      def output = [:]
+      def count = OrderPickup.search(params).count()
+      def results = OrderPickup.search(params).list([max: max, offset: offset])
+
+      output.count = count
+      output.results = results
+
+      response.setHeader('Content-Type', 'application/json')
+      render output as JSON
     }
 
     def show(Long id) {
@@ -435,6 +452,12 @@ class OrdersController {
       def max = params.max ?: 20
       def offset = (params.page ?: 0) * max
 
+      def countSelect = """
+        SELECT 
+          COUNT(t.menu_item_id)
+        FROM (
+      """
+
       def part1 = """
         SELECT 
           popularity.menu_item_id as menu_item_id, 
@@ -479,8 +502,11 @@ class OrdersController {
           popularity.menu_item_popularity, 
           dining_hall.id, 
           dining_hall.name, 
-          meal
+          meal.name
         ORDER BY popularity.menu_item_popularity DESC
+      """
+
+      def part4 = """
         LIMIT :max
         OFFSET :offset
       """
@@ -507,17 +533,27 @@ class OrdersController {
       // println part1 + whereClaus + part2 + whereClaus + part3
 
       def session = sessionFactory.getCurrentSession()
-      def query   = session.createSQLQuery(part1 + whereClaus + part2 + whereClaus + part3)
+      def query   = session.createSQLQuery(part1 + whereClaus + part2 + whereClaus + part3 + part4)
+      def countQuery = session.createSQLQuery(countSelect + part1 + whereClaus + part2 + whereClaus + part3 + ") as t")
+
+      println countSelect + part1 + whereClaus + part2 + whereClaus + part3 + ")"
 
       filterValues.each{ key, value -> 
         query.setParameterList(key, value)
+        countQuery.setParameterList(key, value)
       }
 
       query.setInteger("max", max.toInteger())
       query.setInteger("offset", offset.toInteger())
 
+      def output = [:]
+      def count = countQuery.list()
       def results = query.list()
-      render results as JSON
+      
+      output.count = count
+      output.results = results
+      
+      render output as JSON
     }
 
     def cancel(Integer id) {

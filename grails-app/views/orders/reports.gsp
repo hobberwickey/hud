@@ -10,8 +10,8 @@
     
     <div class='filters' style='margin-bottom: 5px;'>
       <div class='input-wrapper'>
-        <input id='start_date_search' type='date' name='start-date' max="${new Date().format( 'yyyy-MM-dd' )}" placeholder="Start Date" />
-        <input id='end_date_search' type="date" name="end-date" max="${new Date().format( 'yyyy-MM-dd' )}" placeholder="End Date" />
+        <input id='start_date_search' type='date' name='start-date' placeholder="Start Date" />
+        <input id='end_date_search' type="date" name="end-date" placeholder="End Date" />
         <select id='location_search' name="locations">
           <option value=''>All Locations</option>
           <g:each in="${ diningHalls }" var="${ diningHall }">
@@ -26,6 +26,7 @@
         </select>
       </div>
     </div>
+    <div class='count'></div>
     <div class='content'>
       <ul class='content-header report-header'>
         <li><label>Item</label></li

@@ -13,6 +13,63 @@ class OrderPickup {
       sort 'pickupDate' 
     }
 
+    static namedQueries = {
+      search { params -> 
+        params.each{ key, value -> 
+          if (key == "user") {
+            if (value.isNumber()) {
+              orders {
+                user {
+                  eq("huid", value.toInteger())
+                }
+              }
+            } else {
+              orders {
+                user {
+                  or {
+                    like("firstName", value + "%")
+                    like("lastName", value + "%")
+                  }
+                }
+              }
+            }
+          }
+
+          if (key == "location") {
+            orders {
+              diningHall {
+                eq("name", value)
+              }
+            }
+          }
+
+          if (key == "meal") {
+            orders {
+              menu {
+                meal {
+                  eq("name", value)
+                }
+              }
+            }
+          }
+
+          if (key == "start_date") {
+            gt("pickupDate", new Date().parse("yyyy-MM-dd", value))
+          }
+
+          if (key == "end_date"){
+            lt("pickupDate", new Date().parse("yyyy-MM-dd", value))
+          }
+
+          if (key == "status") {
+            eq("pickedUp", value.toBoolean())
+          }
+        }       
+      
+        order "pickupDate",  "desc"
+      }
+    }
+
     static constraints = {
     
     }

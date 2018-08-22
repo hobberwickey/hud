@@ -7,6 +7,7 @@
 <body>
   <div class='admin'>
     <h1>Orders History</h1>
+    <div class='count'></div>
     <div class='content'>
       <ul class='content-header history-header'>
         <li><label>Pickup</label></li

@@ -14,6 +14,13 @@ class Orders {
     static belongsTo = [User, Menu, DiningHall, OrderPickup]
     static hasMany = [menuSelections: MenuSelection, orderPickups: OrderPickup]
 
+    static namedQueries = {
+      history { user, params -> 
+        eq("user", user)
+        order("updatedAt", "desc")
+      }
+    }
+
     static mapping = {
         menuSelections(cascade: "all-delete-orphan")
         orderPickups(cascade: "all-delete-orphan")

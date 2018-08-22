@@ -105,6 +105,8 @@ environments:
         dataSource:
             dbCreate: none
             url: jdbc:mysql://127.0.0.1:3306/harvard
+            username: "root"
+            password: ""
             # url: jdbc:mysql://us-cdbr-iron-east-01.cleardb.net/heroku_c4f5d70792818c6?reconnect=true
             # username: b8183bba842d62
             # password: ed9bc297

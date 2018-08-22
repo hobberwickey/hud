@@ -1,4 +1,5 @@
 var OrderEditor = function(){
+  this.count = 0
   this.orders = [];
   this.reports = [];
   this.history = [];
@@ -21,7 +22,8 @@ OrderEditor.prototype.search = function(){
       type: "GET",
       contentType: "application/json",
       success: function(resp) {
-        this.orders = resp
+        this.count = resp.count
+        this.orders = resp.results
         res();
       }.bind(this),
       error: function(err) {
@@ -39,7 +41,8 @@ OrderEditor.prototype.getReport = function(){
       type: "GET",
       contentType: "application/json",
       success: function(resp) {
-        this.reports = resp
+        this.count = resp.count[0]
+        this.reports = resp.results
         res();
       }.bind(this),
       error: function(err) {
@@ -57,7 +60,8 @@ OrderEditor.prototype.getHistory = function(){
       type: "GET",
       contentType: "application/json",
       success: function(resp) {
-        this.history = resp
+        this.count = resp.count
+        this.history = resp.results
         res();
       }.bind(this),
       error: function(err) {
@@ -232,6 +236,7 @@ OrderEditor.prototype.updateOrders = function(){
 
 OrderEditor.prototype.buildEmptyResults = function(){
   document.querySelector(".orders").innerHTML = ""
+  document.querySelector(".count").innerHTML = this.count + " results matched your query"
 }
 
 OrderEditor.prototype.buildEmptyReports = function(){
@@ -282,6 +287,8 @@ OrderEditor.prototype.buildOrders = function() {
       parent.appendChild(html)
     }
   }
+
+  document.querySelector(".count").innerHTML = this.count + " results matched your query"
 }
 
 OrderEditor.prototype.buildReports = function() {
@@ -306,6 +313,8 @@ OrderEditor.prototype.buildReports = function() {
       parent.appendChild(html)
     }
   }
+
+  document.querySelector(".count").innerHTML = this.count + " results matched your query"
 }
 
 OrderEditor.prototype.buildHistory = function() {
@@ -346,5 +355,7 @@ OrderEditor.prototype.buildHistory = function() {
     } else {
       parent.appendChild(html)
     }
+
+    document.querySelector(".count").innerHTML = this.count + " results matched your query"
   }
 }
