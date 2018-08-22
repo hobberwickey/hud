@@ -80,8 +80,23 @@ tasks.withType(Test) {
     systemProperty "webdriver.gecko.driver", System.getProperty('webdriver.gecko.driver')
 }
 
-task stage(dependsOn: ['build', 'clean'])
-build.mustRunAfter clean
+dependencies {
+  compile 'com.github.jsimone:webapp-runner:8.5.11.3'
+}
+
+task stage() {
+    dependsOn clean, war
+}
+war.mustRunAfter clean
+
+task copyToLib(type: Copy) {
+    into "$buildDir/server"
+    from(configurations.compile) {
+        include "webapp-runner*"
+    }
+}
+
+stage.dependsOn(copyToLib)
 
 assets {
     minifyJs = true
