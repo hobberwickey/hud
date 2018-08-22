@@ -6,8 +6,23 @@
 </head>
 <body>
   <div class='public'>
+    <h1>Order ${ meal.name }</h1>
     <div class='content order'>
-      <form  class='order-form' action="/myhuds/orders/${ meal.name.toLowerCase() }/save/${ order.id == null ? '' : order.id }" mealType="" method="post">
+      <form  class='order-form' action="/myhuds/orders/${ meal.name.toLowerCase() }/save/${ order.id == null ? '' : order.id }" method="post">
+        <input name='id' type="hidden" value="${ order.id }" />
+        <div class='section'>
+          <p>
+            Place your order before the end of staffed service for the next day. 
+            You may order one meal-to-go per meal period. <strong>Please note: ordering 
+            a Meal-to-Go will prevent you from eating a regular meal in a 
+            dining hall at the designated meal period without special permission from a dining 
+            hall manager.</strong> Bag meals are only available for pick-up when the dining 
+            halls are open.
+          </p>
+          <p>
+            Please Note: Upperclassmen may not order bag meals from Annenberg, and should instead use fly by.
+          </p>
+        </div>
         <div class='section'>
           <fieldset>
             <legend>Pick up Date</legend>
@@ -41,7 +56,7 @@
             </g:if>
             <g:each in="${ helpers.availableTimes() }" var="time">
               <div class='input-wrapper radio pickupTime'>
-                <g:radio name="pickupTime" value="${ time }" readonly="${ true }" checked="${ helpers.isSameDate(time, orderPickup.pickupTime) }"></g:radio>
+                <g:radio name="pickupTime" value="${ time }" readonly="${ true }" checked="${ helpers.isSameTime(time, orderPickup.pickupTime) }"></g:radio>
                 <a href="${ helpers.replaceParam('pickupTime', time) }">
                   <label class='btn'><g:formatDate date="${time}" type="time" style="SHORT"/></label>
                 </a>
@@ -73,24 +88,24 @@
           </fieldset>
         </div>
 
-        <div class='section'>
+        <div class='section repeat'>
           <fieldset>
             <legend>Repeat Order</legend>
             <div class='input-wrapper radio pickupTime'>
-              <g:radio name="repeated" value="${ true }"></g:radio>
+              <g:radio name="repeated" value="${ true }" checked="${ order.orderPickups.size() > 1 }"></g:radio>
               <label class='btn'>Yes</label>
             </div>
             <div class='input-wrapper radio pickupTime'>
-              <g:radio name="repeated" value="${ false }"></g:radio>
+              <g:radio name="repeated" value="${ false }" checked="${ order.orderPickups.size() < 2 }"></g:radio>
               <label class='btn'>No</label>
             </div>
             <div class='input-wrapper repeat-date'>
-              <input type='date' name="repeatEndDate" />
+              <input type='date' name="repeatEndDate" value="${ order.orderPickups.size() > 0 ? helpers.lastPickup(order).pickupDate.format('yyyy-MM-dd') : '' }"/>
             </div>
           </fieldset>
         </div>
 
-        <div class='menu'>
+        <div class='menu' data-id="${ order.menu == null ? '' : order.menu.id }">
           <g:if test="${ order.menu != null }">
             <g:each in="${ order.menu.menuSections.sort{a,b -> a.position.compareTo(b.position)} }" var="section">
               <g:if test="${ section.name == 'breakfast' && section.menuItems.size() > 0 }">
@@ -104,11 +119,16 @@
                         </g:each>
                       </ul>
                     </g:if>
-                    <ul class='menu-list'>
+                    <ul class='menu-list breakfast'>
                       <g:each in="${ section.menuItems.sort{a,b -> a.position.compareTo(b.position)} }" var="item">
                         <li>
                           <div class='menu-item input-wrapper radio'>
-                            <input type='checkbox' name="${ 'section.' + section.id + '.menuItems' }"  value="${ item.id }" />           
+                            <g:if test="${ helpers.hasItem(order, item) }">
+                              <input class='breakfast-item' type='checkbox' name="${ 'section.' + section.id + '.menuItems' }"  value="${ item.id }" checked="checked" />           
+                            </g:if>
+                            <g:else>
+                              <input class='breakfast-item' type='checkbox' name="${ 'section.' + section.id + '.menuItems' }"  value="${ item.id }" />
+                            </g:else>
                             <label class='btn'>${ item.name }</label>
                           
                             <g:if test="${ item.menuItemOptionGroups.size() > 0 }">
@@ -122,8 +142,13 @@
                                           <g:each in="${ group.menuItemOptions.sort{a,b -> a.position.compareTo(b.position)} }" var="opt">
                                             <li class='option'>
                                               <div class='input-wrapper'>
-                                                <g:radio name="${ 'group.' + group.id + '.menuItem.' + item.id }"  value="${ opt.id }"></g:radio>
-                                                <label class='btn'>${ group.id } ${ opt.name }</label>
+                                                <g:if test="${ helpers.hasItemOption(order, item, opt) }">
+                                                  <input class='option' type='radio' name="${ 'group.' + group.id + '.menuItem.' + item.id }"  value="${ opt.id }" checked='checked' />
+                                                </g:if>
+                                                <g:else>
+                                                  <input class='option' type='radio' name="${ 'group.' + group.id + '.menuItem.' + item.id }"  value="${ opt.id }" />
+                                                </g:else>
+                                                <label class='btn'>${ opt.name }</label>
                                               </div>
                                             </li>
                                           </g:each>
@@ -149,7 +174,12 @@
                     <g:each in="${ section.menuItems.sort{a,b -> a.position.compareTo(b.position)} }" var="item">
                       <li>
                         <div class='menu-item input-wrapper radio'>
-                          <input type='radio' name="${ 'section.' + section.id + '.menuItems' }"  value="${ item.id }" />           
+                          <g:if test="${ helpers.hasItem(order, item) }">
+                            <input type='radio' name="${ 'section.' + section.id + '.menuItems' }"  value="${ item.id }" checked="checked" />           
+                          </g:if>
+                          <g:else>
+                            <input type='radio' name="${ 'section.' + section.id + '.menuItems' }"  value="${ item.id }" />
+                          </g:else>
                           <label class='btn'>${ item.name }</label>
                         
                           <g:if test="${ item.menuItemOptionGroups.size() > 0 }">
@@ -163,7 +193,12 @@
                                         <g:each in="${ group.menuItemOptions.sort{a,b -> a.position.compareTo(b.position)} }" var="opt">
                                           <li class='option'>
                                             <div class='input-wrapper'>
-                                              <g:radio name="${ 'group.' + group.id + '.menuItem.' + item.id }"  value="${ opt.id }"></g:radio>
+                                              <g:if test="${ helpers.hasItemOption(order, item, opt) }">
+                                                <input type='radio' name="${ 'group.' + group.id + '.menuItem.' + item.id }"  value="${ opt.id }" checked="checked" />
+                                              </g:if>
+                                              <g:else>
+                                                <input type='radio' name="${ 'group.' + group.id + '.menuItem.' + item.id }"  value="${ opt.id }" />
+                                              </g:else>
                                               <label class='btn'>${ opt.name }</label>
                                             </div>
                                           </li>
@@ -189,7 +224,12 @@
                     <g:each in="${ section.menuItems.sort{a,b -> a.position.compareTo(b.position)} }" var="item">
                       <li>
                         <div class='menu-item input-wrapper radio'>
-                          <input type='checkbox' name="${ 'section.' + section.id + '.menuItems' }"  value="${ item.id }" />           
+                          <g:if test="${ helpers.hasItem(order, item) }">
+                            <input type='radio' name="${ 'section.' + section.id + '.menuItems' }"  value="${ item.id }" checked="checked" />           
+                          </g:if>
+                          <g:else>
+                            <input type='radio' name="${ 'section.' + section.id + '.menuItems' }"  value="${ item.id }" />           
+                          </g:else>
                           <label class='btn'>${ item.name }</label>
                         
                           <g:if test="${ item.menuItemOptionGroups.size() > 0 }">
@@ -203,7 +243,12 @@
                                         <g:each in="${ group.menuItemOptions.sort{a,b -> a.position.compareTo(b.position)} }" var="opt">
                                           <li class='option'>
                                             <div class='input-wrapper'>
-                                              <g:radio name="${ 'group.' + group.id + '.menuItem.' + item.id }"  value="${ opt.id }"></g:radio>
+                                              <g:if test="${ helpers.hasItemOption(order, item, opt) }">
+                                                <input type='radio' name="${ 'group.' + group.id + '.menuItem.' + item.id }"  value="${ opt.id }" checked="checked" />
+                                              </g:if>
+                                              <g:else>
+                                                <input type='radio' name="${ 'group.' + group.id + '.menuItem.' + item.id }"  value="${ opt.id }" />
+                                              </g:else>
                                               <label class='btn'>${ opt.name }</label>
                                             </div>
                                           </li>
@@ -229,7 +274,12 @@
                     <g:each in="${ section.menuItems.sort{a,b -> a.position.compareTo(b.position)} }" var="item">
                       <li>
                         <div class='menu-item input-wrapper radio'>
-                          <input type='checkbox' name="${ 'snack.1.section.' + section.id + '.menuItems' }"  value="${ item.id }" />           
+                          <g:if test="${ helpers.hasSnackItem(order, item, 1) }">
+                            <input type='radio' name="${ 'snack.1.section.' + section.id + '.menuItems' }"  value="${ item.id }" checked="checked" />           
+                          </g:if>
+                          <g:else>
+                            <input type='radio' name="${ 'snack.1.section.' + section.id + '.menuItems' }"  value="${ item.id }" />
+                          </g:else>
                           <label class='btn'>${ item.name }</label>
                         
                           <g:if test="${ item.menuItemOptionGroups.size() > 0 }">
@@ -243,7 +293,12 @@
                                         <g:each in="${ group.menuItemOptions.sort{a,b -> a.position.compareTo(b.position)} }" var="opt">
                                           <li class='option'>
                                             <div class='input-wrapper'>
-                                              <g:radio name="${ 'snack.1.group.' + group.id + '.menuItem.' + item.id }"  value="${ opt.id }"></g:radio>
+                                              <g:if test="${ helpers.hasItemOption(order, item, opt) }">
+                                                <input type='radio' name="${ 'snack.1.group.' + group.id + '.menuItem.' + item.id }"  value="${ opt.id }" />
+                                              </g:if>
+                                              <g:else>
+                                                <input type='radio' name="${ 'snack.1.group.' + group.id + '.menuItem.' + item.id }"  value="${ opt.id }" />
+                                              </g:else>
                                               <label class='btn'>${ opt.name }</label>
                                             </div>
                                           </li>
@@ -267,7 +322,12 @@
                     <g:each in="${ section.menuItems.sort{a,b -> a.position.compareTo(b.position)} }" var="item">
                       <li>
                         <div class='menu-item input-wrapper radio'>
-                          <input type='checkbox' name="${ 'snack.2.section.' + section.id + '.menuItems' }"  value="${ item.id }" />           
+                          <g:if test="${ helpers.hasSnackItem(order, item, 2) }">
+                            <input type='radio' name="${ 'snack.2.section.' + section.id + '.menuItems' }"  value="${ item.id }" checked="checked" />           
+                          </g:if>
+                          <g:else>
+                            <input type='radio' name="${ 'snack.2.section.' + section.id + '.menuItems' }"  value="${ item.id }" />           
+                          </g:else>
                           <label class='btn'>${ item.name }</label>
                         
                           <g:if test="${ item.menuItemOptionGroups.size() > 0 }">
@@ -281,7 +341,12 @@
                                         <g:each in="${ group.menuItemOptions.sort{a,b -> a.position.compareTo(b.position)} }" var="opt">
                                           <li class='option'>
                                             <div class='input-wrapper'>
-                                              <g:radio name="${ 'snack.2.group.' + group.id + '.menuItem.' + item.id }"  value="${ opt.id }"></g:radio>
+                                              <g:if test="${ helpers.hasItemOption(order, item, opt) }">
+                                                <input type='radio' name="${ 'snack.2.group.' + group.id + '.menuItem.' + item.id }"  value="${ opt.id }" checked="checked" />
+                                              </g:if>
+                                              <g:else>
+                                                <input type='radio' name="${ 'snack.2.group.' + group.id + '.menuItem.' + item.id }"  value="${ opt.id }" />
+                                              </g:else>
                                               <label class='btn'>${ opt.name }</label>
                                             </div>
                                           </li>
@@ -305,7 +370,12 @@
                     <g:each in="${ section.menuItems.sort{a,b -> a.position.compareTo(b.position)} }" var="item">
                       <li>
                         <div class='menu-item input-wrapper radio'>
-                          <input type='checkbox' name="${ 'snack.3.section.' + section.id + '.menuItems' }"  value="${ item.id }" />           
+                          <g:if test="${ helpers.hasSnackItem(order, item, 3) }">
+                            <input type='radio' name="${ 'snack.3.section.' + section.id + '.menuItems' }"  value="${ item.id }" checked="checked" />           
+                          </g:if>
+                          <g:else>
+                            <input type='radio' name="${ 'snack.3.section.' + section.id + '.menuItems' }"  value="${ item.id }" />           
+                          </g:else>
                           <label class='btn'>${ item.name }</label>
                         
                           <g:if test="${ item.menuItemOptionGroups.size() > 0 }">
@@ -319,7 +389,12 @@
                                         <g:each in="${ group.menuItemOptions.sort{a,b -> a.position.compareTo(b.position)} }" var="opt">
                                           <li class='option'>
                                             <div class='input-wrapper'>
-                                              <g:radio name="${ 'snack.3.group.' + group.id + '.menuItem.' + item.id }"  value="${ opt.id }"></g:radio>
+                                              <g:if test="${ helpers.hasItemOption(order, item, opt) }">
+                                                <input name="${ 'snack.3.group.' + group.id + '.menuItem.' + item.id }"  value="${ opt.id }" checked="checked" />
+                                              </g:if>
+                                              <g:else>
+                                                <input name="${ 'snack.3.group.' + group.id + '.menuItem.' + item.id }"  value="${ opt.id }" />
+                                              </g:else>
                                               <label class='btn'>${ opt.name }</label>
                                             </div>
                                           </li>
@@ -339,6 +414,14 @@
               </g:if>
             </g:each>
           </g:if>
+
+          <div class='section'>
+            <p>
+              Please consumer or refrigerate your bag meal within 4 hours of pick-up. 
+              Before placing your order, please inform your server if a person in 
+              your party has a food allergy.
+            </p>
+          </div>
         </div>
 
         <input type='submit' class="btn" />
@@ -360,7 +443,9 @@
 
         for (var i=0; i<inputs.length; i++) {
           inputs[i].readOnly = false;
-          inputs[i].addEventListener("change", this.updateMenu.bind(this), false);
+          if (inputs[i].className !== "option"){
+            inputs[i].addEventListener("change", this.updateMenu.bind(this), false);
+          }
         }
 
         for (var i=0; i<buttons.length; i++){
@@ -370,6 +455,14 @@
           w.appendChild(buttons[i]);
           w.removeChild(a);
         }
+
+        [].forEach.call(form.querySelectorAll(".breakfast-item"), function(input){
+          input.addEventListener("change", function(e){
+            if (form.querySelectorAll(".breakfast-item:checked").length > 4){
+              e.target.checked = false;
+            }
+          });
+        });
       }
 
       OrderController.prototype.updateMenu = function(){
@@ -383,8 +476,17 @@
         $.ajax({
           url: "/myhuds/orders/${ meal.name.toLowerCase() }/create" + "?" + $.param(params),
           success: function(resp) {
-            this.data = resp;
-            this.buildMenu();
+            var menuId = !!this.data.order && !!this.data.order.menu ? this.data.order.menu.id || null : null,
+                newId = !!resp.order.menu ? resp.order.menu.id || null : null;
+
+            var menuId = +document.querySelector(".menu").dataset["id"];
+            if (newId !== null && newId !== menuId) {
+              this.data = resp;
+              this.buildMenu();
+            } else {
+              this.data = resp;
+            }
+
             this.disableLocations();
           }.bind(this), 
           error: function(resp) {
@@ -433,8 +535,8 @@
         };
 
         var optionsOrder = ['Dressing', 'Bread', 'Cheese'];
-
-        section.menuItems.sort(function(a, b){ return a.position < b.position });
+        var isBreakfast = section.name === "breakfast";
+        section.menuItems.sort(function(a, b){ return b.position < a.position });
         return {tag: "div", attributes: {className: "section"}, children: [
           {tag: "h2", attributes: {text: section.name === "snacks" ? names[section.name][snackIndex] : names[section.name]}},
           {tag: "ul", attributes: {className: "menu-list"}, children: (section.menuItems || []).map(function(item){
@@ -445,8 +547,8 @@
             });
 
             return {tag: "li", attributes: {}, children: [
-              {tag: "div", attributes: {className: "menu-item input-wrapper checkbox"}, children: [
-                {tag: "input", attributes: {type: "checkbox", name: itemName, value: item.id }},
+              {tag: "div", attributes: {className: "menu-item input-wrapper " + (isBreakfast ? "checkbox" : "radio")}, children: [
+                {tag: "input", attributes: {className: (isBreakfast ? "breakfast-item" : ""), type: (isBreakfast ? "checkbox" : "radio"), name: itemName, value: item.id }},
                 {tag: "label", attributes: {className: "btn", text: item.name}},
                 {tag: "div", attributes: {}, children: (item.menuItemOptionGroups || []).map(function(group){
                   if (group.menuItemOptions.length === 0) return null;
@@ -498,6 +600,14 @@
             
             el.parentNode.insertBefore(html, el);
             el.parentNode.removeChild(el);
+            
+            [].forEach.call(html.querySelectorAll(".breakfast-item"), function(input){
+              input.addEventListener("change", function(e){
+                if (html.querySelectorAll(".breakfast-item:checked").length > 4){
+                  e.target.checked = false;
+                }
+              });
+            });
           }
         }
       }

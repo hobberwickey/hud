@@ -96,6 +96,12 @@ class OrdersController {
               lt("pickupDate", new Date().parse("yyyy-MM-dd", value))
             }
           }
+
+          if (key == "status") {
+            orderPickups {
+              eq("pickedUp", value.toBoolean())
+            }
+          }
         }       
       
         order "updatedAt",  "desc"
@@ -111,7 +117,11 @@ class OrdersController {
       def selectedMeal = Meal.findByName(mealType.capitalize())
       
       //// Pickup date / time ////
-      def orderPickup = new OrderPickup()
+      def orderPickup = new OrderPickup([
+        pickupDate: (new Date() + 1), 
+        pickupTime: (new Date([hours: 7, minutes: 0, seconds: 0]) + 1)
+      ])
+
       if (params.containsKey("pickupDate") && params["pickupTime"] != "") {
           orderPickup.pickupDate = new Date(params.pickupDate)
       }
@@ -135,7 +145,9 @@ class OrdersController {
       } 
 
       def openDiningHalls
-      def allDiningHalls = diningHallService.list()
+      def allDiningHalls = DiningHall.withCriteria {
+        ne("deleted", true)
+      }
 
       if (orderPickup.pickupDate != null && orderPickup.pickupTime != null) {
           openDiningHalls = DiningHall.findAll{ openingDate <= orderPickup.pickupDate && closingDate >= orderPickup.pickupDate }
@@ -192,11 +204,13 @@ class OrdersController {
     def edit(String mealType, Integer orderId) {
       def order = ordersService.get(orderId)
       def openDiningHalls
-      def allDiningHalls = diningHallService.list()
+      def allDiningHalls = DiningHall.withCriteria {
+        ne("deleted", true)
+      }
       def selectedMeal = Meal.findByName(mealType.capitalize())
       
       if (order.orderPickups != null && order.orderPickups.size() > 0) {
-          openDiningHalls = DiningHall.findAll{ openingDate <= order.orderPickups[0].pickupDate && closingDate >= order.orderPickups[0].pickupDate }
+          openDiningHalls = DiningHall.findAll{ openingDate <= order.orderPickups.sort({ a, b -> a.pickupDate<=>b.pickupDate}).first().pickupDate && closingDate >= order.orderPickups[0].pickupDate }
       }
 
       def validator = new OrderValidator()
@@ -207,7 +221,7 @@ class OrdersController {
         order: order,
         allLocations: allDiningHalls, 
         availableLocations: openDiningHalls,
-        orderPickup: order.orderPickups[0] == null ? new OrderPickup() : order.orderPickups[0],
+        orderPickup: order.orderPickups.size() > 0 ? order.orderPickups.sort({ a, b -> a.pickupDate<=>b.pickupDate}).first() : new OrderPickup(),
         meal: selectedMeal,
         errors: validator.errors,
         helpers: new Helpers(params)
@@ -217,11 +231,14 @@ class OrdersController {
     }
 
     def save(String mealType, Integer orderId) {
-      println "MEAL TYPE: " + mealType
-      println "ID: " + orderId
-      println "PARAMS: " + params
+      def order
+      println orderId
+      if (orderId != null){
+        order = ordersService.get(orderId)
+      } else {
+        order = new Orders([:])
+      }
 
-      def order = new Orders([:])
       // if (params.containsKey("id") && params["id"].isNumber()){
       //   order = ordersService.get(params["id"]) 
 
@@ -237,6 +254,9 @@ class OrdersController {
       def user = User.list().first()
       order.user = user
 
+      order.orderPickups.collect().each { 
+        order.removeFromOrderPickups(it)
+      }
       def orderPickup = new OrderPickup()
       if (params.containsKey("pickupDate")) {
         orderPickup.pickupDate = new Date(params.pickupDate)
@@ -284,6 +304,9 @@ class OrdersController {
           }
         }[0]
 
+        order.menuSelections.collect().each { selection -> 
+          order.removeFromMenuSelections(selection)
+        }
         order.menu.menuSections.each{ section -> 
           switch (section.name) {
             case "breakfast":
@@ -291,13 +314,7 @@ class OrdersController {
               
               if (items != null) {
                 for (def i=0; i<items.size(); i++){
-                  try {
-                    order.addToMenuSelections(items[i])
-                    // menuSelectionService.save(items[i])
-  
-                  } catch (ValidationException e) {
-                    println e 
-                  }
+                  order.addToMenuSelections(items[i])
                 }
               }
 
@@ -330,14 +347,17 @@ class OrdersController {
           }
         }
         
-        order.createdOn = new Date()
+        if (order.id == null) {
+          order.createdOn = new Date()
+        }
         order.updatedAt = new Date()
 
         def validator = new OrderValidator()
             validator.validate(selectedMeal, order)    
         
+        order.println order.menuSelections
         // println "VALID? " + validator.valid()
-        if (validator.valid()) {
+        // if (validator.valid()) {
           try {
             // ordersService.save(order)
             order.save(flush: true)
@@ -351,33 +371,37 @@ class OrdersController {
           }
           
           redirect(controller: "orders", action: "history")
-        } else {
-          def openDiningHalls
-          def allDiningHalls = diningHallService.list()
+        // } else {
+        //   def openDiningHalls
+        //   def allDiningHalls = DiningHall.withCriteria {
+        //     ne("deleted", true)
+        //   }
 
-          if (order.orderPickups != null && order.orderPickups.size() > 0) {
-              openDiningHalls = DiningHall.findAll{ openingDate <= order.orderPickups[0].pickupDate && closingDate >= order.orderPickups[0].pickupDate }
-          }
+        //   if (order.orderPickups != null && order.orderPickups.size() > 0) {
+        //       openDiningHalls = DiningHall.findAll{ openingDate <= order.orderPickups[0].pickupDate && closingDate >= order.orderPickups[0].pickupDate }
+        //   }
 
-          def model = [
-            order: order,
-            allLocations: allDiningHalls, 
-            availableLocations: openDiningHalls,
-            orderPickup: order.orderPickups[0] == null ? new OrderPickup() : order.orderPickups[0],
-            meal: selectedMeal,
-            errors: validator.errors,
-            helpers: new Helpers(params)
-          ]
+        //   def model = [
+        //     order: order,
+        //     allLocations: allDiningHalls, 
+        //     availableLocations: openDiningHalls,
+        //     orderPickup: order.orderPickups[0] == null ? new OrderPickup() : order.orderPickups[0],
+        //     meal: selectedMeal,
+        //     errors: validator.errors,
+        //     helpers: new Helpers(params)
+        //   ]
 
-          render(view: "create", model: model)
-        }
+        //   render(view: "create", model: model)
+        // }
       }
 
       def validator = new OrderValidator()
           validator.validate(selectedMeal, order)
 
       def openDiningHalls
-      def allDiningHalls = diningHallService.list()
+      def allDiningHalls = DiningHall.withCriteria {
+        ne("deleted", true)
+      }
 
       if (order.orderPickups != null && order.orderPickups.size() > 0) {
           openDiningHalls = DiningHall.findAll{ openingDate <= order.orderPickups[0].pickupDate && closingDate >= order.orderPickups[0].pickupDate }
@@ -593,8 +617,65 @@ class Helpers {
 
     def isSameDate(date1, date2) {
       if (date1 == null || date2 == null) return false
+      return date1.format("yyyy-MM-dd") == date2.format("yyyy-MM-dd")
+    }
 
-      return date1.format("yyyy-MM-dd HH:mm:ss") == date2.format("yyyy-MM-dd HH:mm:ss")
+    def isSameTime(date1, date2) {
+      if (date1 == null || date2 == null){ 
+        return false
+      }
+
+      return date1.format("HH:mm:ss") == date2.format("HH:mm:ss")
+    }
+
+    def hasItem(order, item){
+      if (!order.menuSelections) return false
+
+      def hasItem = false
+      order.menuSelections.each{ selection -> 
+        if (selection.menuItem.id == item.id) {
+          hasItem = true
+          return
+        }
+      }
+
+      return hasItem
+    }
+
+    def hasSnackItem(order, item, snackIndex){
+      if (!order.menuSelections) return false
+
+      def hasItem = false
+      order.menuSelections.each{ selection -> 
+        if (selection.menuItem.id == item.id && selection.snackIndex == snackIndex) {
+          hasItem = true
+          return
+        }
+      }
+
+      return hasItem
+    }
+
+    def lastPickup(order){
+      order.orderPickups.sort({ a, b -> a.pickupDate<=>b.pickupDate}).last()
+    }
+
+    def hasItemOption(order, item, option){
+      if (!order.menuSelections) return false
+
+      def hasItem = false
+      order.menuSelections.each{ selection -> 
+        if (selection.menuItem.id == item.id) {
+          selection.menuItemOptions.each{ opt -> 
+            if (opt.id == option.id) {
+              hasItem = true
+              return
+            }
+          }
+        }
+      }
+
+      return hasItem
     }
 
     def locationAvailable(availableLocations, location) {
@@ -757,10 +838,10 @@ class OrderHelper {
       }
     }
 
-    def createMenuSelection(item, options) {
+    def createMenuSelection(item, options, snackIndex = 0) {
       if (item != null) {
-        def selection = new MenuSelection(menuItem: item)
-        
+        def selection = new MenuSelection(menuItem: item, snackIndex: snackIndex)
+      
         options.each{ option -> 
           selection.addToMenuItemOptions(option)
         }
@@ -792,6 +873,7 @@ class OrderHelper {
         selections.push(selection)
       }
 
+      println selections
       return selections
     }
 
@@ -852,7 +934,7 @@ class OrderHelper {
         options = this.getOptions("group." + group.id + ".menuItem." + main.id)
       }
 
-      return this.createMenuSelection(main, options)
+      return this.createMenuSelection(main, options, snackIndex)
     }
 }
 

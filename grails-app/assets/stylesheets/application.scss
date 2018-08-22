@@ -91,6 +91,27 @@ body {
   max-width: 100%;
   margin: 0px auto;
 
+  .filters {
+    &.order-filters {
+      .input-wrapper {
+        label {
+          font-size: 10px;
+          margin-left: 5px;
+          display: inline-block;
+          // vertical-align: bottom;
+        }
+
+        #start_date_search, #end_date_search {
+          width: 170px;
+        }
+
+        select {
+          width: 140px;
+        }
+      }
+    }
+  }
+
   .content {
     display: block;
     width: 1020px;
@@ -165,18 +186,26 @@ body {
           }
 
           &:nth-child(3) {
-            width: 30%;
+            width: 20%;
           }
 
-          &:nth-child(n+4){
+          &:nth-child(4){
             width: 10%;
+          }
+
+          &:nth-child(n+5){
+            width: 20%;
           }
         }
       }
 
       &.order-header {
         li {
-          &:nth-child(-n+3) {
+          &:first-child {
+            width: 17%;
+          }
+
+          &:nth-child(3), &:nth-child(2) {
             width: 10%;
           }
 
@@ -185,7 +214,7 @@ body {
           }
 
           &:nth-child(5) {
-            width: 35%;
+            width: 28%;
           }
 
           &:nth-child(6) {
@@ -388,11 +417,26 @@ form {
   position: relative;
   background-color: white;
   border: 1px solid #ccc;
-    
+  
+  .errors {
+    color: $theme-red;
+    border: solid 1px $theme-red;
+    padding: 4px 12px;
+    margin: 5px 0px;
+    border-radius: 3px;
+    background-color: #ffc6c6;
+    line-height: 14px;
+  }
 
   &.location-form {
     .status {
       margin-bottom: 0px;
+    }
+
+    .opening-date, .closing-date {
+      input {
+        width: 175px;
+      }
     }
   }
 
@@ -579,10 +623,6 @@ form {
           }
         }
       }
-    }
-
-    select {
-
     }
 
     &.input-list {
@@ -780,11 +820,11 @@ form {
         display: inline-flex;
         width: 100%;
 
-        &:nth-child(even){
+        &:nth-child(odd){
           background-color: $bg-color;
         }
 
-        &:nth-child(odd){
+        &:nth-child(even){
           background-color: white;
         }
 
@@ -814,6 +854,11 @@ form {
           i {
             color: $theme-orange;
             font-size: 20px;
+          }
+
+          .btn {
+            border-radius: 20px;
+            color: $theme-orange;
           }
         }
       }
@@ -866,10 +911,14 @@ form {
             }
 
             &:nth-child(3) {
-              width: 30%;
+              width: 20%;
             }
 
-            &:nth-child(n+4){
+            &:nth-child(4){
+              width: 10%;
+            }
+
+            &:nth-child(n+5){
               width: 10%;
             }
           }
@@ -878,8 +927,16 @@ form {
 
       &.orders {
         li.info-list {
+          div.date {
+            text-transform: none;
+          }
+
           & > div {
-            &:nth-child(-n+3) {
+            &:first-child {
+              width: 17%;
+            }
+
+            &:nth-child(3), &:nth-child(2) {
               width: 10%;
             }
 
@@ -888,7 +945,7 @@ form {
             }
 
             &:nth-child(5) {
-              width: 35%;
+              width: 28%;
             }
 
             &:nth-child(6) {
@@ -927,6 +984,12 @@ form {
             text-transform: none;
           }
 
+          div.action {
+            .btn {
+              margin: 0px 5px 0px 0px;
+            }
+          }
+
           & > div  {
             width: 16.6%;
           }
@@ -949,33 +1012,51 @@ form {
   form.order-form {
     padding: 0px;
 
+    p {
+      font-family: "Open Sans Semibold", sans-serif;
+
+      &:last-child {
+        margin-bottom: 0px;
+      }
+
+      &:first-child {
+        margin-top: 0px;
+      }
+    }
+
+    fieldset {
+      margin-bottom: 0px;
+    }
+
+    legend {
+      padding-bottom: 5px;
+    }
+
     .section {
       padding: 20px;
 
-      .errors {
-        color: $theme-red;
-        border: solid 1px $theme-red;
-        padding: 4px 12px;
-        margin-top: 10px;
-        border-radius: 5px;
-        background-color: #ffc6c6;
-      }
-
-      &:nth-child(odd){
+      &:nth-child(even){
         background-color: white;
       }
 
-      &:nth-child(even){
+      &:nth-child(odd){
         background-color: #f2f2f2;
       }
 
-      .repeat-date {
-        display: inline-block;
-        vertical-align: middle;
-
-        input {
-          height: 2.4em;
+      &.repeat {
+        .input-wrapper {
           margin-bottom: 0px;
+        }
+
+        .repeat-date {
+          display: inline-block;
+          vertical-align: middle;
+
+          input {
+            height: 2.4em;
+            margin-bottom: 0px;
+            width: 175px;
+          }
         }
       }
 
@@ -988,7 +1069,7 @@ form {
 
         li {
           .menu-item {
-            width: 100%;
+            width: 50%;
 
             label {
               width: 100%;
@@ -1037,18 +1118,42 @@ form {
         }
       }
     }
+
+    .menu {
+      .section {
+        &:nth-child(even){
+        background-color: white;
+      }
+
+        &:nth-child(odd){
+          background-color: #f2f2f2;
+        }
+      }
+    }
   }
 }
 
 select {
   background: white;
-  padding: 10px 6px;
+  padding: 10px 24px 10px 12px;
   width: 200px;
   border: solid 1px #ccc;
   border-radius: 3px;
   -webkit-appearance: none;
   -moz-appearance: none;
   font-size: 14px;
+
+  background-image: url("down-arrow.png");
+  background-repeat: no-repeat;
+  background-size: 15px;
+  background-position: center right 5px;
+}
+
+input.search {
+  background-image: url("search.png");
+  background-repeat: no-repeat;
+  background-size: 15px;
+  background-position: center right 5px;
 }
 
 .icon {
@@ -1084,4 +1189,24 @@ select {
       background-image: url('cheese-on.svg');
     }
   }
+}
+
+.confirmation-btn {
+  position: absolute;
+  width: 250px;
+  background-color: white;
+  padding: 10px;
+  border: solid 1px #ccc;
+  border-radius: 3px;
+  box-shadow: 2px 2px 10px 0px #000;
+
+  .arrow {
+    position: absolute;
+    border-left: solid 10px transparent;
+    border-right: solid 10px transparent;
+    border-bottom: solid 10px #ccc;
+    right: 11px;
+    top: -10px;
+  }
+
 }

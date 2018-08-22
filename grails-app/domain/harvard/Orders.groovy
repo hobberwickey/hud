@@ -14,6 +14,11 @@ class Orders {
     static belongsTo = [User, Menu, DiningHall]
     static hasMany = [menuSelections: MenuSelection, orderPickups: OrderPickup]
 
+    static mapping = {
+        menuSelections(cascade: "all-delete-orphan")
+        orderPickups(cascade: "all-delete-orphan")
+    }
+
     static constraints = {
       canceledOn(blank: true, nullable: true)
     }

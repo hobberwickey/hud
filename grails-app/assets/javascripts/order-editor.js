@@ -127,6 +127,16 @@ OrderEditor.prototype.buildEmptyReports = function(){
   document.querySelector(".reports").innerHTML = ""
 }
 
+OrderEditor.prototype.isComplete = function(order){
+  for (var i=0; i<(order.orderPickups || []).length; i++){
+    if (moment(order.orderPickups[i].pickupDate).isAfter(moment())){
+      return false
+    }
+  }
+
+  return true
+}
+
 OrderEditor.prototype.buildOrders = function() {
   for (var i=0; i<this.orders.length; i++) {
     var order = this.orders[i],
@@ -134,14 +144,20 @@ OrderEditor.prototype.buildOrders = function() {
         wrapper = document.querySelector(".order-" + order.id);
 
     var struct = {tag: "li", attributes: {className: "info-list order order-" + order.id}, children: [
-      {tag: "div", attributes: {className: "order-info date", text: !!order.orderPickups[0] ? moment(order.orderPickups[0].pickupDate).format("MM/DD/YYYY") : "" }},
+      {tag: "div", attributes: {className: "order-info date", text: !!order.orderPickups[0] ? moment(order.orderPickups[0].pickupDate).format("MM/DD/YYYY") + moment(order.orderPickups[0].pickupTime).format(" h:mm a") : "" }},
       {tag: "div", attributes: {className: "order-info location ", text: !!order.diningHall ? order.diningHall.name : ""}},
       {tag: "div", attributes: {className: "order-info meal", text: !!order.menu ? order.menu.meal.name : ""}},
-      {tag: "div", attributes: {className: "order-info user", text: !!order.user ? order.user.huid + "/" + order.user.lastName + ", " + order.user.firstName : ""}, children: []},
-      {tag: "div", attributes: {className: "order-info user", text: (order.menuSelections || []).map(function(s){ return s.menuItem.name }).join(", ")}},
+      {tag: "div", attributes: {className: "order-info user"}, children: [
+        {tag: "div", attributes: {text: order.user.huid + " /"}},
+        // {tag: "div", attributes: {text: " /"}},
+        {tag: "div", attributes: {text: order.user.lastName + ", " + order.user.firstName }}
+      ]},
+      {tag: "div", attributes: {className: "order-info user"}, children: (order.menuSelections || []).map(function(s){ 
+        return {tag: "div", attributes: {text: s.menuItem.name}}
+      })},
       {tag: "div", attributes: {className: "action"}, children: [
         {tag: "div", attributes: {text: !!order.orderPickups[0] && order.orderPickups[0].pickedUp ? "Picked Up" : "Picked Up" }},
-        {tag: "input", attributes: {type: "button", className: "btn", value: "Change"}}
+        {tag: "input", attributes: {type: "button", className: "btn", value: "Change" }}
       ]}
     ]}
 
@@ -188,7 +204,7 @@ OrderEditor.prototype.buildHistory = function() {
 
     var pickupDates = order.orderPickups.sort(function(a, b){
       return moment.utc(a.pickupDate).diff(moment.utc(b.pickupDate))
-    })
+    })  
 
     var struct = {tag: "li", attributes: {className: "info-list order order-" + order.id}, children: [
       {tag: "div", attributes: {className: "order-info date", text: moment(pickupDates[0].pickupDate).format("M/D/YYYY") + " " + moment(pickupDates[0].pickupTime).format("h:mm a") }},
@@ -200,9 +216,13 @@ OrderEditor.prototype.buildHistory = function() {
       {tag: "div", attributes: {className: "order-item repeated", text: pickupDates.length > 1 ? "Repeat Until " + moment(pickupDates[pickupDates.length - 1].pickupDate).format("M/D/YYYY") : "" }},
       (order.canceled  
         ? {tag: "div", attributes: {className: "order-info status", text: "Canceled on " + moment(order.canceledOn).format("dddd, MMMM DD")}} 
-        : {tag: "div", attributes: {className: "order-info status"}, children: [
-            {tag: "a", attributes: {className: "btn", href: "/myhuds/orders/" + order.id + "/cancel", text: "Cancel Order"}}
-          ]}
+        : (this.isComplete(order) 
+          ? {tag: "div", attributes: {className: "order-info status", text: "Picked Up"}}
+          : {tag: "div", attributes: {className: "order-info status action"}, children: [
+              {tag: "a", attributes: {className: "btn", href: "/myhuds/orders/" + order.menu.meal.name.toLowerCase() + "/create/" + order.id, text: "Edit" }},
+              {tag: "a", attributes: {className: "btn", href: "/myhuds/orders/" + order.id + "/cancel", text: "Cancel"}}
+            ]}
+        )
       )
     ]}
 

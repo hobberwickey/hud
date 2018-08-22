@@ -52,9 +52,7 @@ class MenuController {
             }
           }
 
-          println s.name + " " + s.ordering
           s.ordering = newOrder.join(",")
-          println s.name + " " + s.ordering
 
           try {
             menuSectionService.save(s)

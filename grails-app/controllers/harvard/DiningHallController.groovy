@@ -15,7 +15,9 @@ class DiningHallController {
     }
 
     def list(Integer max, Integer page) {
-      render diningHallService.list(params) as JSON
+      render DiningHall.withCriteria {
+        ne("deleted", true)
+      } as JSON
     }
 
 
@@ -75,15 +77,17 @@ class DiningHallController {
             return
         }
 
-        diningHallService.delete(id)
+        def location = diningHallService.get(id)
+            location.deleted = true
 
-        request.withFormat {
-            form multipartForm {
-                flash.message = message(code: 'default.deleted.message', args: [message(code: 'diningHall.label', default: 'DiningHall'), id])
-                redirect action:"index", method:"GET"
-            }
-            '*'{ render status: NO_CONTENT }
+        try {
+          diningHallService.save(location)
+        } catch (ValidationException e) {
+          render diningHall.errors as JSON
+          return
         }
+
+        render ([success: true] as JSON)
     }
 
     protected void notFound() {

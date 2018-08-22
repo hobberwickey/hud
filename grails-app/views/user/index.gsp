@@ -10,7 +10,7 @@
     <form class='user-filters'>
       <div class='filter user-type'>
         <div class='input-wrapper radio'>
-          <input type='radio' name='user-type' value='' id='user-type-1' />
+          <input type='radio' name='user-type' value='' id='user-type-1' checked />
           <label class='btn'>All</label>
         </div>
         <div class='input-wrapper radio'>
@@ -61,6 +61,13 @@
 
       document.getElementById("user_name").addEventListener('change', function(e){
         userEditor.filter("user_name", e.target.value)
+      })
+
+      document.getElementById("user_name").addEventListener('keypress', function(e){
+        if (e.keyCode === 13){
+          e.preventDefault();
+          userEditor.filter("user_name", e.target.value)
+        }
       })
 
       Array.prototype.map.call(document.querySelectorAll(".filter.user-type input"), function(input){

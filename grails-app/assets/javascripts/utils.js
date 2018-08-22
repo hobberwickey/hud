@@ -32,15 +32,22 @@ var Utils = {
   buildHTML: function(elements) {
     var fn = function(element){
       if (!element) {
-        console.log(elements)
-        return Utils.createElement("div", {className: "error", text: "Could not create element"})
+        return null
+      }
+
+      if (!!element.condition && !element.condition()){
+        return null
       }
 
       var parent = Utils.createElement(element.tag, element.attributes);
 
       if (!!element.children && element.children.length){
         for (var i=0; i<element.children.length; i++){
-          parent.appendChild(fn(element.children[i]));
+          var child = fn(element.children[i])
+          
+          if (child !== null) {
+            parent.appendChild(child);
+          }
         }
       }
       
@@ -130,5 +137,27 @@ var Utils = {
         dragTarget.draggable = "true";
         dragTarget.addEventListener("drag", onDrag, false);
         dragTarget.addEventListener("dragend", onDragEnd, false);
+  },
+
+  confirm: function(msg, callback, e) {
+    var coords = e.target.getBoundingClientRect(),
+        clear = function(){ [].forEach.call(document.querySelectorAll(".confirmation-btn"), function(el){ el.parentNode.removeChild(el) })};
+
+    var struct = {tag: "div", attributes: {className: "confirmation-btn"}, children: [
+      {tag: "div", attributes: {className: "arrow"}},
+      {tag: "div", attributes: {className: "confirmation-content"}, children: [
+        {tag: "p", attributes: {className: "confimation-msg", text: msg}},
+        {tag: "div", attributes: {className: "btns"}, children: [
+          {tag: "div", attributes: {className: "btn confirm", text: "Continue", onClick: function(){ clear(); callback(); }}},
+          {tag: "div", attributes: {className: "btn cancel", text: "Cancel", onClick: function(){ clear(); }}}
+        ]}
+      ]}
+    ]}
+
+    var html = Utils.buildHTML(struct);
+        html.style.top = (coords.top + coords.height + 10) + "px",
+        html.style.left = (coords.left - 220) + "px"; 
+
+    document.body.appendChild(html);
   }
 }

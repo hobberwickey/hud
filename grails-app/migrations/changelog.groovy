@@ -25,4 +25,8 @@ databaseChangeLog = {
     include file: 'add_deleted_to_menus.groovy'
     include file: 'add_canceled_to_orders.groovy'
     include file: 'fix_menu_selection_options.groovy'
+    include file: 'add_deleted_to_dining_halls.groovy'
+    include file: 'set_default_picked_up_value.groovy'
+    include file: 'fix_menu_selection_options_2.groovy'
+    include file: 'add_snack_index_to_menu_selections.groovy'
 }

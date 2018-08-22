@@ -2,6 +2,7 @@ var LocationEditor = function(){
   this.locations = [];
   this.location = {menus: []};
   this.menus = [];
+  this.errors = {};
 }
 
 LocationEditor.prototype.refreshMenus = function() {
@@ -22,7 +23,7 @@ LocationEditor.prototype.refreshMenus = function() {
   }.bind(this))
 }
 
-LocationEditor.prototype.refreshLocations = function(){
+LocationEditor.prototype.refreshLocations = function() {
   return new Promise(function(res, rej) {
     $.ajax({
       url: "/admin/api/locations",
@@ -40,7 +41,7 @@ LocationEditor.prototype.refreshLocations = function(){
   }.bind(this))
 }
 
-LocationEditor.prototype.getLocation = function(location_id){
+LocationEditor.prototype.getLocation = function(location_id) {
   return new Promise(function(res, rej) {
     $.ajax({
       url: "/admin/api/locations/" + location_id,
@@ -58,9 +59,14 @@ LocationEditor.prototype.getLocation = function(location_id){
   }.bind(this))
 }
 
-LocationEditor.prototype.saveLocation = function(e){
+LocationEditor.prototype.saveLocation = function(e) {
   e.stopPropagation();
   e.preventDefault();
+
+  if (!this.validateLocation()){
+    this.buildLocationForm(this.location)
+    return
+  }
 
   return new Promise(function(res, rej) {
     $.ajax({
@@ -70,14 +76,6 @@ LocationEditor.prototype.saveLocation = function(e){
       data: JSON.stringify(this.location),
       success: function(resp) {
         window.location = "/admin/locations"
-        // if (window.location.pathname.split("/")[3] === "new" && !!resp.id){
-        //   window.location.assign("/admin/locations/" + resp.id);
-        // } else {
-        //   this.location = resp;
-        //   this.buildLocationForm(this.location);
-        // }
-
-        // res();
       }.bind(this),
       error: function(err) {
         console.warn(err)
@@ -87,14 +85,76 @@ LocationEditor.prototype.saveLocation = function(e){
   }.bind(this))
 }
 
-LocationEditor.prototype.updateLocation = function(key, e){
-  console.log(key, e.target.value)
+LocationEditor.prototype.deleteLocation = function(location){
+  $.ajax({
+    url: "/admin/api/locations/" + location.id + "/delete",
+    type: "DELETE",
+    success: function(resp){
+      window.location.reload()
+    }.bind(this),
+    error: function(err){
+      console.log(err)
+    }.bind(this)
+  })
+  // window.location = "/admin/locations/" + location.id + "/delete"
+}
 
+LocationEditor.prototype.validateLocation = function() {
+  if ($.trim(this.location.name) == "") {
+    this.errors["name"] = "Location name is required"
+  } else {
+    delete this.errors["name"];
+    var el = document.querySelector(".errors.name")
+    if (!!el) el.parentNode.removeChild(el);
+  }
+
+  if ($.trim(this.location.openingDate) == "") {
+    this.errors["openingDate"] = "A valid start date is required"
+  } else {
+    if (this.location.openingDate.isValid()){
+      delete this.errors["openingDate"];
+      var el = document.querySelector(".errors.openingDate")
+      if (!!el) el.parentNode.removeChild(el);
+    } else {
+      this.errors["openingDate"] = "A valid start date is required"
+    }
+  }
+
+  if ($.trim(this.location.closingDate) == "") {
+    this.errors["closingDate"] = "A valid end date is required"
+  } else {
+    if (this.location.closingDate.isValid()){
+      delete this.errors["closingDate"];
+      var el = document.querySelector(".errors.closingDate")
+      if (!!el) el.parentNode.removeChild(el);
+    } else {
+      this.errors["closingDate"] = "A valid end date is required"
+    }
+  }
+
+  return Object.keys(this.errors).length === 0;
+}
+
+LocationEditor.prototype.updateLocation = function(key, e) {
   if (key === "openingDate" || key === "closingDate") {
-    this.location[key] = moment(e.target.value, "YYYY-MM-DD")
+    // if (moment(e.target.value, "YYYY-MM-DD").isValid()) {
+      this.location[key] = moment(e.target.value, "YYYY-MM-DD")
+      
+      delete this.errors[key];
+      var el = document.querySelector(".errors." + key)
+      if (el !== null) el.parentNode.removeChild(el);
+    // } 
   } else if (key === "status") {
     this.location[key] = !!e.target.value
   } else {
+    if (key === "name"){
+      if (e.target.value.length > 0){ 
+        delete this.errors.name 
+        var el = document.querySelector(".errors.name")
+        if (el !== null) el.parentNode.removeChild(el);
+      }
+    }
+
     this.location[key] = e.target.value;
   }
 }
@@ -125,8 +185,7 @@ LocationEditor.prototype.toggleMenu = function(menu){
   var similar = this.getSimilarMenu(menu);
 
   if (similar !== null){
-    console.log(this.location.menus.indexOf(similar))
-    this.location.menus.splice(this.location.menus.indexOf(similar), 1);
+     this.location.menus.splice(this.location.menus.indexOf(similar), 1);
   }
 
   if (!!similar && similar.id === menu.id){
@@ -144,19 +203,27 @@ LocationEditor.prototype.buildLocationForm = function(location) {
   var parent = document.querySelector(".location-form-wrapper"),
       wrapper = document.querySelector(".location-form-wrapper form");
 
-  var struct = {tag: "form", attributes: {className: 'location-form', onSubmit: this.saveLocation.bind(this)}, children: [
-    {tag: "input", attributes: {type: "hidden", name: "id", value: location.id || 0}},
-
+  var struct = {tag: "form", attributes: {className: 'location-form', noValidate: true, onSubmit: this.saveLocation.bind(this)}, children: [
+    {tag: "input", attributes: {type: "hidden", name: "id", value: location.id || 0}},  
     {tag: "div", attributes: {className: "input-wrapper huid"}, children: [
       {tag: "label", attributes: {text: "Location Name"}},
+      {tag: "ul", attributes: {className: "errors name"}, condition: function(){ return this.errors.name !== void(0)}.bind(this), children: [
+        {tag: "li", attributes: {text: this.errors.name }}
+      ]},
       {tag: "input", attributes: {type: "text", name:"name", value: location.name || "", onChange: this.updateLocation.bind(this, "name")}}
     ]},
     {tag: "div", attributes: {className: "input-wrapper opening-date"}, children: [
       {tag: "label", attributes: {text: "Semester Start"}},
+      {tag: "ul", attributes: {className: "errors openingDate"}, condition: function(){ return this.errors.openingDate !== void(0)}.bind(this), children: [
+        {tag: "li", attributes: {text: this.errors.openingDate }}
+      ]},
       {tag: "input", attributes: {type: "date", name: "openingDate", value: !!location.openingDate ? moment(location.openingDate).format("YYYY-MM-DD") : "", onChange: this.updateLocation.bind(this, "openingDate")}}
     ]},
     {tag: "div", attributes: {className: "input-wrapper closing-date"}, children: [
       {tag: "label", attributes: {text: "Semester End"}},
+      {tag: "ul", attributes: {className: "errors closingDate"}, condition: function(){ return this.errors.closingDate !== void(0)}.bind(this), children: [
+        {tag: "li", attributes: {text: this.errors.closingDate }}
+      ]},
       {tag: "input", attributes: {type: "date", type: "date", name: "closingDate", value: !!location.closingDate ? moment(location.closingDate).format("YYYY-MM-DD") : "", onChange: this.updateLocation.bind(this, "closingDate")}}
     ]},
     {tag: "fieldset", attributes: {className: "status"}, children: [
@@ -166,7 +233,7 @@ LocationEditor.prototype.buildLocationForm = function(location) {
             value = +val;
 
         return {tag: "div", attributes: {className: "input-wrapper radio"}, children: [
-          {tag: "input", attributes: {type: "radio", checked: (location.status === val), name: "status", value: value, id: "active-" + value, onChange: this.updateLocation.bind(this, "status")}},
+          {tag: "input", attributes: {type: "radio", checked: (location.status === val || (location.status === void(0) && value === 1)), name: "status", value: value, id: "active-" + value, onChange: this.updateLocation.bind(this, "status")}},
           {tag: "label", attributes: {className: 'btn', text: name, "for": "status-" + value}} 
         ]}
       }.bind(this))}
@@ -206,7 +273,7 @@ LocationEditor.prototype.buildLocationForm = function(location) {
     ]},
 
     {tag: "div", attributes: {className: "btns"}, children: [
-      {tag: "input", attributes: {className: "btn submit confirm", type: "submit"}, children: []},
+      {tag: "input", attributes: {className: "btn submit confirm", type: "submit", value: !!this.location.id ? "Save" : "Add"}, children: []},
       {tag: "a", attributes: {className: "btn cancel", href: "/admin/locations", text: "Cancel"}, children: []}
     ]}
 
@@ -227,6 +294,8 @@ LocationEditor.prototype.buildLocation = function(location) {
   var parent = document.querySelector(".locations"),
       wrapper = document.querySelector(".location-" + location.id);
 
+  var deleteMsg = "Are you sure you want to delete this Location?"
+
   var struct = {tag: "li", attributes: {className: "info-list location-" + location.id}, children: [
     {tag: "div", attributes: {className: "info name", text: location.name}, children: []},
     {tag: "div", attributes: {className: "info openingDate", text: moment(location.openingDate).format("MM/DD/YYYY")}, children: []},
@@ -239,7 +308,7 @@ LocationEditor.prototype.buildLocation = function(location) {
       ]}
     ]},
     {tag: "div", attributes: {className: "action"}, children: [
-      {tag: "a", attributes: {href: "/admin/locations/" + location.id + "/delete"}, children: [
+      {tag: "a", attributes: {onClick: Utils.confirm.bind(Utils, deleteMsg, this.deleteLocation.bind(this, location))}, children: [
         {tag: "i", attributes: {className: "fa fa-trash-o"}, children: []}
       ]}
     ]}

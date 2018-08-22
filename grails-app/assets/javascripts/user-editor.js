@@ -1,6 +1,7 @@
 var UserEditor = function(){
   this.users = [];
   this.user = {diningHalls: []};
+  this.errors = {};
   this.diningHalls = [];
   this.filters = {
     page: 0
@@ -65,6 +66,11 @@ UserEditor.prototype.saveUser = function(e){
   e.stopPropagation();
   e.preventDefault();
 
+  if (!this.validateUser()){
+    this.buildUserForm(this.user)
+    return
+  }
+
   return new Promise(function(res, rej) {
     $.ajax({
       url: "/admin/api/users/save",
@@ -84,14 +90,45 @@ UserEditor.prototype.saveUser = function(e){
   }.bind(this)) 
 }
 
+UserEditor.prototype.deleteUser = function(user){
+  $.ajax({
+    url: "/admin/api/users/" + user.id + "/delete",
+    type: "DELETE",
+    success: function(resp){
+      window.location.reload()
+    }.bind(this),
+    error: function(err){
+      console.log(err)
+    }.bind(this)
+  })
+}
+
+UserEditor.prototype.validateUser = function() {
+  ["huid", "firstName", "lastName", "email", "userType"].map(function(key){
+    if ($.trim(this.user[key]) == "") {
+      this.errors[key] = (key.replace(/([A-Z])/g, ' $1').replace(/^./, function(str){ return str.toUpperCase(); })) + " is required"
+    } else {
+      delete this.errors[key];
+      var el = document.querySelector(".errors." + key)
+      if (!!el) el.parentNode.removeChild(el);
+    }
+  }.bind(this))
+
+  return Object.keys(this.errors).length === 0;
+}
+
 UserEditor.prototype.updateUser = function(key, e) {
   if (key === "active" || key === "blocked") {
     this.user[key] = !!parseInt(e.target.value, 10);
   } else {
     this.user[key] = e.target.value;
+
+    if (key === "userType"){
+      this.buildUserForm(this.user);
+    }
   }
 
-  this.buildUserForm(this.user);  
+  // this.buildUserForm(this.user);  
   document.querySelector("#" + e.target.id).focus()
 }
 
@@ -117,10 +154,14 @@ UserEditor.prototype.toggleLocation = function(loc, e) {
     return +l.id === +loc.id
   })[0];
 
-  if (!!existing){
-    this.user.diningHalls.splice(this.user.diningHalls.indexOf(existing), 1);
-  } else {
-    this.user.diningHalls.push(loc);
+  if (this.user.userType === "manager"){
+    if (!!existing){
+      this.user.diningHalls.splice(this.user.diningHalls.indexOf(existing), 1);
+    } else {
+      this.user.diningHalls.push(loc);
+    }
+  } else if (this.user.userType === "off-campus"){
+    this.user.diningHalls = [loc]
   }
 
   this.buildUserForm(this.user);
@@ -148,6 +189,9 @@ UserEditor.prototype.buildUserForm = function(user) {
     {tag: "input", attributes: {type: "hidden", value: user.id || 0}},
     {tag: "fieldset", attributes: {}, children: [
       {tag: "legend", attributes: {text: "User Type"}},
+      {tag: "ul", attributes: {className: "errors userType"}, condition: function(){ return this.errors.userType !== void(0)}.bind(this), children: [
+        {tag: "li", attributes: {text: this.errors.userType }}
+      ]},
       {tag: "div", attributes: {className: "options"}, children: ["on-campus", "off-campus", "manager", "admin"].map(function(type){
         return {tag: "div", attributes: {className: "input-wrapper radio"}, children: [
           {tag: "input", attributes: {type: "radio", checked: type === user.userType, name: "user-type", value: type, id: "user-type-" + type, onChange: this.updateUser.bind(this, "userType")}},
@@ -157,32 +201,44 @@ UserEditor.prototype.buildUserForm = function(user) {
     ]},
     {tag: "div", attributes: {className: "input-wrapper huid"}, children: [
       {tag: "label", attributes: {text: "HUID"}},
+      {tag: "ul", attributes: {className: "errors huid"}, condition: function(){ return this.errors.huid !== void(0)}.bind(this), children: [
+        {tag: "li", attributes: {text: this.errors.huid }}
+      ]},
       {tag: "input", attributes: {type: "text", id: "huid", name:"huid", value: user.huid || "", onChange: this.updateUser.bind(this, "huid")}}
     ]},
     {tag: "div", attributes: {className: "input-wrapper first-name"}, children: [
       {tag: "label", attributes: {text: "First Name"}},
+      {tag: "ul", attributes: {className: "errors firstName"}, condition: function(){ return this.errors.firstName !== void(0)}.bind(this), children: [
+        {tag: "li", attributes: {text: this.errors.firstName }}
+      ]},
       {tag: "input", attributes: {type: "text", id: "firstName", value: user.firstName || "", onChange: this.updateUser.bind(this, "firstName")}}
     ]},
     {tag: "div", attributes: {className: "input-wrapper last-name"}, children: [
       {tag: "label", attributes: {text: "Last Name"}},
+      {tag: "ul", attributes: {className: "errors lastName"}, condition: function(){ return this.errors.lastName !== void(0)}.bind(this), children: [
+        {tag: "li", attributes: {text: this.errors.lastName }}
+      ]},
       {tag: "input", attributes: {type: "text", id: "lastName", value: user.lastName || "", onChange: this.updateUser.bind(this, "lastName")}}
     ]},
     {tag: "div", attributes: {className: "input-wrapper email"}, children: [
       {tag: "label", attributes: {text: "Email"}},
+      {tag: "ul", attributes: {className: "errors email"}, condition: function(){ return this.errors.email !== void(0)}.bind(this), children: [
+        {tag: "li", attributes: {text: this.errors.email }}
+      ]},
       {tag: "input", attributes: {type: "text", id: "email", value: user.email || "", onChange: this.updateUser.bind(this, "email")}}
     ]},
-    {tag: "fieldset", attributes: {}, children: [
-      {tag: "legend", attributes: {text: "Status"}},
-      {tag: "div", attributes: {className: "options"}, children: [true, false].map(function(status){
-        var label = status ? "Active" : "Inactive",
-            value = +status; 
+    // {tag: "fieldset", attributes: {}, children: [
+    //   {tag: "legend", attributes: {text: "Status"}},
+    //   {tag: "div", attributes: {className: "options"}, children: [true, false].map(function(status){
+    //     var label = status ? "Active" : "Inactive",
+    //         value = +status; 
 
-        return {tag: "div", attributes: {id: "active", className: "input-wrapper radio"}, children: [
-          {tag: "input", attributes: {type: "radio", checked: status === this.user.active, name: "status", value: value, id: "active-" + value, onChange: this.updateUser.bind(this, "active")}},
-          {tag: "label", attributes: {className: 'btn', text: label, "for": "active-" + value}} 
-        ]}
-      }.bind(this))}
-    ]},
+    //     return {tag: "div", attributes: {id: "active", className: "input-wrapper radio"}, children: [
+    //       {tag: "input", attributes: {type: "radio", checked: status === this.user.active, name: "status", value: value, id: "active-" + value, onChange: this.updateUser.bind(this, "active")}},
+    //       {tag: "label", attributes: {className: 'btn', text: label, "for": "active-" + value}} 
+    //     ]}
+    //   }.bind(this))}
+    // ]},
     {tag: "fieldset", attributes: {}, children: [
       {tag: "legend", attributes: {text: "Block User"}},
       {tag: "div", attributes: {id: "blocked", className: "options"}, children: [true, false].map(function(status){
@@ -195,11 +251,20 @@ UserEditor.prototype.buildUserForm = function(user) {
         ]}
       }.bind(this))}
     ]},
-    {tag: "fieldset", attributes: {}, children: [
+    {tag: "fieldset", attributes: {}, condition: function(u){ return u.userType === "manager" }.bind(this, user), children: [
       {tag: "legend", attributes: {text: "diningHalls"}},
       {tag: "div", attributes: {className: "options"}, children: this.diningHalls.map(function(loc){        
         return {tag: "div", attributes: {className: "input-wrapper checkbox"}, children: [
-          {tag: "input", attributes: {id: "location-" + loc.id, type: "checkbox", checked: this.hasLoc(loc), name: "blocked", value: loc.id, id: "loc-" + loc.id, onChange: this.toggleLocation.bind(this, loc)}},
+          {tag: "input", attributes: {id: "location-" + loc.id, type: "checkbox", checked: this.hasLoc(loc), name: "locations", value: loc.id, id: "loc-" + loc.id, onChange: this.toggleLocation.bind(this, loc)}},
+          {tag: "label", attributes: {className: 'btn', text: loc.name, "for": "loc-" + loc.id}} 
+        ]}
+      }.bind(this))}
+    ]},
+    {tag: "fieldset", attributes: {}, condition: function(u){ return u.userType === "off-campus"}.bind(this, user), children: [
+      {tag: "legend", attributes: {text: "diningHalls"}},
+      {tag: "div", attributes: {className: "options"}, children: this.diningHalls.map(function(loc){        
+        return {tag: "div", attributes: {className: "input-wrapper radio"}, children: [
+          {tag: "input", attributes: {id: "location-" + loc.id, type: "radio", checked: this.hasLoc(loc), name: "locations", value: loc.id, id: "loc-" + loc.id, onChange: this.toggleLocation.bind(this, loc)}},
           {tag: "label", attributes: {className: 'btn', text: loc.name, "for": "loc-" + loc.id}} 
         ]}
       }.bind(this))}
@@ -222,6 +287,8 @@ UserEditor.prototype.buildUserForm = function(user) {
 }
 
 UserEditor.prototype.buildUsers = function(user) {
+  var deleteMsg = "Are you sure you want to delete this User?"
+
   for (var i=0; i<this.users.length; i++) {
     var user = this.users[i],
         parent = document.querySelector(".users"),
@@ -231,10 +298,15 @@ UserEditor.prototype.buildUsers = function(user) {
       {tag: "div", attributes: {className: "user-info huid", text: user.huid}, children: []},
       {tag: "div", attributes: {className: "user-info name", text: user.lastName + ", " + user.firstName}, children: []},
       {tag: "div", attributes: {className: "user-info userType", text: user.userType}, children: []},
-      {tag: "div", attributes: {className: "user-info status", text: user.status ? "Active" : "Inactive"}, children: []},
+      {tag: "div", attributes: {className: "user-info blocked", text: user.blocked ? "Blocked" : "Unblocked"}, children: []},
       {tag: "div", attributes: {className: "action"}, children: [
         {tag: "a", attributes: {href: "/admin/users/" + user.id}, children: [
           {tag: "i", attributes: {className: "fa fa-edit"}, children: []}
+        ]}
+      ]},
+      {tag: "div", attributes: {className: "action"}, children: [
+        {tag: "a", attributes: {onClick: Utils.confirm.bind(Utils, deleteMsg, this.deleteUser.bind(this, user))}, children: [
+          {tag: "i", attributes: {className: "fa fa-trash-o"}, children: []}
         ]}
       ]}
     ]}

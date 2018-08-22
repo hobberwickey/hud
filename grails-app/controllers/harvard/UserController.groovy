@@ -34,6 +34,8 @@ class UserController {
             if (key == "user_type") {
               eq("userType", value)
             }
+
+            ne("active", false)
           }
 
           // maxResults params.max
@@ -93,15 +95,17 @@ class UserController {
             return
         }
 
-        userService.delete(id)
+        def user = userService.get(id)
+            user.active = false
 
-        request.withFormat {
-            form multipartForm {
-                flash.message = message(code: 'default.deleted.message', args: [message(code: 'user.label', default: 'User'), id])
-                redirect action:"index", method:"GET"
-            }
-            '*'{ render status: NO_CONTENT }
+        try {
+          userService.save(user)
+        } catch (ValidationException e) {
+          render user.errors as JSON
+          return
         }
+
+        render ([success: true] as JSON)
     }
 
     protected void notFound() {

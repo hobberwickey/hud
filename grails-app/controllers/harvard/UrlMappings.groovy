@@ -43,11 +43,13 @@ class UrlMappings {
         "/admin/users/new"(controller: "user", action: "create")
         "/admin/api/users"(controller: "user", action: "list")
         "/admin/api/users/${id}"(controller: "user", action: "show")
+        "/admin/api/users/${id}/delete"(controller: "user", action: "delete")
         "/admin/api/users/save"(controller: "user", action: "save")
         
         "/admin/locations"(controller: "diningHall", action: "index")
         "/admin/locations/${id}"(controller: "diningHall", action: "edit")
         "/admin/locations/new"(controller: "diningHall", action: "create")
+        "/admin/api/locations/${id}/delete"(controller: "diningHall", action: "delete")
         "/admin/api/locations"(controller: "diningHall", action: "list")
         "/admin/api/locations/${id}"(controller: "diningHall", action: "show")
         "/admin/api/locations/save"(controller: "diningHall", action: "save")

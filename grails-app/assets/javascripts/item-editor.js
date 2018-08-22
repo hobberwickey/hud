@@ -2,6 +2,7 @@ var ItemEditor = function(){
   this.menus = []
   this.meals = []
   this.edits = []
+  this.errors = []
   this.options = []
   this.menu = {id: null, localId: Utils.genUUID(), name: "", meal: null, menuSections: []};
   this.sectionTypes = {"breakfast": "Breakfast Items", "sandwiches-salads": "Salads & Sandwiches", "beverages": "Beverages", "snacks": "Snacks"};
@@ -83,6 +84,11 @@ ItemEditor.prototype.deleteMenu = function(menu) {
 }
 
 ItemEditor.prototype.saveMenu = function(menu) {
+  if (!this.validateMenu(menu)){
+    this.buildMenuForm(menu)
+    return
+  }
+
   return new Promise(function(res, rej){
     $.ajax({
       url: "/admin/api/menus/save",
@@ -92,13 +98,6 @@ ItemEditor.prototype.saveMenu = function(menu) {
       
       success: function(resp){
         window.location = "/admin/menus"
-        // if (window.location.pathname.split("/")[3] === "new" && !!resp.id){
-        //   window.location.assign("/admin/menus/" + resp.id);
-        // } else {
-        //   this.menu = resp;
-        //   this.buildMenuForm(this.menu);
-        // }
-        // res()
       }.bind(this),
       error: function(resp){
         rej()
@@ -107,7 +106,37 @@ ItemEditor.prototype.saveMenu = function(menu) {
   }.bind(this))
 }
 
+ItemEditor.prototype.validateMenu = function(menu) {
+  menu = menu || this.menu
+
+  if ($.trim(menu.name) == "") {
+    this.errors["name"] = "Menu name is required"
+  } else {
+    delete this.errors["name"];
+    var el = document.querySelector(".errors.name")
+    if (!!el) el.parentNode.removeChild(el);
+  }
+
+  if (!menu.meal) {
+    this.errors["meal"] = "A meal selection is required"
+  } else {
+    delete this.errors["meal"];
+    var el = document.querySelector(".errors.meal")
+    if (!!el) el.parentNode.removeChild(el);
+  }
+
+  return Object.keys(this.errors).length === 0;
+}
+
 ItemEditor.prototype.updateMenu = function(key, e) {
+  if (key === "name") {
+    if (e.target.value.length > 0) {
+      delete this.errors["name"];
+      var el = document.querySelector(".errors.name")
+      if (!!el) el.parentNode.removeChild(el);
+    }
+  }
+
   this.menu[key] = e.target.value;
 }
 
@@ -116,6 +145,10 @@ ItemEditor.prototype.updateMeal = function(e) {
 
   if (!!meal){
     this.menu.meal = meal;
+
+    delete this.errors["meal"];
+    var el = document.querySelector(".errors.meal")
+    if (!!el) el.parentNode.removeChild(el);
   }
 }
 
@@ -223,7 +256,7 @@ ItemEditor.prototype.buildMenuSection = function(key, replace) {
 
   var struct = {tag: "li", attributes: {className: "sortable-list section section-" + (section.id || section.localId), dataId: (section.id || section.localId)}, children: [
     {tag: "h2", attributes: {text: label}},
-    {tag: "ul", attributes: {className: "sortable-list-items menu-items menu-list"}, children: section.menuItems.sort(function(a, b){ return a.position > b.position }).map(function(menuItem){
+    {tag: "ul", attributes: {className: "sortable-list-items menu-items menu-list"}, condition: function(s){ return s.menuItems.length > 0 }.bind(this, section), children: section.menuItems.sort(function(a, b){ return a.position > b.position }).map(function(menuItem){
       // var menuItem = section.menuItems.filter(function(item){ return (parseInt(item.id, 10) === parseInt(id, 10) || item.localId === id) })[0];
 
       if (!!menuItem){
@@ -256,7 +289,7 @@ ItemEditor.prototype.buildMenuSection = function(key, replace) {
     },
     {tag: "div", attributes: {className: "add-item-wrapper"}, children: [
       {tag: "div", attributes: {className: "input-wrapper"}, children: [
-        {tag: "input", attributes: {className: "add-item-input", type: "text"}, children: []}
+        {tag: "input", attributes: {className: "add-item-input", type: "text", placeholder: "Item name"}, children: []}
       ]},
       {tag: "div", attributes: {className: "input-wrapper"}, children: [
         {tag: "input", attributes: {className: "add-item-btn btn", value: "Add", type: "button", onClick: this.addItem.bind(this, section)}}
@@ -289,12 +322,18 @@ ItemEditor.prototype.buildMenuForm = function(menu) {
   var struct = {tag: "form", attributes: {class: "menu-form", onSubmit: this.submitForm.bind(this)}, children: [
     {tag: "div", attributes: {className: "input-wrapper name"}, children: [
       {tag: "h2", attributes: {text: "Menu Name"}},
+      {tag: "ul", attributes: {className: "errors name"}, condition: function(){ return this.errors.name !== void(0)}.bind(this), children: [
+        {tag: "li", attributes: {text: this.errors.name }}
+      ]},
       {tag: "input", attributes: {type: "text", value: menu.name || "", onChange: this.updateMenu.bind(this, "name") }},
       {tag: "p", attributes: {text: "Leave sections empty to hide it on the menu."}}
     ]},
     {tag: "fieldset", attributes: {}, children: [
       {tag: "legend", attributes: {text: "Meal"}},
       {tag: "p", attributes: {text: "Select a meal plan for this menu."}},
+      {tag: "ul", attributes: {className: "errors meal"}, condition: function(){ return this.errors.meal !== void(0)}.bind(this), children: [
+        {tag: "li", attributes: {text: this.errors.meal }}
+      ]},
       {tag: "div", attributes: {className: "options"}, children: this.meals.map(function(meal, index){
         var checked = menu.meal && menu.meal.id === meal.id
 
@@ -324,6 +363,8 @@ ItemEditor.prototype.buildMenuForm = function(menu) {
 }
 
 ItemEditor.prototype.buildMenus = function() {
+  var deleteMsg = "Are you sure you want to delete this Menu?"
+
   for (var i=0; i<this.menus.length; i++){
     var menu = this.menus[i],
         parent = document.querySelector(".menus"),
@@ -338,7 +379,7 @@ ItemEditor.prototype.buildMenus = function() {
       ]},
       {tag: "div", attributes: {className: "action"}, children: [
         // {tag: "a", attributes: {href: "/admin/users/" + menu.id + "/delete"}, children: [
-          {tag: "i", attributes: {className: "fa fa-trash-o", onClick: this.deleteMenu.bind(this, menu)}, children: []}
+          {tag: "i", attributes: {className: "fa fa-trash-o", onClick: Utils.confirm.bind(Utils, deleteMsg, this.deleteMenu.bind(this, menu))}, children: []}
         // ]}
       ]}
     ]}

@@ -8,6 +8,7 @@ class OrderPickup {
     static belongsTo = [Orders]
 
     static mapping = {
+      pickedUp defaultValue: true
       sort 'pickupDate' 
     }
 
