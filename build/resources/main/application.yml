@@ -112,9 +112,9 @@ environments:
     production:
         dataSource:
             dbCreate: none
-            url: jdbc:mysql://aa10l6aocdan9hy.cxgx4ax5hb5b.eu-west-1.rds.amazonaws.com
-            username: hudsDemo
-            password: Sup3rman!
+            url: jdbc:mysql://b8183bba842d62:ed9bc297@us-cdbr-iron-east-01.cleardb.net/heroku_c4f5d70792818c6?reconnect=true
+            # username: hudsDemo
+            # password: Sup3rman!
             properties:
                 jmxEnabled: true
                 initialSize: 5
