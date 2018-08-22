@@ -104,7 +104,13 @@ environments:
     development:
         dataSource:
             dbCreate: none
-            url: jdbc:mysql://127.0.0.1:3306/harvard
+            # url: jdbc:mysql://127.0.0.1:3306/harvard
+            url: jdbc:mysql://us-cdbr-iron-east-01.cleardb.net/heroku_c4f5d70792818c6?reconnect=true
+            username: b8183bba842d62
+            password: ed9bc297
+            # url: jdbc:mysql://uaa10l6aocdan9hy.cxgx4ax5hb5b.eu-west-1.rds.amazonaws.com/huds?reconnect=true
+            # username: hudsDemo
+            # password: Sup3rman!
     test:
         dataSource:
             dbCreate: update
@@ -116,9 +122,14 @@ environments:
         dataSource:
             dbCreate: none
             # url: jdbc:mysql://b8183bba842d62:ed9bc297@us-cdbr-iron-east-01.cleardb.net/heroku_c4f5d70792818c6?reconnect=true
-            url: jdbc:mysql://hudsDemo:Sup3rman!@uaa10l6aocdan9hy.cxgx4ax5hb5b.eu-west-1.rds.amazonaws.com?reconnect=true
+            # url: jdbc:mysql://hudsDemo:Sup3rman!@uaa10l6aocdan9hy.cxgx4ax5hb5b.eu-west-1.rds.amazonaws.com?reconnect=true
+            # url: ${CLEARDB_DATABASE_URL}
             # username: hudsDemo
             # password: Sup3rman!
+            url: jdbc:mysql://us-cdbr-iron-east-01.cleardb.net/heroku_c4f5d70792818c6?reconnect=true
+            username: b8183bba842d62
+            password: ed9bc297
+            
             properties:
                 jmxEnabled: true
                 initialSize: 5
