@@ -1,7 +1,4 @@
 *.log
-build/libs/hud-0.1.war
-build/libs/hud-0.1.war.original
-
 build
 .gradle
 .idea
