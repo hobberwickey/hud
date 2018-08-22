@@ -114,8 +114,3 @@ sourceSets {
         }
     }
 }
-
-jar {
-    baseName = 'demo'
-    version = '0.0.1'
-}
