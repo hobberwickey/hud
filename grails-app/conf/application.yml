@@ -118,7 +118,7 @@ environments:
     production:
         server: 
             host: '0.0.0.0'
-            port: process.env.PORT
+            port: 5000
         dataSource:
             dbCreate: none
             # url: jdbc:mysql://b8183bba842d62:ed9bc297@us-cdbr-iron-east-01.cleardb.net/heroku_c4f5d70792818c6?reconnect=true
