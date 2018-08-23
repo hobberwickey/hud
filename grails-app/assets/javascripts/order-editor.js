@@ -4,15 +4,19 @@ var OrderEditor = function(){
   this.reports = [];
   this.history = [];
   this.order = {diningHalls: []};
+  this.sort = {
+    field: null,
+    direction: null
+  };
   this.filters = {
     page: 0
-  }
+  };
   this.reportFilters = {
     page: 0
-  }
+  };
   this.historyFilters = {
     page: 0
-  }
+  };
 }
 
 OrderEditor.prototype.search = function(){
@@ -95,6 +99,17 @@ OrderEditor.prototype.markNotPickedUp = function(id) {
       }.bind(this)
     })
   }.bind(this))
+}
+
+OrderEditor.prototype.sort = function(key, callback) {
+  if (this.sort.key === key){
+    this.sort.direction === this.sort.direction === "asc" ? "desc" : "asc";  
+  } else {
+    this.sort.key = key;
+    this.sort.direction = "desc";
+  }
+
+  return callback()
 }
 
 OrderEditor.prototype.filterReports = function(key, value){

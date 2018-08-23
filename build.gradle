@@ -106,8 +106,8 @@ tasks.stage.doLast() {
 }
 
 assets {
-    minifyJs = true
-    minifyCss = true
+    minifyJs = false
+    minifyCss = false
     includes = [
         "fonts/*",
         "icons/*"

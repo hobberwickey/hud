@@ -536,8 +536,6 @@ class OrdersController {
       def query   = session.createSQLQuery(part1 + whereClaus + part2 + whereClaus + part3 + part4)
       def countQuery = session.createSQLQuery(countSelect + part1 + whereClaus + part2 + whereClaus + part3 + ") as t")
 
-      println countSelect + part1 + whereClaus + part2 + whereClaus + part3 + ")"
-
       filterValues.each{ key, value -> 
         query.setParameterList(key, value)
         countQuery.setParameterList(key, value)
