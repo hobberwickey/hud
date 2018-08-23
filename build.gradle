@@ -106,12 +106,12 @@ tasks.stage.doLast() {
 }
 
 assets {
-    minifyJs = false
-    minifyCss = false
-    includes = [
-        "fonts/*",
-        "icons/*"
-    ]
+    minifyJs = true
+    minifyCss = true
+    // includes = [
+    //     "fonts/*",
+    //     "icons/*"
+    // ]
 }
 
 sourceSets {
