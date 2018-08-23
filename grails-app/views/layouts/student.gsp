@@ -10,6 +10,7 @@
     <asset:stylesheet src="application.css"/>
     <asset:stylesheet src="huds.css"/>
     <asset:stylesheet src="icons.css"/>
+    <asset:stylesheet src="styles.css"/>
     <g:layoutHead/>
 
     <link href="https://fonts.googleapis.com/css?family=Open+Sans" rel="stylesheet">
