@@ -1060,13 +1060,13 @@ select {
   -webkit-appearance: none;
   -moz-appearance: none;
   font-size: 14px;
-  background-image: url("down-arrow.png");
+  background-image: url("https://s3.amazonaws.com/mediumbold-huds/images/down-arrow.png");
   background-repeat: no-repeat;
   background-size: 15px;
   background-position: center right 5px; }
 
 input.search {
-  background-image: url("search.png");
+  background-image: url("https://s3.amazonaws.com/mediumbold-huds/images/search.png");
   background-repeat: no-repeat;
   background-size: 15px;
   background-position: center right 5px; }
@@ -1081,17 +1081,17 @@ input.search {
   width: 40px;
   height: 40px; }
   .icon.icon-dressing {
-    background-image: url("dressing-off.svg"); }
+    background-image: url("https://s3.amazonaws.com/mediumbold-huds/images/dressing-off.svg"); }
     .icon.icon-dressing.active {
-      background-image: url("dressing-on.svg"); }
+      background-image: url("https://s3.amazonaws.com/mediumbold-huds/images/dressing-on.svg"); }
   .icon.icon-bread {
-    background-image: url("bread-off.svg"); }
+    background-image: url("https://s3.amazonaws.com/mediumbold-huds/images/bread-off.svg"); }
     .icon.icon-bread.active {
-      background-image: url("bread-on.svg"); }
+      background-image: url("https://s3.amazonaws.com/mediumbold-huds/images/bread-on.svg"); }
   .icon.icon-cheese {
-    background-image: url("cheese-off.svg"); }
+    background-image: url("https://s3.amazonaws.com/mediumbold-huds/images/cheese-off.svg"); }
     .icon.icon-cheese.active {
-      background-image: url("cheese-on.svg"); }
+      background-image: url("https://s3.amazonaws.com/mediumbold-huds/images/cheese-on.svg"); }
 
 .confirmation-btn {
   position: absolute;
