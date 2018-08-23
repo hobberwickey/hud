@@ -65,8 +65,13 @@ class OrderPickup {
             eq("pickedUp", value.toBoolean())
           }
         }       
-      
-        order "pickupDate",  "desc"
+        
+        if (params.containsKey("sortField") && params["sortField"] != "" && params.containsKey("sortOrder") && params["sortOrder"] != ""){
+          order(params["sortField"], params["sortOrder"])
+          order("id", params["sortOrder"] == "desc" ? "asc" : "desc")
+        } else {
+          order("pickupDate", "desc")
+        }
       }
     }
 

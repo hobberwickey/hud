@@ -503,7 +503,10 @@ class OrdersController {
           dining_hall.id, 
           dining_hall.name, 
           meal.name
-        ORDER BY popularity.menu_item_popularity DESC
+      """
+      
+      def ordering = """
+        ORDER BY 
       """
 
       def part4 = """
@@ -530,10 +533,25 @@ class OrdersController {
         whereClaus = "  WHERE " + filterClauses.join(" AND \n") + " \n"
       }
 
+      def orderKeys = ["name": " popularity.menu_item_name", "count": " popularity.menu_item_popularity"]
+      def orderDirections = ["asc": " ASC ", "desc": " DESC "]
+
+      if (orderKeys.containsKey(params["sortField"])){
+        ordering += " " + orderKeys[params["sortField"]]
+      } else {
+        ordering += " popularity.menu_item_popularity"
+      }
+
+      if (orderDirections.containsKey(params["sortOrder"])){
+        ordering += " " + orderDirections[params["sortOrder"]]
+      } else {
+        ordering += " DESC "
+      }
+
       // println part1 + whereClaus + part2 + whereClaus + part3
 
       def session = sessionFactory.getCurrentSession()
-      def query   = session.createSQLQuery(part1 + whereClaus + part2 + whereClaus + part3 + part4)
+      def query   = session.createSQLQuery(part1 + whereClaus + part2 + whereClaus + part3 + ordering + part4)
       def countQuery = session.createSQLQuery(countSelect + part1 + whereClaus + part2 + whereClaus + part3 + ") as t")
 
       filterValues.each{ key, value -> 
@@ -543,7 +561,7 @@ class OrdersController {
 
       query.setInteger("max", max.toInteger())
       query.setInteger("offset", offset.toInteger())
-
+      
       def output = [:]
       def count = countQuery.list()
       def results = query.list()

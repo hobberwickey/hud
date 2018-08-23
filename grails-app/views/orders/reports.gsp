@@ -29,8 +29,8 @@
     <div class='count'></div>
     <div class='content'>
       <ul class='content-header report-header'>
-        <li><label>Item</label></li
-        ><li><label>Count</label></li
+        <li id='item_name' class='desc'><label>Item <span></span></label></li
+        ><li id='item_count' class='desc'><label>Count <span></span></label></li
         ><li><label>Location</label></li
         ><li><label>Meal Type</label></li>
       </ul>
@@ -78,6 +78,26 @@
 
       document.querySelector(".btn.next").addEventListener("click", function(){
         orderEditor.nextReportPage();
+      })
+
+      document.querySelector("#item_name").addEventListener("click", function(e){
+        orderEditor.updateSort("name", function(){
+          orderEditor.getReport().then(function(){
+            document.querySelector(".reports").innerHTML = "";
+            orderEditor.buildReports();
+            e.target.className = orderEditor.sort.sortOrder
+          });
+        });
+      })
+
+      document.querySelector("#item_count").addEventListener("click", function(e){
+        orderEditor.updateSort("count", function(){
+          orderEditor.getReport().then(function(){
+            document.querySelector(".reports").innerHTML = "";
+            orderEditor.buildReports();
+            e.target.className = orderEditor.sort.sortOrder
+          });
+        });
       })
     })
   </script>

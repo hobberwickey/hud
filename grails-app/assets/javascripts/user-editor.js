@@ -3,9 +3,13 @@ var UserEditor = function(){
   this.user = {diningHalls: []};
   this.errors = {};
   this.diningHalls = [];
+  this.sort = {
+    sortField: null,
+    sortOrder: null
+  };
   this.filters = {
     page: 0
-  }
+  };
 }
 
 UserEditor.prototype.getLocations = function(){
@@ -29,7 +33,7 @@ UserEditor.prototype.getLocations = function(){
 UserEditor.prototype.getUsers = function(){
   return new Promise(function(res, rej) {
     $.ajax({
-      url: "/admin/api/users?" + $.param(this.filters),
+      url: "/admin/api/users?" + $.param(this.filters) + "&" + $.param(this.sort),
       type: "GET",
       contentType: "application/json",
       success: function(resp) {
@@ -101,6 +105,17 @@ UserEditor.prototype.deleteUser = function(user){
       console.log(err)
     }.bind(this)
   })
+}
+
+UserEditor.prototype.updateSort = function(key, callback) {
+  if (this.sort.key === key){
+    this.sort.sortOrder = (this.sort.sortOrder === "desc" ? "asc" : "desc");  
+  } else {
+    this.sort.sortField = key;
+    this.sort.sortOrder = (this.sort.sortOrder === "desc" ? "asc" : "desc");
+  }
+
+  return callback()
 }
 
 UserEditor.prototype.validateUser = function() {

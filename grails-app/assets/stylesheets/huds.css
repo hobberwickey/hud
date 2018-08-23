@@ -1113,4 +1113,24 @@ input.search {
   overflow: auto;
   padding: 0px 18px 30px 18px; }
 
+.desc * {
+  pointer-events: none; }
+.desc span {
+  display: inline-block;
+  vertical-align: middle;
+  border-left: solid 8px transparent;
+  border-right: solid 8px transparent;
+  border-top: solid 8px white;
+  margin-left: 5px; }
+
+.asc * {
+  pointer-events: none; }
+.asc span {
+  display: inline-block;
+  vertical-align: middle;
+  border-left: solid 8px transparent;
+  border-right: solid 8px transparent;
+  border-bottom: solid 8px white;
+  margin-left: 5px; }
+
 /*# sourceMappingURL=huds.css.map */

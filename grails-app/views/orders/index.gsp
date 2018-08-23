@@ -37,7 +37,7 @@
     <div class='count'></div>
     <div class='content'>
       <ul class='content-header order-header'>
-        <li><label>Date & Time</label></li
+        <li id='date_search' class='desc'><label>Date & Time <span></span></label></li
         ><li><label>Location</label></li
         ><li><label>Meal</label></li
         ><li><label>HUID/Name</label></li
@@ -95,6 +95,16 @@
 
       document.querySelector(".btn.next").addEventListener("click", function(){
         orderEditor.nextPage();
+      })
+
+      document.querySelector("#item_name").addEventListener("click", function(e){
+        orderEditor.updateSort("pickupDate", function(){
+          orderEditor.search().then(function(){
+            document.querySelector(".orders").innerHTML = "";
+            orderEditor.buildOrders();
+            e.target.className = orderEditor.sort.sortOrder
+          });
+        });
       })
     })
   </script>

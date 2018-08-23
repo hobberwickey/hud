@@ -10,7 +10,7 @@
     <div class='count'></div>
     <div class='content'>
       <ul class='content-header history-header'>
-        <li><label>Pickup</label></li
+        <li id='date_search' class='desc'><label>Pickup  <span></span></label></li
         ><li><label>Location</label></li
         ><li><label>Meal</label></li
         ><li><label>Order</label></li
@@ -44,6 +44,16 @@
 
       document.querySelector(".btn.next").addEventListener("click", function(){
         orderEditor.nextHistoryPage();
+      })
+
+      document.querySelector("#date_search").addEventListener("click", function(e){
+        orderEditor.updateSort("updatedAt", function(){
+          orderEditor.getHistory().then(function(){
+            document.querySelector(".history").innerHTML = "";
+            orderEditor.buildHistory();
+            e.target.className = orderEditor.sort.sortOrder
+          });
+        });
       })
     })
   </script>

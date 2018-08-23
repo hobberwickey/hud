@@ -1217,3 +1217,35 @@ input.search {
     padding: 0px 18px 30px 18px;
   }
 }
+
+.desc {
+  * {
+    pointer-events: none;
+  }
+
+  span {
+    display: inline-block;
+    vertical-align: middle;
+    border-left: solid 8px transparent;
+    border-right: solid 8px transparent;
+    border-top: solid 8px white;
+    margin-left: 5px;
+    
+  }
+}
+
+.asc {
+  * {
+    pointer-events: none;
+  }
+  
+  span {
+    display: inline-block;
+    vertical-align: middle;
+    border-left: solid 8px transparent;
+    border-right: solid 8px transparent;
+    border-bottom: solid 8px white; 
+    margin-left: 5px;
+  }
+}
+

@@ -38,6 +38,13 @@ class UserController {
             ne("active", false)
           }
 
+          if (params.containsKey("sortField") && params["sortField"] != "" && params.containsKey("sortOrder") && params["sortOrder"] != ""){
+            order(params["sortField"], params["sortOrder"])
+            order("id", params["sortOrder"] == "desc" ? "asc" : "desc")
+          } else {
+            order("huid", "asc")
+          }
+
           // maxResults params.max
           // firstResult params.offset       
         } as JSON

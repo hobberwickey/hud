@@ -5,8 +5,8 @@ var OrderEditor = function(){
   this.history = [];
   this.order = {diningHalls: []};
   this.sort = {
-    field: null,
-    direction: null
+    sortField: null,
+    sortOrder: null
   };
   this.filters = {
     page: 0
@@ -21,8 +21,10 @@ var OrderEditor = function(){
 
 OrderEditor.prototype.search = function(){
   return new Promise(function(res, rej){
+    
+
     $.ajax({
-      url: "/admin/api/orders/search?" + $.param(this.filters),
+      url: "/admin/api/orders/search?" + $.param(this.filters) + "&" + $.param(this.sort),
       type: "GET",
       contentType: "application/json",
       success: function(resp) {
@@ -41,7 +43,7 @@ OrderEditor.prototype.search = function(){
 OrderEditor.prototype.getReport = function(){
   return new Promise(function(res, rej){
     $.ajax({
-      url: "/admin/api/orders/report?" + $.param(this.reportFilters),
+      url: "/admin/api/orders/report?" + $.param(this.reportFilters) + "&" + $.param(this.sort),
       type: "GET",
       contentType: "application/json",
       success: function(resp) {
@@ -60,7 +62,7 @@ OrderEditor.prototype.getReport = function(){
 OrderEditor.prototype.getHistory = function(){
   return new Promise(function(res, rej){
     $.ajax({
-      url: "/myhuds/orders/history?" + $.param(this.historyFilters),
+      url: "/myhuds/orders/history?" + $.param(this.historyFilters) + "&" + $.param(this.sort),
       type: "GET",
       contentType: "application/json",
       success: function(resp) {
@@ -101,12 +103,12 @@ OrderEditor.prototype.markNotPickedUp = function(id) {
   }.bind(this))
 }
 
-OrderEditor.prototype.sort = function(key, callback) {
+OrderEditor.prototype.updateSort = function(key, callback) {
   if (this.sort.key === key){
-    this.sort.direction === this.sort.direction === "asc" ? "desc" : "asc";  
+    this.sort.sortOrder = (this.sort.sortOrder === "asc" ? "desc" : "asc");  
   } else {
-    this.sort.key = key;
-    this.sort.direction = "desc";
+    this.sort.sortField = key;
+    this.sort.sortOrder = (this.sort.sortOrder === "asc" ? "desc" : "asc");
   }
 
   return callback()
@@ -370,7 +372,7 @@ OrderEditor.prototype.buildHistory = function() {
     } else {
       parent.appendChild(html)
     }
-
-    document.querySelector(".count").innerHTML = this.count + " results matched your query"
   }
+
+  document.querySelector(".count").innerHTML = this.count + " results matched your query"
 }

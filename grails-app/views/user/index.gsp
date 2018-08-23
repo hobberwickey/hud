@@ -37,7 +37,7 @@
     </form>
     <div class='content'>
       <ul class='content-header user-header'>
-        <li><label>HUID</label></li
+        <li id='huid_search' class='desc'><label>HUID <span></span></label></li
         ><li><label>Name</label></li
         ><li><label>Type</label></li
         ><li><label>Status</label></li
@@ -68,6 +68,16 @@
           e.preventDefault();
           userEditor.filter("user_name", e.target.value)
         }
+      })
+
+      document.querySelector("#huid_search").addEventListener("click", function(e){
+        userEditor.updateSort("huid", function(){
+          userEditor.getUsers(userEditor.filter.page).then(function(){
+            document.querySelector(".users").innerHTML = "";
+            userEditor.buildUsers();
+            e.target.className = userEditor.sort.sortOrder
+          });
+        });
       })
 
       Array.prototype.map.call(document.querySelectorAll(".filter.user-type input"), function(input){

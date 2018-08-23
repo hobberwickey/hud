@@ -15,9 +15,15 @@ class Orders {
     static hasMany = [menuSelections: MenuSelection, orderPickups: OrderPickup]
 
     static namedQueries = {
-      history { user, params -> 
+      history { user, params ->
+        if (params.containsKey("sortField") && params["sortField"] != "" && params.containsKey("sortOrder") && params["sortOrder"] != ""){
+          order(params["sortField"], params["sortOrder"])
+          order("id", params["sortOrder"] == "desc" ? "asc" : "desc")
+        } else {
+          order("updatedAt", "desc")
+        }
+
         eq("user", user)
-        order("updatedAt", "desc")
       }
     }
 
