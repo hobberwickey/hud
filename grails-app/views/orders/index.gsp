@@ -97,7 +97,7 @@
         orderEditor.nextPage();
       })
 
-      document.querySelector("#item_name").addEventListener("click", function(e){
+      document.querySelector("#date_search").addEventListener("click", function(e){
         orderEditor.updateSort("pickupDate", function(){
           orderEditor.search().then(function(){
             document.querySelector(".orders").innerHTML = "";
