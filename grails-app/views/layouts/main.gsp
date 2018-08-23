@@ -9,6 +9,7 @@
     <asset:link rel="icon" href="favicon.ico" type="image/x-ico" />
     <asset:stylesheet src="application.css"/>
     <asset:stylesheet src="huds.css"/>
+    <asset:stylesheet src="icons.css"/>
     <g:layoutHead/>
 
     <link href="https://fonts.googleapis.com/css?family=Open+Sans" rel="stylesheet">
