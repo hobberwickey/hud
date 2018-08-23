@@ -199,7 +199,7 @@ input:focus {
   outline: none; }
 
 .logo {
-  width: 1024px;
+  max-width: 1024px;
   margin: 0 auto 0 auto;
   height: 60px; }
 

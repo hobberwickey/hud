@@ -15,7 +15,7 @@
 </nav>
 <div class="logo">
   <a href="/admin">
-    <asset:image src="logo.png" style="height: 18px;"></asset:image>
+    <img src="https://s3.amazonaws.com/mediumbold-huds/images/logo.png" style="height: 18px;" />
   </a>
   <ul class="utility-nav">
     <li><a href="/myhuds" class="logout">Home</a></li>
