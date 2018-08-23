@@ -17,7 +17,18 @@ class MyHudController {
       render ( view: "home", layout: "student" )
     }
 
-    def admin(MenuSection menuSection) {
+    def admin() {
+      //// TEMP ////
+      def user = userService.get(1)
+
+      if (user != null && user.userType == "admin") {
+        respond [:], model:[user: user]
+      } else {
+        notFound()
+      }
+    }
+
+    def index() {
       //// TEMP ////
       def user = userService.get(1)
 

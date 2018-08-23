@@ -55,6 +55,7 @@ class OrdersController {
         respond ordersService.list(params), [:]
       }
 
+      render ( view: "history", layout: "student" )
       // render OrderPickup.get(122) as JSON
     }
 
@@ -225,7 +226,7 @@ class OrdersController {
         render model as JSON
       } else {
         model["helpers"] = new Helpers(params)
-        respond order, model: model
+        render model: model, view: "create", layout: "student"
       }
 
     }

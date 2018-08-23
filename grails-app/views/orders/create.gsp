@@ -424,7 +424,10 @@
           </div>
         </div>
 
-        <input type='submit' class="btn" />
+        <input type='submit' class="btn" value='Place Order' />
+        <a href='/myhuds'>
+          <input type='button' class="btn" value='Cancel' />
+        </a>
       </form>
     </div>
   </div>

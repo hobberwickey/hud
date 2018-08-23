@@ -14,7 +14,7 @@
   </div> -->
 </nav>
 <div class="logo">
-  <a href="/admin">
+  <a href="/myhuds">
     <img src="https://s3.amazonaws.com/mediumbold-huds/images/logo.png" style="height: 18px;" />
   </a>
   <ul class="utility-nav">
