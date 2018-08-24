@@ -9,15 +9,15 @@
     <h1>HUDS Administrator</h1>
     
     <div class="section">
-      <div class="home-action"><a href="/admin/users">Users</a></div>
-      <div class="home-action"><a href="/admin/orders">Orders</a></div>
-      <div class="home-action"><a href="/admin/orders/reports">Orders Report</a></div>
+      <a href="/admin/users"><div class="home-action">Users</div></a>
+      <a href="/admin/orders"><div class="home-action">Orders</div></a>
+      <a href="/admin/orders/reports"><div class="home-action">Orders Report</div></a>
     </div>
 
     <div class="section">
-      <div class="home-action"><a href="/admin/locations/">Locations</a></div>
-      <div class="home-action"><a href="/admin/menu-item-options">Meal Options</a></div>
-      <div class="home-action"><a href="/admin/menus">Menus</a></div>
+      <a href="/admin/locations/"><div class="home-action">Locations</div></a>
+      <a href="/admin/menu-item-options"><div class="home-action">Meal Options</div></a>
+      <a href="/admin/menus"><div class="home-action">Menus</div></a>
     </div>
     
   </div>

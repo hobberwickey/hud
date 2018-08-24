@@ -103,6 +103,10 @@ OrderEditor.prototype.markNotPickedUp = function(id) {
   }.bind(this))
 }
 
+OrderEditor.prototype.cancelOrder = function(id, e) {
+  window.location = "/myhuds/orders/" + id + "/cancel"
+}
+
 OrderEditor.prototype.updateSort = function(key, callback) {
   if (this.sort.key === key){
     this.sort.sortOrder = (this.sort.sortOrder === "asc" ? "desc" : "asc");  
@@ -229,7 +233,7 @@ OrderEditor.prototype.filter = function(key, value, e) {
       }
 
       if (moment(value, "YYYY-MM-DD").isAfter(moment())){
-        e.target.value = moment().format("YYYY-MM-DD");
+        e.target.value = moment.utc().format("YYYY-MM-DD");
         return
       }
     }
@@ -278,7 +282,7 @@ OrderEditor.prototype.buildOrders = function() {
         wrapper = document.querySelector(".order-" + pickup.id);
 
     var struct = {tag: "li", attributes: {className: "info-list order order-" + pickup.id}, children: [
-      {tag: "div", attributes: {className: "order-info date", text: moment(pickup.pickupDate).format("MM/DD/YYYY") + moment(pickup.pickupTime).format(" h:mm a") }},
+      {tag: "div", attributes: {className: "order-info date", text: moment.utc(pickup.pickupDate).format("MM/DD/YYYY") + moment.utc(pickup.pickupTime).format(" h:mm a") }},
       {tag: "div", attributes: {className: "order-info location ", text: !!order.diningHall ? order.diningHall.name : ""}},
       {tag: "div", attributes: {className: "order-info meal", text: !!order.menu ? order.menu.meal.name : ""}},
       {tag: "div", attributes: {className: "order-info user"}, children: [
@@ -345,20 +349,20 @@ OrderEditor.prototype.buildHistory = function() {
     })  
 
     var struct = {tag: "li", attributes: {className: "info-list order order-" + order.id}, children: [
-      {tag: "div", attributes: {className: "order-info date", text: moment(pickupDates[0].pickupDate).format("M/D/YYYY") + " " + moment.utc(pickupDates[0].pickupTime).format("h:mm a") }},
+      {tag: "div", attributes: {className: "order-info date", text: moment.utc(pickupDates[0].pickupDate).format("M/D/YYYY") + " " + moment.utc(pickupDates[0].pickupTime).format("h:mm a") }},
       {tag: "div", attributes: {className: "order-info location ", text: order.diningHall.name }},
       {tag: "div", attributes: {className: "order-info meal", text: order.menu.meal.name }},
       {tag: "div", attributes: {className: "order-info selections"}, children: order.menuSelections.map(function(selection){
         return {tag: "div", attributes: {className: "selection", text: selection.menuItem.name }}
       })},
-      {tag: "div", attributes: {className: "order-item repeated", text: pickupDates.length > 1 ? "Repeat Until " + moment(pickupDates[pickupDates.length - 1].pickupDate).format("M/D/YYYY") : "" }},
+      {tag: "div", attributes: {className: "order-item repeated", text: pickupDates.length > 1 ? "Repeat Until " + moment.utc(pickupDates[pickupDates.length - 1].pickupDate).format("M/D/YYYY") : "" }},
       (order.canceled  
-        ? {tag: "div", attributes: {className: "order-info status", text: "Canceled on " + moment(order.canceledOn).format("dddd, MMMM DD")}} 
+        ? {tag: "div", attributes: {className: "order-info status", text: "Canceled on " + moment.utc(order.canceledOn).format("dddd, MMMM DD")}} 
         : (this.isComplete(order) 
           ? {tag: "div", attributes: {className: "order-info status", text: "Picked Up"}}
           : {tag: "div", attributes: {className: "order-info status action"}, children: [
               {tag: "a", attributes: {className: "btn", href: "/myhuds/orders/" + order.menu.meal.name.toLowerCase() + "/create/" + order.id, text: "Edit" }},
-              {tag: "a", attributes: {className: "btn", href: "/myhuds/orders/" + order.id + "/cancel", text: "Cancel"}}
+              {tag: "a", attributes: {className: "btn", text: "Cancel", onClick: Utils.confirm.bind(Utils, "Are you sure you want to cancel this Order?", this.cancelOrder.bind(this, order.id))}}
             ]}
         )
       )

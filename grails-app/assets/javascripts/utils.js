@@ -141,6 +141,7 @@ var Utils = {
 
   confirm: function(msg, callback, e) {
     var coords = e.target.getBoundingClientRect(),
+        scrollTop = window.scrollY || document.documentElement.scrollTop,
         clear = function(){ [].forEach.call(document.querySelectorAll(".confirmation-btn"), function(el){ el.parentNode.removeChild(el) })};
 
     var struct = {tag: "div", attributes: {className: "confirmation-btn"}, children: [
@@ -155,7 +156,7 @@ var Utils = {
     ]}
 
     var html = Utils.buildHTML(struct);
-        html.style.top = (coords.top + coords.height + 10) + "px",
+        html.style.top = (coords.top + coords.height + 10 + scrollTop) + "px",
         html.style.left = (coords.left - 220) + "px"; 
 
     document.body.appendChild(html);

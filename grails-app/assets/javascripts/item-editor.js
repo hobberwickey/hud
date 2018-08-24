@@ -347,7 +347,7 @@ ItemEditor.prototype.buildMenuForm = function(menu) {
       return this.buildMenuSection(key, false)
     }.bind(this))},
     {tag: "div", attributes: {className: "btns"}, children: [
-      {tag: "input", attributes: {className: "btn submit confirm", type: "submit"}, children: []},
+      {tag: "input", attributes: {className: "btn submit confirm", type: "submit", value: (!!menu.id ? "Save" : "Add")}, children: []},
       {tag: "a", attributes: {className: "btn cancel", href: "/admin/menus", text: "Cancel"}, children: []}
     ]}
   ]}

@@ -20,12 +20,10 @@
 </nav>
 <div class="logo">
   <a href="/admin">
-    <img src="https://s3.amazonaws.com/mediumbold-huds/images/logo.png" style="height: 18px;" />
+    <img src="https://s3.amazonaws.com/mediumbold-huds/images/logo.png" style="max-height: 18px;" />
   </a>
   <ul class="utility-nav">
     <li><a href="/admin" class="logout">Home</a></li>
-    <li><a href="/admin/users" class="logout">Users</a></li>
-    <li><a href="/admin/orders" class="logout">Orders</a></li>
     <li><a href="/logout" class="logout">Log Out</a></li>
   </ul>
 </div>  

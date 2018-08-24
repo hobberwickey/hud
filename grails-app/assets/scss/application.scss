@@ -302,6 +302,10 @@ body {
               display: none;
               padding-right: 40px;
 
+              @media screen and (max-width: 768px){
+                padding-right: 80px;
+              }
+
               input {
                 width: 100%;
                 font-size: 14px;
@@ -360,6 +364,11 @@ body {
                 display: inline-block;
               }
 
+              .menu-item-options {
+                display: none !important;
+                // margin-right: 240px !important;
+              }
+
               i.edit {
                 display: none;
               }
@@ -393,6 +402,7 @@ body {
 
                 i {
                   text-align: center;
+                  margin-top: -3px;
                 }
               }
             }
@@ -481,7 +491,7 @@ form {
     position: relative;
     margin-bottom: 30px;
 
-    &.pickupTime {
+    &.pickupTime, &.pickupDate {
       margin-bottom: 10px;
     }
 
@@ -743,6 +753,9 @@ form {
     border: none;
     overflow: auto;
     margin-top: 10px;
+    min-width: 1020px;
+    margin: 0px;
+    padding: 10px 0px;
 
     .filter.user-type {
       font-size: 0px;
@@ -812,7 +825,10 @@ form {
 }
 
 .admin {
+  overflow: auto;
+
   .content {
+
     ul.admin-list {
       border: solid 1px #ccc;
       
@@ -854,6 +870,7 @@ form {
           i {
             color: $theme-orange;
             font-size: 20px;
+            cursor: pointer;
           }
 
           .btn {
@@ -1061,7 +1078,7 @@ form {
       }
 
       &:nth-child(odd){
-        background-color: #f2f2f2;
+        // background-color: #f2f2f2;
       }
 
       &.repeat {
@@ -1072,6 +1089,14 @@ form {
         .repeat-date {
           display: inline-block;
           vertical-align: middle;
+
+          label {
+            font-family: 'Open Sans', sans-serif;
+            display: inline-block;
+            vertical-align: bottom;
+            font-size: 14px;
+            font-weight: 400;
+          }
 
           input {
             height: 2.4em;
@@ -1147,7 +1172,7 @@ form {
       }
 
         &:nth-child(odd){
-          background-color: #f2f2f2;
+          // background-color: #f2f2f2;
         }
       }
     }
@@ -1186,6 +1211,10 @@ input.search {
   background-repeat: no-repeat; 
   width: 40px;
   height: 40px;
+
+  @media screen and (max-width: 768px) {
+    background-position: center left;
+  }
 
   &.icon-dressing {
     background-image: url("https://s3.amazonaws.com/mediumbold-huds/images/dressing-off.svg");
@@ -1284,3 +1313,104 @@ input.search {
   }
 }
 
+
+@media screen and (max-width: 768px) {
+  .logo {
+    padding: 0px 10px;
+    max-width: 100%;
+
+    img {
+      max-width: 50%;
+    }
+
+    // .utility-nav {
+    //   float: left;
+
+    //   li {
+    //     padding-left: 0px
+    //   }
+    // }
+  }
+
+  h1 {
+    padding: 0px 10px;
+  }
+
+  .container {
+    & > p {
+      padding: 0px 10px;
+    }
+
+    a {
+      display: block;
+    }
+
+    .home-action {
+      width: 100%;
+      max-width: 100%;
+      float: none;
+      color: white;
+    }
+
+    .section {
+      padding: 0px 10px !important;
+    }
+  }
+
+  form {
+    padding: 15px;
+    margin: 10px;
+  }
+
+  ul.content-header {
+    min-width: 1020px;
+  }
+
+  .admin-list {
+    min-width: 1020px;
+  }
+
+  .item-option-form {
+    .input-wrapper {
+      input.add-item-btn {
+        margin-left: 0px;
+      }
+    }
+
+    .add-item-wrapper {
+      // background-color: red;
+
+      .input-wrapper {
+        &:first-child {
+          margin-bottom: 10px !important;
+        }
+      }
+    }
+
+    .sortable-list-items {
+      padding-top: 0px !important;
+    }
+  }
+
+  .sortable-list-items {
+    .sortable-list-item {
+      &.menu-item {
+        padding-right: 0px !important;
+        width: 100% !important;
+
+        .actions {
+          margin: 0px !important;
+          position: relative;
+          left: 80px;
+          top: -3px;
+        }
+
+        .menu-item-options {
+          margin: 0px !important;
+          position: relative;
+          left: -120px;
+        }
+      }
+    }
+  }
+}

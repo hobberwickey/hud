@@ -25,7 +25,7 @@
         </div>
         <div class='section'>
           <fieldset>
-            <legend>Pick up Date</legend>
+            <legend>Pick up date</legend>
             <g:if test="${ errors['pickupDate'].size() > 0 }">
               <ul class='errors'>
                 <g:each in="${ errors['pickupDate'] }" var="err">
@@ -46,7 +46,7 @@
 
         <div class='section'>
           <fieldset class='pickup-times'>
-            <legend>Pick up Time</legend>
+            <legend>Pick up time</legend>
             <g:if test="${ errors['pickupTime'].size() > 0 }">
               <ul class='errors'>
                 <g:each in="${ errors['pickupTime'] }" var="err">
@@ -69,7 +69,7 @@
         
         <div class='section'>
           <fieldset>
-            <legend>Pick up Location</legend>
+            <legend>Pick up location</legend>
             <g:if test="${ errors['diningHall'].size() > 0 }">
               <ul class='errors'>
                 <g:each in="${ errors['diningHall'] }" var="err">
@@ -90,7 +90,7 @@
 
         <div class='section repeat'>
           <fieldset>
-            <legend>Repeat Order</legend>
+            <legend>Repeat order</legend>
             <div class='input-wrapper radio pickupTime'>
               <g:radio name="repeated" value="${ true }" checked="${ order.orderPickups.size() > 1 }"></g:radio>
               <label class='btn'>Yes</label>
@@ -100,6 +100,7 @@
               <label class='btn'>No</label>
             </div>
             <div class='input-wrapper repeat-date'>
+              <label>until</label>
               <input type='date' name="repeatEndDate" value="${ order.orderPickups.size() > 0 ? helpers.lastPickup(order).pickupDate.format('yyyy-MM-dd') : '' }"/>
             </div>
           </fieldset>
@@ -169,7 +170,7 @@
 
               <g:if test="${ section.name == 'sandwiches-salads' && section.menuItems.size() > 0 }">
                 <div class='section'>
-                  <h2>Select a Sandwich or Salad</h2>
+                  <h2>Select a sandwich or salad</h2>
                   <ul class='menu-list'>
                     <g:each in="${ section.menuItems.sort{a,b -> a.position.compareTo(b.position)} }" var="item">
                       <li>
@@ -219,7 +220,7 @@
 
               <g:if test="${ section.name == 'beverages' && section.menuItems.size() > 0 }">
                 <div class='section'>
-                  <h2>Add A Beverage</h2>
+                  <h2>Add a beverage</h2>
                   <ul class='menu-list'>  
                     <g:each in="${ section.menuItems.sort{a,b -> a.position.compareTo(b.position)} }" var="item">
                       <li>
@@ -269,7 +270,7 @@
 
               <g:if test="${ section.name == 'snacks' && section.menuItems.size() > 0 }">
                 <div class='section'>
-                  <h2>Add First Snack</h2>
+                  <h2>Add first snack</h2>
                   <ul class='menu-list'>
                     <g:each in="${ section.menuItems.sort{a,b -> a.position.compareTo(b.position)} }" var="item">
                       <li>
@@ -317,7 +318,7 @@
                 </div>
 
                 <div class='section'>
-                  <h2>Add Second Snack (Optional)</h2>
+                  <h2>Add second snack (optional)</h2>
                   <ul class='menu-list'>
                     <g:each in="${ section.menuItems.sort{a,b -> a.position.compareTo(b.position)} }" var="item">
                       <li>
@@ -365,7 +366,7 @@
                 </div>
 
                 <div class='section'>
-                  <h2>Add Third Snack (Optional)</h2>
+                  <h2>Add third snack (optional)</h2>
                   <ul class='menu-list'>
                     <g:each in="${ section.menuItems.sort{a,b -> a.position.compareTo(b.position)} }" var="item">
                       <li>

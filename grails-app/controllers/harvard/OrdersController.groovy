@@ -210,6 +210,7 @@ class OrdersController {
         allLocations: allDiningHalls, 
         availableLocations: openDiningHalls,
         orderPickup: orderPickup,
+        // repeated: params.repeated == "true",
         meal: selectedMeal,
         errors: [
           "pickupDate": [],

@@ -255,7 +255,8 @@ nav {
   min-width: 49%;
   margin-right: 1%;
   background-color: #f15b29;
-  font-size: 20px; }
+  font-size: 20px;
+  color: white; }
 
 .home-action a {
   color: #fff; }
@@ -593,6 +594,9 @@ body {
             .admin .content .sortable-lists .sortable-list .sortable-list-items .sortable-list-item .item-editor {
               display: none;
               padding-right: 40px; }
+              @media screen and (max-width: 768px) {
+                .admin .content .sortable-lists .sortable-list .sortable-list-items .sortable-list-item .item-editor {
+                  padding-right: 80px; } }
               .admin .content .sortable-lists .sortable-list .sortable-list-items .sortable-list-item .item-editor input {
                 width: 100%;
                 font-size: 14px;
@@ -628,6 +632,8 @@ body {
               display: none; }
             .admin .content .sortable-lists .sortable-list .sortable-list-items .sortable-list-item.editing .item-editor {
               display: inline-block; }
+            .admin .content .sortable-lists .sortable-list .sortable-list-items .sortable-list-item.editing .menu-item-options {
+              display: none !important; }
             .admin .content .sortable-lists .sortable-list .sortable-list-items .sortable-list-item.editing i.edit {
               display: none; }
           .admin .content .sortable-lists .sortable-list .sortable-list-items.menu-list .sortable-list-item {
@@ -647,7 +653,8 @@ body {
               width: 80px;
               margin-right: -200px; }
               .admin .content .sortable-lists .sortable-list .sortable-list-items.menu-list .sortable-list-item .actions i {
-                text-align: center; }
+                text-align: center;
+                margin-top: -3px; }
       .admin .content .sortable-lists .add-item-wrapper {
         margin-top: 10px; }
         .admin .content .sortable-lists .add-item-wrapper .input-wrapper {
@@ -692,7 +699,7 @@ form {
     margin-bottom: 5px;
     position: relative;
     margin-bottom: 30px; }
-    form .input-wrapper.pickupTime {
+    form .input-wrapper.pickupTime, form .input-wrapper.pickupDate {
       margin-bottom: 10px; }
     form .input-wrapper label, form .input-wrapper h2 {
       font-size: 20px;
@@ -856,7 +863,10 @@ form {
     background-color: transparent;
     border: none;
     overflow: auto;
-    margin-top: 10px; }
+    margin-top: 10px;
+    min-width: 1020px;
+    margin: 0px;
+    padding: 10px 0px; }
     form.user-filters .filter.user-type {
       font-size: 0px;
       display: inline-block;
@@ -900,87 +910,90 @@ form {
   line-height: 18px;
   margin: 3px 1ex 3px 0px; }
 
-.admin .content ul.admin-list {
-  border: solid 1px #ccc; }
-  .admin .content ul.admin-list li.info-list {
-    display: inline-flex;
-    width: 100%; }
-    .admin .content ul.admin-list li.info-list:nth-child(odd) {
-      background-color: #f2f2f2; }
-    .admin .content ul.admin-list li.info-list:nth-child(even) {
-      background-color: white; }
-    .admin .content ul.admin-list li.info-list > div {
-      height: inherit;
-      display: inline-block;
-      vertical-align: middle;
-      border-right: solid 1px #ccc;
-      padding: 10px 16px;
-      font-size: 14px;
+.admin {
+  overflow: auto; }
+  .admin .content ul.admin-list {
+    border: solid 1px #ccc; }
+    .admin .content ul.admin-list li.info-list {
+      display: inline-flex;
+      width: 100%; }
+      .admin .content ul.admin-list li.info-list:nth-child(odd) {
+        background-color: #f2f2f2; }
+      .admin .content ul.admin-list li.info-list:nth-child(even) {
+        background-color: white; }
+      .admin .content ul.admin-list li.info-list > div {
+        height: inherit;
+        display: inline-block;
+        vertical-align: middle;
+        border-right: solid 1px #ccc;
+        padding: 10px 16px;
+        font-size: 14px;
+        text-align: left;
+        margin: 0;
+        vertical-align: top;
+        text-transform: capitalize;
+        font-weight: 700; }
+        .admin .content ul.admin-list li.info-list > div:last-child {
+          border-right: none; }
+      .admin .content ul.admin-list li.info-list .action {
+        width: 10%;
+        text-align: center; }
+        .admin .content ul.admin-list li.info-list .action i {
+          color: #f15b29;
+          font-size: 20px;
+          cursor: pointer; }
+        .admin .content ul.admin-list li.info-list .action .btn {
+          border-radius: 20px;
+          color: #f15b29; }
+    .admin .content ul.admin-list.locations li.info-list > div:first-child {
+      width: 10%; }
+    .admin .content ul.admin-list.locations li.info-list > div:nth-child(n+2):nth-child(-n+3) {
+      width: 15%; }
+    .admin .content ul.admin-list.locations li.info-list > div:nth-child(4) {
+      width: 30%; }
+    .admin .content ul.admin-list.locations li.info-list > div:nth-child(5) {
+      width: 10%; }
+    .admin .content ul.admin-list.menus li.info-list > div:first-child {
+      width: 80%; }
+    .admin .content ul.admin-list.menus li.info-list > div:nth-child(n+2) {
+      width: 10%; }
+    .admin .content ul.admin-list.users li.info-list > div:first-child {
+      width: 20%; }
+    .admin .content ul.admin-list.users li.info-list > div:nth-child(2) {
+      width: 30%; }
+    .admin .content ul.admin-list.users li.info-list > div:nth-child(3) {
+      width: 20%; }
+    .admin .content ul.admin-list.users li.info-list > div:nth-child(4) {
+      width: 10%; }
+    .admin .content ul.admin-list.users li.info-list > div:nth-child(n+5) {
+      width: 10%; }
+    .admin .content ul.admin-list.orders li.info-list div.date {
+      text-transform: none; }
+    .admin .content ul.admin-list.orders li.info-list > div:first-child {
+      width: 17%; }
+    .admin .content ul.admin-list.orders li.info-list > div:nth-child(3), .admin .content ul.admin-list.orders li.info-list > div:nth-child(2) {
+      width: 10%; }
+    .admin .content ul.admin-list.orders li.info-list > div:nth-child(4) {
+      width: 20%; }
+    .admin .content ul.admin-list.orders li.info-list > div:nth-child(5) {
+      width: 28%; }
+    .admin .content ul.admin-list.orders li.info-list > div:nth-child(6) {
       text-align: left;
-      margin: 0;
-      vertical-align: top;
-      text-transform: capitalize;
-      font-weight: 700; }
-      .admin .content ul.admin-list li.info-list > div:last-child {
-        border-right: none; }
-    .admin .content ul.admin-list li.info-list .action {
-      width: 10%;
-      text-align: center; }
-      .admin .content ul.admin-list li.info-list .action i {
-        color: #f15b29;
-        font-size: 20px; }
-      .admin .content ul.admin-list li.info-list .action .btn {
-        border-radius: 20px;
-        color: #f15b29; }
-  .admin .content ul.admin-list.locations li.info-list > div:first-child {
-    width: 10%; }
-  .admin .content ul.admin-list.locations li.info-list > div:nth-child(n+2):nth-child(-n+3) {
-    width: 15%; }
-  .admin .content ul.admin-list.locations li.info-list > div:nth-child(4) {
-    width: 30%; }
-  .admin .content ul.admin-list.locations li.info-list > div:nth-child(5) {
-    width: 10%; }
-  .admin .content ul.admin-list.menus li.info-list > div:first-child {
-    width: 80%; }
-  .admin .content ul.admin-list.menus li.info-list > div:nth-child(n+2) {
-    width: 10%; }
-  .admin .content ul.admin-list.users li.info-list > div:first-child {
-    width: 20%; }
-  .admin .content ul.admin-list.users li.info-list > div:nth-child(2) {
-    width: 30%; }
-  .admin .content ul.admin-list.users li.info-list > div:nth-child(3) {
-    width: 20%; }
-  .admin .content ul.admin-list.users li.info-list > div:nth-child(4) {
-    width: 10%; }
-  .admin .content ul.admin-list.users li.info-list > div:nth-child(n+5) {
-    width: 10%; }
-  .admin .content ul.admin-list.orders li.info-list div.date {
-    text-transform: none; }
-  .admin .content ul.admin-list.orders li.info-list > div:first-child {
-    width: 17%; }
-  .admin .content ul.admin-list.orders li.info-list > div:nth-child(3), .admin .content ul.admin-list.orders li.info-list > div:nth-child(2) {
-    width: 10%; }
-  .admin .content ul.admin-list.orders li.info-list > div:nth-child(4) {
-    width: 20%; }
-  .admin .content ul.admin-list.orders li.info-list > div:nth-child(5) {
-    width: 28%; }
-  .admin .content ul.admin-list.orders li.info-list > div:nth-child(6) {
-    text-align: left;
-    width: 15%; }
-  .admin .content ul.admin-list.reports li.info-list > div:nth-child(1) {
-    width: 40%; }
-  .admin .content ul.admin-list.reports li.info-list > div:nth-child(2) {
-    width: 30%; }
-  .admin .content ul.admin-list.reports li.info-list > div:nth-child(3) {
-    width: 15%; }
-  .admin .content ul.admin-list.reports li.info-list > div:nth-child(4) {
-    width: 15%; }
-  .admin .content ul.admin-list.history li.info-list .order-info.date, .admin .content ul.admin-list.history li.info-list .order-info.status {
-    text-transform: none; }
-  .admin .content ul.admin-list.history li.info-list div.action .btn {
-    margin: 0px 5px 0px 0px; }
-  .admin .content ul.admin-list.history li.info-list > div {
-    width: 16.6%; }
+      width: 15%; }
+    .admin .content ul.admin-list.reports li.info-list > div:nth-child(1) {
+      width: 40%; }
+    .admin .content ul.admin-list.reports li.info-list > div:nth-child(2) {
+      width: 30%; }
+    .admin .content ul.admin-list.reports li.info-list > div:nth-child(3) {
+      width: 15%; }
+    .admin .content ul.admin-list.reports li.info-list > div:nth-child(4) {
+      width: 15%; }
+    .admin .content ul.admin-list.history li.info-list .order-info.date, .admin .content ul.admin-list.history li.info-list .order-info.status {
+      text-transform: none; }
+    .admin .content ul.admin-list.history li.info-list div.action .btn {
+      margin: 0px 5px 0px 0px; }
+    .admin .content ul.admin-list.history li.info-list > div {
+      width: 16.6%; }
 
 .public {
   display: block;
@@ -1022,13 +1035,17 @@ form {
       padding: 20px; }
       .public form.order-form .section:nth-child(even) {
         background-color: white; }
-      .public form.order-form .section:nth-child(odd) {
-        background-color: #f2f2f2; }
       .public form.order-form .section.repeat .input-wrapper {
         margin-bottom: 0px; }
       .public form.order-form .section.repeat .repeat-date {
         display: inline-block;
         vertical-align: middle; }
+        .public form.order-form .section.repeat .repeat-date label {
+          font-family: 'Open Sans', sans-serif;
+          display: inline-block;
+          vertical-align: bottom;
+          font-size: 14px;
+          font-weight: 400; }
         .public form.order-form .section.repeat .repeat-date input {
           height: 2.4em;
           margin-bottom: 0px;
@@ -1063,8 +1080,6 @@ form {
             display: block; }
     .public form.order-form .menu .section:nth-child(even) {
       background-color: white; }
-    .public form.order-form .menu .section:nth-child(odd) {
-      background-color: #f2f2f2; }
 
 select {
   background: white;
@@ -1095,6 +1110,9 @@ input.search {
   background-repeat: no-repeat;
   width: 40px;
   height: 40px; }
+  @media screen and (max-width: 768px) {
+    .icon {
+      background-position: center left; } }
   .icon.icon-dressing {
     background-image: url("https://s3.amazonaws.com/mediumbold-huds/images/dressing-off.svg"); }
     .icon.icon-dressing.active {
@@ -1158,5 +1176,57 @@ input.search {
   float: left;
   text-transform: uppercase;
   width: 125px; }
+
+@media screen and (max-width: 768px) {
+  .logo {
+    padding: 0px 10px;
+    max-width: 100%; }
+    .logo img {
+      max-width: 50%; }
+
+  h1 {
+    padding: 0px 10px; }
+
+  .container > p {
+    padding: 0px 10px; }
+  .container a {
+    display: block; }
+  .container .home-action {
+    width: 100%;
+    max-width: 100%;
+    float: none;
+    color: white; }
+  .container .section {
+    padding: 0px 10px !important; }
+
+  form {
+    padding: 15px;
+    margin: 10px; }
+
+  ul.content-header {
+    min-width: 1020px; }
+
+  .admin-list {
+    min-width: 1020px; }
+
+  .item-option-form .input-wrapper input.add-item-btn {
+    margin-left: 0px; }
+  .item-option-form .add-item-wrapper .input-wrapper:first-child {
+    margin-bottom: 10px !important; }
+  .item-option-form .sortable-list-items {
+    padding-top: 0px !important; }
+
+  .sortable-list-items .sortable-list-item.menu-item {
+    padding-right: 0px !important;
+    width: 100% !important; }
+    .sortable-list-items .sortable-list-item.menu-item .actions {
+      margin: 0px !important;
+      position: relative;
+      left: 80px;
+      top: -3px; }
+    .sortable-list-items .sortable-list-item.menu-item .menu-item-options {
+      margin: 0px !important;
+      position: relative;
+      left: -120px; } }
 
 /*# sourceMappingURL=huds.css.map */

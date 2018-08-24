@@ -1,6 +1,6 @@
 var UserEditor = function(){
   this.users = [];
-  this.user = {diningHalls: []};
+  this.user = {diningHalls: [], blocked: false};
   this.errors = {};
   this.diningHalls = [];
   this.sort = {
@@ -188,7 +188,7 @@ UserEditor.prototype.hasLoc = function(loc) {
 }
 
 UserEditor.prototype.buildUserForm = function(user) {
-  user = user || {};
+  user = user || this.user;
 
   var parent = document.querySelector(".user-form-wrapper"),
       wrapper = document.querySelector(".user-form-wrapper form");
@@ -267,7 +267,7 @@ UserEditor.prototype.buildUserForm = function(user) {
       }.bind(this))}
     ]},
     {tag: "fieldset", attributes: {}, condition: function(u){ return u.userType === "manager" }.bind(this, user), children: [
-      {tag: "legend", attributes: {text: "diningHalls"}},
+      {tag: "legend", attributes: {text: "Dining Halls"}},
       {tag: "div", attributes: {className: "options"}, children: this.diningHalls.map(function(loc){        
         return {tag: "div", attributes: {className: "input-wrapper checkbox"}, children: [
           {tag: "input", attributes: {id: "location-" + loc.id, type: "checkbox", checked: this.hasLoc(loc), name: "locations", value: loc.id, id: "loc-" + loc.id, onChange: this.toggleLocation.bind(this, loc)}},
@@ -276,7 +276,7 @@ UserEditor.prototype.buildUserForm = function(user) {
       }.bind(this))}
     ]},
     {tag: "fieldset", attributes: {}, condition: function(u){ return u.userType === "off-campus"}.bind(this, user), children: [
-      {tag: "legend", attributes: {text: "diningHalls"}},
+      {tag: "legend", attributes: {text: "Dining Hall"}},
       {tag: "div", attributes: {className: "options"}, children: this.diningHalls.map(function(loc){        
         return {tag: "div", attributes: {className: "input-wrapper radio"}, children: [
           {tag: "input", attributes: {id: "location-" + loc.id, type: "radio", checked: this.hasLoc(loc), name: "locations", value: loc.id, id: "loc-" + loc.id, onChange: this.toggleLocation.bind(this, loc)}},
@@ -286,7 +286,7 @@ UserEditor.prototype.buildUserForm = function(user) {
     ]},
 
     {tag: "div", attributes: {className: "btns"}, children: [
-      {tag: "input", attributes: {className: "btn submit confirm", type: "submit"}, children: []},
+      {tag: "input", attributes: {className: "btn submit confirm", type: "submit", value: !!user.id ? "Save" : "Add"}, children: []},
       {tag: "a", attributes: {className: "btn cancel", href: "/admin/users", text: "Cancel"}, children: []}
     ]}
   ]}

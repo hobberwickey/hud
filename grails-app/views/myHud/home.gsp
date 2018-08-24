@@ -10,15 +10,14 @@
     <p>Ordering food on the go just got easier! Place bag meal requests by 4am for pickup at 7am or after the same day! Bag meals may be ordered up to a week in advance, and pending orders can be cancelled or changed easily!</p>
     
     <div class="section">
-      <div class="home-action"><a href="/myhuds/orders/breakfast/create">Order Breakfast</a></div>
-      <div class="home-action"><a href="/myhuds/orders/lunch/create">Order Lunch</a></div>
-      <div class="home-action"><a href="/myhuds/orders/dinner/create">Order Dinner</a></div>
+      <a href="/myhuds/orders/breakfast/create"><div class="home-action">Order Breakfast</div></a>
+      <a href="/myhuds/orders/lunch/create"><div class="home-action">Order Lunch</div></a>
+      <a href="/myhuds/orders/dinner/create"><div class="home-action">Order Dinner</div></a>
     </div>
 
     <div class="section">
-      <div class="home-action"><a href="/myhuds/orders/history">View Order History</a></div>
+      <a href="/myhuds/orders/history"><div class="home-action">View Order History</div></a>
     </div>
-    
   </div>
 </body>
 </html>
