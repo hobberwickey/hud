@@ -487,14 +487,16 @@ body {
   width: 1020px;
   max-width: 100%;
   margin: 0px auto; }
-  .admin .filters.order-filters .input-wrapper label {
-    font-size: 10px;
-    margin-left: 5px;
-    display: inline-block; }
-  .admin .filters.order-filters .input-wrapper #start_date_search, .admin .filters.order-filters .input-wrapper #end_date_search {
-    width: 170px; }
-  .admin .filters.order-filters .input-wrapper select {
-    width: 140px; }
+  .admin .filters {
+    min-width: 1020px; }
+    .admin .filters.order-filters .input-wrapper label {
+      font-size: 10px;
+      margin-left: 5px;
+      display: inline-block; }
+    .admin .filters.order-filters .input-wrapper #start_date_search, .admin .filters.order-filters .input-wrapper #end_date_search {
+      width: 170px; }
+    .admin .filters.order-filters .input-wrapper select {
+      width: 140px; }
   .admin .content {
     display: block;
     width: 1020px;

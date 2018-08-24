@@ -92,6 +92,8 @@ body {
   margin: 0px auto;
 
   .filters {
+    min-width: 1020px;
+
     &.order-filters {
       .input-wrapper {
         label {
