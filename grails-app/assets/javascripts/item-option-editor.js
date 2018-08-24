@@ -82,7 +82,7 @@ ItemOptionEditor.prototype.addItem = function(group_id) {
 
   this.saveOption(option).then(function(saved) {
     group.menuItemOptions.push(saved);
-    group.ordering = group.ordering.split(",").concat([saved.id]).filter(function(id){ return !!id}).join(",");
+    group.ordering = (group.ordering || "").split(",").concat([saved.id]).filter(function(id){ return !!id}).join(",");
     
     this.saveGroup(group).then(function(savedGroup) {
       this.buildOptionGroup(savedGroup);
@@ -135,10 +135,10 @@ ItemOptionEditor.prototype.removeOption = function(group_id, option_id) {
       option = group.menuItemOptions.filter(function(o) { return o.id === parseInt(option_id, 10)})[0];
 
   if (!!group && !!option){
-    var ids = group.ordering.split(",").map(function(id){ return parseInt(id, 10)})
+    var ids = (group.ordering || "").split(",").map(function(id){ return parseInt(id, 10)})
         ids.splice(ids.indexOf(parseInt(option_id, 10)), 1);
 
-    group.ordering = ids.join(",");
+    group.ordering = ids.join(",") || "";
     option.deleted = true;
 
     this.saveGroup(group).then(function(savedGroup) {

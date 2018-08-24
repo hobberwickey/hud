@@ -1,6 +1,6 @@
 var LocationEditor = function(){
   this.locations = [];
-  this.location = {menus: []};
+  this.location = {menus: [], status: true};
   this.menus = [];
   this.errors = {};
 }
@@ -111,7 +111,7 @@ LocationEditor.prototype.validateLocation = function() {
   if ($.trim(this.location.openingDate) == "") {
     this.errors["openingDate"] = "A valid start date is required"
   } else {
-    if (this.location.openingDate.isValid()){
+    if (moment(this.location.openingDate).isValid()){
       delete this.errors["openingDate"];
       var el = document.querySelector(".errors.openingDate")
       if (!!el) el.parentNode.removeChild(el);
@@ -123,7 +123,7 @@ LocationEditor.prototype.validateLocation = function() {
   if ($.trim(this.location.closingDate) == "") {
     this.errors["closingDate"] = "A valid end date is required"
   } else {
-    if (this.location.closingDate.isValid()){
+    if (moment(this.location.closingDate).isValid()){
       delete this.errors["closingDate"];
       var el = document.querySelector(".errors.closingDate")
       if (!!el) el.parentNode.removeChild(el);
@@ -131,6 +131,8 @@ LocationEditor.prototype.validateLocation = function() {
       this.errors["closingDate"] = "A valid end date is required"
     }
   }
+
+  console.log(this.location)
 
   return Object.keys(this.errors).length === 0;
 }
@@ -145,7 +147,7 @@ LocationEditor.prototype.updateLocation = function(key, e) {
       if (el !== null) el.parentNode.removeChild(el);
     // } 
   } else if (key === "status") {
-    this.location[key] = !!e.target.value
+    this.location[key] = !!parseInt(e.target.value, 10)
   } else {
     if (key === "name"){
       if (e.target.value.length > 0){ 
@@ -198,7 +200,7 @@ LocationEditor.prototype.toggleMenu = function(menu){
 }
 
 LocationEditor.prototype.buildLocationForm = function(location) {
-  location = location || {};
+  location = location || this.location;
 
   var parent = document.querySelector(".location-form-wrapper"),
       wrapper = document.querySelector(".location-form-wrapper form");
@@ -232,8 +234,9 @@ LocationEditor.prototype.buildLocationForm = function(location) {
         var name = val ? "Active" : "Inactive",
             value = +val;
 
+        console.log(+location.status, value)
         return {tag: "div", attributes: {className: "input-wrapper radio"}, children: [
-          {tag: "input", attributes: {type: "radio", checked: (location.status === val || (location.status === void(0) && value === 1)), name: "status", value: value, id: "active-" + value, onChange: this.updateLocation.bind(this, "status")}},
+          {tag: "input", attributes: {type: "radio", checked: (+location.status === value || (location.status === void(0) && value === 1)), name: "status", value: value, id: "active-" + value, onChange: this.updateLocation.bind(this, "status")}},
           {tag: "label", attributes: {className: 'btn', text: name, "for": "status-" + value}} 
         ]}
       }.bind(this))}

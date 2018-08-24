@@ -345,7 +345,7 @@ OrderEditor.prototype.buildHistory = function() {
     })  
 
     var struct = {tag: "li", attributes: {className: "info-list order order-" + order.id}, children: [
-      {tag: "div", attributes: {className: "order-info date", text: moment(pickupDates[0].pickupDate).format("M/D/YYYY") + " " + moment(pickupDates[0].pickupTime).format("h:mm a") }},
+      {tag: "div", attributes: {className: "order-info date", text: moment(pickupDates[0].pickupDate).format("M/D/YYYY") + " " + moment.utc(pickupDates[0].pickupTime).format("h:mm a") }},
       {tag: "div", attributes: {className: "order-info location ", text: order.diningHall.name }},
       {tag: "div", attributes: {className: "order-info meal", text: order.menu.meal.name }},
       {tag: "div", attributes: {className: "order-info selections"}, children: order.menuSelections.map(function(selection){

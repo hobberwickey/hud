@@ -9,6 +9,11 @@ class DiningHall {
 
     static hasMany = [menus: Menu, orders: Orders]
 
+    static mapping = {
+      status defaultValue: true
+      deleted defaultValue: false
+    }
+
     static constraints = {
       status(defaultValue: true)
     }

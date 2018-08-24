@@ -60,6 +60,10 @@ class UserController {
     }
 
     def save(User user) {
+      if (user.id == null) {
+        user.active = true
+      }
+
       try {
         userService.save(user)
       } catch (ValidationException e) {
