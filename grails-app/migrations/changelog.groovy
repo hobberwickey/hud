@@ -31,4 +31,5 @@ databaseChangeLog = {
     include file: 'add_snack_index_to_menu_selections.groovy'
     include file: 'rename_orders_fields.groovy'
     include file: 'add_order_pickups_to_orders.groovy'
+    include file: 'add_code_to_dining_halls.groovy'
 }

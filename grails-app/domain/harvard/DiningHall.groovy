@@ -2,6 +2,7 @@ package harvard
 
 class DiningHall {
     String  name
+    String  code
     Date    openingDate
     Date    closingDate
     boolean status
