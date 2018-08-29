@@ -81,7 +81,7 @@ bagMealSql.rows('''
     LEFT JOIN menu_item_option AS mo ON msmio.menu_item_option_id = mo.id
     WHERE ms.orders_id = ?
     GROUP BY ms.id
-
+    ORDER BY ms.order_index, ms.snack_index
   ''',[order.order_number]
   ).each { selection ->
     order["selections"].push(selection)
@@ -91,29 +91,42 @@ bagMealSql.rows('''
 bagMealSql.close()
 
 //Build PDF
-def builder = new PdfDocumentBuilder(new File('./example.pdf'))
+def builder = new PdfDocumentBuilder(new File('./example-order.pdf'))
 
 if (orders.size() == 0){
   //TODO: Handle no orders
   return
 }
 
+String LOGO_URL = "https://s3.amazonaws.com/mediumbold-huds/images/logo.png"
+byte[] logo = new URL(LOGO_URL).bytes
+
+def customTemplate = {
+    'document' font: [family: 'Helvetica', size: 12.pt], margin: [top: 1.5.inches] 
+    'paragraph' font: [color: '#000000'], margin: [top: 0.inches, left: 0.inches, right: 0.inches, bottom: 0.inches] 
+    'heading1' margin: [top: 0.inches, left: 0.inches, right: 0.inches, bottom: 0.25.inches]
+    'heading2' margin: [top: 0.inches, left: 0.inches, right: 0.inches, bottom: 0.inches]
+}
+
 builder.create {
-  document(font: [family: 'Helvetica', size: 14.pt], margin: [top: 0.75.inches]) {
-    heading1 "Orders for ${ orders[0].location_name } on ${ orders[0].delivery_date }", font: [size: 22.pt]
+  document(template: customTemplate, font: [family: 'Helvetica', size: 14.pt], margin: [top: 0.75.inches]) {
+    paragraph {
+      image(data: logo, height: 18.px, width: 411.px, name: 'logo.png')
+    }
+
+    heading1 "Orders (By HUID)", font: [size: 20.pt]
 
     orders.eachWithIndex{ order, index ->
-      heading2 "${ index }: ${ order.user_last_name }, ${ order.user_first_name } - "
+      heading2 "HUID: ${ order.user_id }", font: [size: 12.pt, bold: true]
+      heading2 "${ order.location_name }, ${ order.meal_type } at ${ order.delivery_time } on ${ order.delivery_date }", font: [size: 14.pt, italic: true]
+      
+      paragraph(margin: [bottom: 0.25.inches]) {
+        text order.selections.collect { selection ->
+          def name = selection.menu_item
+          def options = selection.item_options != null && selection.item_options != "" ? "(${ selection.item_options.split(',').join(', ') })" : ""
 
-      order.selections.each { selection ->
-        paragraph(margin: [left: 1.25.inches]) {
-          text selection.menu_item
-
-          if (selection.item_options != null && selection.item_options != ""){
-            lineBreak()
-            text selection.item_options.split(",").join(", ")
-          }  
-        }  
+          return "${ name } ${ options }"
+        }.join(", ")    
       }
     }
   }
@@ -124,14 +137,15 @@ orders.each{
   println it.user_last_name + ", " + it.user_first_name + ": " + it.selections.size()
 }
 
-PDDocument document = PDDocument.load(new File("./example.pdf"));
+PDDocument document = PDDocument.load(new File("./example-order.pdf"));
 
-PrintService myPrintService = findPrintService(printerName);
+// PrintService myPrintService = findPrintService(printerName);
 
-PrinterJob job = PrinterJob.getPrinterJob();
-job.setPageable(new PDFPageable(document));
-job.setPrintService(myPrintService);
-job.print();
+// PrinterJob job = PrinterJob.getPrinterJob();
+// job.setPageable(new PDFPageable(document));
+// job.setPrintService(myPrintService);
+// job.print();
+document.close();
 
 def findPrintService(String pName) {
   PrintService[] printServices = PrintServiceLookup.lookupPrintServices(null, null);

@@ -340,7 +340,7 @@ class OrdersController {
         order.menu.menuSections.each{ section -> 
           switch (section.name) {
             case "breakfast":
-              def items = helper.getBreakfast(section)
+              def items = helper.getBreakfast(section, 0)
               
               if (items != null) {
                 for (def i=0; i<items.size(); i++){
@@ -350,14 +350,14 @@ class OrdersController {
 
               break
             case "sandwiches-salads":
-              def main = helper.getMain(section)
+              def main = helper.getMain(section, 1)
               if (main != null) {
                 order.addToMenuSelections(main)
               }
 
               break
             case "beverages":
-              def bev = helper.getBeverage(section)
+              def bev = helper.getBeverage(section, 2)
               if (bev != null) {
                 order.addToMenuSelections(bev)
               }
@@ -365,7 +365,7 @@ class OrdersController {
               break
             case "snacks":
               for (def i=1; i<4; i++){
-                def snack = helper.getSnack(section, i)
+                def snack = helper.getSnack(section, 3, i)
                 if (snack != null) {
                   order.addToMenuSelections(snack)
                 }
@@ -928,9 +928,9 @@ class OrderHelper {
       }
     }
 
-    def createMenuSelection(item, options, snackIndex = 0) {
+    def createMenuSelection(item, options, orderIndex = 0, snackIndex = 0) {
       if (item != null) {
-        def selection = new MenuSelection(menuItem: item, snackIndex: snackIndex)
+        def selection = new MenuSelection(menuItem: item, orderIndex: orderIndex, snackIndex: snackIndex)
       
         options.each{ option -> 
           selection.addToMenuItemOptions(option)
@@ -942,7 +942,7 @@ class OrderHelper {
       }
     }
 
-    def getBreakfast(section) {
+    def getBreakfast(section, orderIndex) {
       def selections = []
       def mains = this.getMenuItem("section." + section.id + ".menuItems")
       
@@ -959,7 +959,7 @@ class OrderHelper {
           }
         }
 
-        def selection = this.createMenuSelection(main, options)
+        def selection = this.createMenuSelection(main, options, orderIndex)
         selections.push(selection)
       }
 
@@ -967,7 +967,7 @@ class OrderHelper {
       return selections
     }
 
-    def getMain(section) {
+    def getMain(section, orderIndex) {
       def main
       def options = []
       def mains = this.getMenuItem("section." + section.id + ".menuItems")
@@ -988,10 +988,10 @@ class OrderHelper {
         }
       }
 
-      return this.createMenuSelection(main, options)
+      return this.createMenuSelection(main, options, orderIndex)
     }
 
-    def getBeverage(section) {
+    def getBeverage(section, orderIndex) {
       def main
       def options
       def mains = this.getMenuItem("section." + section.id + ".menuItems")
@@ -1006,10 +1006,10 @@ class OrderHelper {
         options = this.getOptions("group." + group.id + ".menuItem." + main.id)
       }
 
-      return this.createMenuSelection(main, options)
+      return this.createMenuSelection(main, options, orderIndex)
     }
 
-    def getSnack(section, snackIndex) {
+    def getSnack(section, orderIndex, snackIndex) {
       def main
       def options
       def mains = this.getMenuItem("snack." + snackIndex + ".section." + section.id + ".menuItems")
@@ -1024,7 +1024,7 @@ class OrderHelper {
         options = this.getOptions("group." + group.id + ".menuItem." + main.id)
       }
 
-      return this.createMenuSelection(main, options, snackIndex)
+      return this.createMenuSelection(main, options, orderIndex, snackIndex)
     }
 }
 
