@@ -15,6 +15,13 @@ class DiningHall {
       deleted defaultValue: false
     }
 
+    static namedQueries = {
+      available { date, meal ->
+        le("closingDate", date)
+        ge("openingDate", date)       
+      }
+    }
+
     static constraints = {
       status(defaultValue: true)
     }

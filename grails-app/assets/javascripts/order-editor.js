@@ -290,7 +290,9 @@ OrderEditor.prototype.buildOrders = function() {
         // {tag: "div", attributes: {text: " /"}},
         {tag: "div", attributes: {text: order.user.lastName + ", " + order.user.firstName }}
       ]},
-      {tag: "div", attributes: {className: "order-info user"}, children: (order.menuSelections || []).map(function(s){ 
+      {tag: "div", attributes: {className: "order-info user"}, children: (order.menuSelections || []).sort(function(a, b){ 
+        return a.orderIndex === b.orderIndex ? a.snackIndex - b.snackIndex : a.orderIndex - b.orderIndex 
+      }).map(function(s){ 
         return {tag: "div", attributes: {text: s.menuItem.name}}
       })},
       {tag: "div", attributes: {className: "action"}, children: [
@@ -352,7 +354,9 @@ OrderEditor.prototype.buildHistory = function() {
       {tag: "div", attributes: {className: "order-info date", text: moment.utc(pickupDates[0].pickupDate).format("M/D/YYYY") + " " + moment.utc(pickupDates[0].pickupTime).format("h:mm a") }},
       {tag: "div", attributes: {className: "order-info location ", text: order.diningHall.name }},
       {tag: "div", attributes: {className: "order-info meal", text: order.menu.meal.name }},
-      {tag: "div", attributes: {className: "order-info selections"}, children: order.menuSelections.map(function(selection){
+      {tag: "div", attributes: {className: "order-info selections"}, children: order.menuSelections.sort(function(a, b){ 
+        return a.orderIndex === b.orderIndex ? a.snackIndex - b.snackIndex : a.orderIndex - b.orderIndex 
+      }).map(function(selection){
         return {tag: "div", attributes: {className: "selection", text: selection.menuItem.name }}
       })},
       {tag: "div", attributes: {className: "order-item repeated", text: pickupDates.length > 1 ? "Repeat Until " + moment.utc(pickupDates[pickupDates.length - 1].pickupDate).format("M/D/YYYY") : "" }},

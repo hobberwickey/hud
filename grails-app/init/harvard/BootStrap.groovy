@@ -128,6 +128,8 @@ class BootStrap {
           returnArray['orders'] = it.orders
           returnArray['menuItem'] = it.menuItem
           returnArray['menuItemOptions'] = it.menuItemOptions
+          returnArray['orderIndex'] = it.orderIndex
+          returnArray['snackIndex'] = it.snackIndex
 
       return returnArray
     }

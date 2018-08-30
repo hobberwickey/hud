@@ -180,7 +180,16 @@ class OrdersController {
       }
 
       if (orderPickup.pickupDate != null && orderPickup.pickupTime != null) {
-          openDiningHalls = DiningHall.findAll{ openingDate <= orderPickup.pickupDate && closingDate >= orderPickup.pickupDate }
+        // openDiningHalls = DiningHall.findAll{ openingDate <= orderPickup.pickupDate && closingDate >= orderPickup.pickupDate }
+        openDiningHalls = DiningHall.withCriteria {
+          ge("closingDate", orderPickup.pickupDate)
+          le("openingDate", orderPickup.pickupDate)
+          menus {
+            meal {
+              eq("name", selectedMeal.name)
+            }
+          }
+        }
       }
 
       if (order.diningHall != null) {
@@ -241,7 +250,18 @@ class OrdersController {
       def selectedMeal = Meal.findByName(mealType.capitalize())
       
       if (order.orderPickups != null && order.orderPickups.size() > 0) {
-          openDiningHalls = DiningHall.findAll{ openingDate <= order.orderPickups.sort({ a, b -> a.pickupDate<=>b.pickupDate}).first().pickupDate && closingDate >= order.orderPickups[0].pickupDate }
+        // openDiningHalls = DiningHall.findAll{ openingDate <= order.orderPickups.sort({ a, b -> a.pickupDate<=>b.pickupDate}).first().pickupDate && closingDate >= order.orderPickups[0].pickupDate }
+        def orderPickup = order.orderPickups.sort({ a, b -> a.pickupDate<=>b.pickupDate}).first()
+        
+        openDiningHalls = DiningHall.withCriteria {
+          ge("closingDate", orderPickup.pickupDate)
+          le("openingDate", orderPickup.pickupDate)
+          menus {
+            meal {
+              eq("name", selectedMeal.name)
+            }
+          }
+        }
       }
 
       def validator = new OrderValidator()
@@ -407,7 +427,16 @@ class OrdersController {
           }
 
           if (order.orderPickups != null && order.orderPickups.size() > 0) {
-              openDiningHalls = DiningHall.findAll{ openingDate <= order.orderPickups[0].pickupDate && closingDate >= order.orderPickups[0].pickupDate }
+            // openDiningHalls = DiningHall.findAll{ openingDate <= order.orderPickups[0].pickupDate && closingDate >= order.orderPickups[0].pickupDate }
+            openDiningHalls = DiningHall.withCriteria {
+              ge("closingDate", orderPickup.pickupDate)
+              le("openingDate", orderPickup.pickupDate)
+              menus {
+                meal {
+                  eq("name", selectedMeal.name)
+                }
+              }
+            }
           }
 
           def model = [
@@ -433,7 +462,16 @@ class OrdersController {
       }
 
       if (order.orderPickups != null && order.orderPickups.size() > 0) {
-          openDiningHalls = DiningHall.findAll{ openingDate <= order.orderPickups[0].pickupDate && closingDate >= order.orderPickups[0].pickupDate }
+        // openDiningHalls = DiningHall.findAll{ openingDate <= order.orderPickups[0].pickupDate && closingDate >= order.orderPickups[0].pickupDate }
+        openDiningHalls = DiningHall.withCriteria {
+          ge("closingDate", orderPickup.pickupDate)
+          le("openingDate", orderPickup.pickupDate)
+          menus {
+            meal {
+              eq("name", selectedMeal.name)
+            }
+          }
+        }
       }
 
       def model = [
